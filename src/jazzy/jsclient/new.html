@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+       "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Jazzy - New Game</title>
+<!-- Google webfonts //-->
+<link href='http://fonts.googleapis.com/css?family=Cabin+Sketch:bold' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+<!-- stylesheet //-->
+<link rel="stylesheet" type="text/css" href="mobile_style.css" />
+<!-- javascript logic //-->
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="jazzy_logic_classic.js"></script>
+<script type="text/javascript">
+	load_availible_games();
+</script>
+</head>
+
+
+<body>
+<h1>Jazzy</h1>
+
+<h2>Create New Game</h2>
+<!-- get gameTypes //-->
+<form onsubmit='createGame("games");return false;'>
+<select name="gametype">
+</select>
+<input type="submit" value="Create Game!">
+</form>
+
+<div id="created_links"></div>
+
+
+</body>
+
+</html>

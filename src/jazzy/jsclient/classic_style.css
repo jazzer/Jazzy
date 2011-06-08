@@ -1,0 +1,118 @@
+/*
+Copyright (c) 2011 Johannes Mitlmeier
+
+This file is part of Jazzy.
+
+Jazzy is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
+*/
+
+
+
+
+/* general */
+body {
+	font-family: 'Cabin Sketch', arial, serif;
+}
+h2 {
+	font-weight: bold;
+}
+
+
+/* board specific */
+#board {
+	min-height: 100px;
+	-moz-box-shadow: 0 0 5px 5px #888;
+	-webkit-box-shadow: 0 0 5px 5px#888;
+	box-shadow: 0 0 5px 5px #888;
+}
+
+#board .dark {
+	background-color: #339;
+	width: 48px;
+	height: 48px;
+	float: left;
+	/* background:  -moz-linear-gradient(top, #f00, #fff);
+	background:  -webkit-gradient(linear, left top, left bottom, from(#f00), to(#fff); */
+}
+
+#board .light {
+	background-color: #58e;
+	width: 48px;
+	height: 48px;
+	float: left;
+}
+
+#board .clear_row {
+	clear: left;
+}
+
+.highlight_move_from {
+	background-color: #cc9 !important;
+}
+
+.highlight_move_to {
+	background-color: #ff9 !important;
+}
+
+
+/* common styles for message and chat box */
+
+
+/* message box */
+#messages {
+	height: 260px;
+	overflow: auto;
+	padding: 2px 2px;
+	-moz-box-shadow: 0 0 2px 2px #888;
+	-webkit-box-shadow: 0 0 2px 2px #888;
+	box-shadow: 0 0 2px 2px #888;
+}
+
+.message {
+	color: blue;
+}
+
+.time {
+	color: black;
+	padding-right: 10px;
+}
+
+
+
+/* chat box */
+#chat {
+	-moz-box-shadow: 0 0 2px 2px #888;
+	-webkit-box-shadow: 0 0 2px 2px #888;
+	box-shadow: 0 0 2px 2px #888;
+}
+#chat_history {
+	padding: 2px 2px;
+	overflow: auto;
+	height: 100px;
+}
+#chat_input {
+	padding: 0px 2px 2px 2px;
+}
+.chat_username {
+	color: black;
+	padding-right: 10px;
+}
+.chat_self {
+	color: green;
+}
+.chat_other {
+	color: red;
+	font-weight: bold;
+}
+

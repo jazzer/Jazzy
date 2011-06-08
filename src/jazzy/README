@@ -1,0 +1,4 @@
+Import this folder to Eclipse (with PyDev) and run JazzyServer.py from jazzy.server package:
+
+Then point your browser to http://yoururl:8090/new.html to create a game and play.
+You can start experimenting with localhost as yoururl and use services like dyndns for usage over the internet. Make sure to forward port 8090 to the server.
