@@ -181,6 +181,7 @@ function _dnd_up(thisElement) {
 	dropTarget = thisElement.attr('id').replace(/^field/, "");
 	if (!isNaN(dragSource) && !isNaN(dropTarget) && dragSource != dropTarget) {
 		// post move to server and move only upon response (means move was okay)!
+		doAck();		
 		serverCall('post/' + mqId + '/move/' + dragSource + '/' + dropTarget, function(data) {parseMQ(data);}, true, true)
 	} 
 
@@ -300,8 +301,8 @@ function sendChat() {
 	$('input[name="chatmsg"]').attr('value', '');
 	addChatMessage("_", msg);
 	// send the message to the server for distribution
-	serverCall('post/' + mqId + '/chat/' + msg, function(data) {parseMQ(data);}, true, true)
-
+	doAck();
+	serverCall('post/' + mqId + '/chat/' + msg, function(data) {parseMQ(data);}, true, true);
 }
 
 function _getTime(doShort) {
@@ -334,7 +335,7 @@ function refresh() {
 	if (refreshInterval > sinceLastRefresh) {
 		//return;
 	}
-	_debug("Refreshed state.", 3);
+	_debug("Refreshed state.", 5);
 	
 	// do the call here and set changed approprietly
 	getMQ();
@@ -389,9 +390,18 @@ function sendMessage(type, options) {
 	parseMQ(data);
 }
 
+function doAck() {
+	if (lastParsedMsg != undefined) {
+		jsonUrl = server_url + "/ackmq/" + mqId + "/" + lastParsedMsg;
+		// call the server synchronously
+		serverCall('ackmq/' + mqId + '/' + lastParsedMsg, function(data) {}, false, false);	
+		lastParsedMsg = undefined;
+	}
+}
+
 function getMQ() {
 	if (activeJSONCall || mqId == undefined) {
-		_debug("getMQ aborted (" + activeJSONCall + ")", 4);
+		_debug("getMQ aborted (" + activeJSONCall + ")", 5);
 		return;
 	}
 	activeJSONCall = true;
@@ -403,7 +413,7 @@ function getMQ() {
 		lastParsedMsg = undefined;
 	}
 	// retrieve (plus possibly acknowledge last)
-	_debug("now checking url " + jsonUrl, 4);
+	_debug("now checking url " + jsonUrl, 5);
 			
 	$.getJSON(jsonUrl, function(data) {
 		parseMQ(data);
