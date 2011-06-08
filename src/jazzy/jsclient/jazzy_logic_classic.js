@@ -117,8 +117,8 @@ function joinGameWatch() {
 	serverCall("joinwatch/" + gameId, function(data) {parseMQ(data);}, false, true);	
 }
 
-function buildClassicBoard(cols, rows) {
-	if (cols == board_cols && rows == board_rows) {
+function buildClassicBoard(cols, rows, flippedParam) {
+	if (cols == board_cols && rows == board_rows && flippedParam == flipped) {
 		return;
 	}
 
@@ -127,6 +127,7 @@ function buildClassicBoard(cols, rows) {
 	var counter = 0;
 	board_cols = cols;
 	board_rows = rows;
+	flipped = flippedParam;
 	fields = board_cols * board_rows;
 	for (var row = 1; row <= rows; row++) {
 		for (var col = 1; col <= cols; col++) {
@@ -446,7 +447,7 @@ function parseMQ(data) {
 			case "gamesit":
 				// build the board
 				boardSize = data[i]['board_size'].split('x');
-				buildClassicBoard(boardSize[0], boardSize[1]);
+				buildClassicBoard(boardSize[0], boardSize[1], data[i]['flipped']);
 				loadFen(data[i]['fen']); 
 				break;
 			case "srvmsg":

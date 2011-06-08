@@ -55,19 +55,19 @@ class Board(object):
             toLeft = (dirX < 0)
             toRight = (dirX > 0)
             if toLeft and toXY[0] > fromXY[0]:
-                print("to left, but " + str(toXY[0]) + " > " + str(fromXY[0]))
+                #print("to left, but " + str(toXY[0]) + " > " + str(fromXY[0]))
                 return False
             if toRight and toXY[0] < fromXY[0]:
-                print("to right, but " + str(toXY[0]) + " < " + str(fromXY[0]))
+                #print("to right, but " + str(toXY[0]) + " < " + str(fromXY[0]))
                 return False
         if self.LIMIT_TOP_BOTTOM:
             up = (dirY < 0)
             down = (dirY > 0)
             if up and toXY[1] > fromXY[1]:
-                print("up, but " + str(toXY[1]) + " > " + str(fromXY[1]))
+                #print("up, but " + str(toXY[1]) + " > " + str(fromXY[1]))
                 return False
             if down and toXY[1] < fromXY[1]:
-                print("down, but " + str(toXY[1]) + " < " + str(fromXY[1]))
+                #print("down, but " + str(toXY[1]) + " < " + str(fromXY[1]))
                 return False
         
         return True

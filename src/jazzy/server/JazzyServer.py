@@ -190,7 +190,8 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             mq.addMsg(Message("srvmsg", {'msg': 'We are playing ' + availible_games[params[1]]['desc']}))            
         elif (params[0] == "getsit"):
             mq = mqPool.get(params[1])
-            msg = Message("gamesit", {'fen': mq.game.board.getFenPos(), 'board_size': str(mq.game.board.width) + 'x' + str(mq.game.board.height), 'flipped': False }) # TODO tell flip status (and parse in JS)
+            flipped = True if mq.player.color == 'black' else False
+            msg = Message("gamesit", {'fen': mq.game.board.getFenPos(), 'board_size': str(mq.game.board.width) + 'x' + str(mq.game.board.height), 'flipped': flipped })
             jsonoutput = json.dumps([msg.data])
         elif (params[0] == "join"):
             game = gamePool.games[params[1]]
