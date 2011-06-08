@@ -141,16 +141,16 @@ class Board(object):
             targets |= set(piece.getTargets(i))
         return targets
     
-    def findPieces(self, pType, pColor):
+    def findPieces(self, pTypes, pColors):
         result = set()
         for i in range(len(self.fields)):
             piece = self.fields[i]
             if piece is None:
                 continue
-            if piece.shortName.lower() == pType.lower():
-                if pColor is None or piece.color == pColor:
+            if piece.shortName.lower() in pTypes:
+                if pColors is None or piece.color in pColors:
                     result.add(i) # save the piece's position, not the piece itself!
-                    print(str(result))
+                    #print(str(result))
         return result
         
     def __unicode__(self):

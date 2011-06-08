@@ -30,6 +30,7 @@ from jazzy.logic.HandycapGames import *
 from Message import Message
 from Player import Player
 import json
+import os
 
 HOST_NAME = '' # public!
 PORT_NUMBER = 8090
@@ -69,7 +70,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         
             
     def serveStaticText(self, file):
-        print("serving " + file + " statically")
+        print("serving " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
         real_file = re.sub("\?.*", '', file)
         a_file = open(STATIC_SERVE_BASE + real_file, encoding='utf-8')
         a_string = a_file.read()
@@ -82,7 +83,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 
 
     def serveStaticBinary(self, file):
-        print("serving binary " + file + " statically")
+        print("serving binary " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
         self.send_response(200)
         #self.send_header("Content-type", "text/html")
         self.end_headers()
@@ -115,12 +116,14 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         print(self.path)
         print(params)
         
+        jsonoutput = {}
+        
         # serving static content?
         #if re.match('[a-zA-Z0-9_-]+\.[html|js|css|ico](\?\d*)?', params[0]):
         if re.match('[^\.]+\.[html|js|css](\?\d*)?', self.path):
             self.serveStaticText(self.path)
             return
-        if re.match('[^\.]\.[ico|png|jpe?g|gif](\?\d*)?', self.path):
+        if re.match('[^\.]+\.[ico|png|jpe?g|gif](\?\d*)?', self.path):
             self.serveStaticBinary(self.path)
             return
 

@@ -53,6 +53,12 @@ class ClassicGame():
     def getCurrentState(self):
         pass
     
+    def setPawnSpeed(self, START_BOOST, NORMAL_SPEED):
+        pawn_pos_set = self.board.findPieces('p', {'white', 'black'})
+        for pawn_pos in pawn_pos_set:
+            self.board.fields[pawn_pos].START_BOOST = START_BOOST
+            self.board.fields[pawn_pos].NORMAL_SPEED = NORMAL_SPEED
+    
     def isLegalMove(self, fromField, toField, sentPlayer):
         # TODO generate meaningful messages here!
         piece = self.board.fields[fromField]

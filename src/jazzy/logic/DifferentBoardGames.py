@@ -35,9 +35,7 @@ class LosAlamosGame(ClassicGame):
         self.board = Board(self, 6,6)
         self.board.loadFenPos('rnqknr/pppppp/6/6/PPPPPP/RNQKNR')
         # slow down the pawns
-        pawn_pos_set = self.board.findPieces('p', 'white').union(self.board.findPieces('p', 'black'))
-        for pawn_pos in pawn_pos_set:
-            self.board.fields[pawn_pos].START_BOOST = 1
+        self.setPawnSpeed(1,1)
             
 class PawnGame(ClassicGame):
     def __init__(self):
