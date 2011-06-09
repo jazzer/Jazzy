@@ -177,6 +177,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                 game.moveHistory.moves.append(postedMove)
                 moves = game.move(postedMove)
                 for move in moves:
+                    move.parse(mq.game.board)
                     data = {'from': move.fromField, 'to': move.toField}
                     if not(game.getCurrentPlayer() is None):
                         data['currP'] = game.getCurrentPlayer().mq.shortenedId

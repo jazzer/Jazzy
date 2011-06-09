@@ -485,7 +485,7 @@ function parseMQ(data) {
 				parseCurrPlayer(data[i]['currP']);		
 				break;
 			case "movehist":
-				addServerMessage(data[i]['user'] + " played <b>" + data[i]['moveStr'] + "</b>"); 
+				addServerMessage(data[i]['user'] + " played <b>" + data[i]['str'] + "</b>"); 
 				break;
 			case "chat":
 				addChatMessage(decodeURIComponent(data[i]['user']), decodeURIComponent(data[i]['msg'])); 
