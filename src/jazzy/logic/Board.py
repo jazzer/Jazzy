@@ -19,6 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 
 import re
+import copy
 from jazzy.logic.Pieces import *
 
 class Board(object):
@@ -72,6 +73,23 @@ class Board(object):
                 return False
         
         return True
+    
+    
+    def fieldToString(self, id):
+        pos = self.splitPos(id)
+        # lowercase letters
+        if pos[0] < 27:
+            return chr(97 + pos[0]) + str(self.height - pos[1])
+        # uppercase letters
+        if pos[0] < 53:
+            return chr(65 + pos[0]) + str(self.height - pos[1])
+        # no way we can have bigger boards than that using classic notation
+        return None
+        
+    def stringToField(self, string):
+        col = ord(string[0:1])
+        row = string[1:] 
+        return self.mergePos(col, row)
         
         
     def clear(self):
@@ -129,10 +147,10 @@ class Board(object):
             
         return fenString[:-1]
     
-    def move(self, fromField, toField):
-        fromPiece = self.fields[fromField]
-        self.fields[toField] = fromPiece
-        self.fields[fromField] = None
+    def move(self, move):
+        fromPiece = self.fields[move.fromField]
+        self.fields[move.toField] = fromPiece
+        self.fields[move.fromField] = None
         
     def getPlayerTargets(self, player):
         targets = set([])
@@ -145,7 +163,7 @@ class Board(object):
             if piece.color != player.color:
                 continue
             # desired pieces here, add up their possible moves
-            targets |= set(piece.getTargets(i))
+            targets |= set(piece.getPossibleMoves(i))
         return targets
 
    

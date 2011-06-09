@@ -28,6 +28,8 @@ from jazzy.logic.DifferentBoardGames import *
 from jazzy.logic.DifferentPiecesGames import *
 from jazzy.logic.HandycapGames import *
 from MessageHandler import Message
+from jazzy.logic.MoveHistory import Move
+from jazzy.logic.MoveHistory import MoveHistory
 from Player import Player
 import json
 import os
@@ -163,19 +165,23 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             game = mq.game
             fromField = int(params[3])
             toField = int(params[4])
+            postedMove = Move(fromField, toField)
             # check move for correctness
-            isLegalMove = game.isLegalMove(fromField, toField, mq.player)
+            isLegalMove = game.isLegalMove(postedMove, mq.player)
             # TEMP TODO
             game.parsePossibleMoves(game.getCurrentPlayer())
             
             # put the message to all players
             if isLegalMove:
-                moves = game.move(fromField, toField)
+                postedMove.parse(mq.game.board)
+                game.moveHistory.moves.append(postedMove)
+                moves = game.move(postedMove)
                 for move in moves:
-                    data = {'from': move['from'], 'to': move['to']}
+                    data = {'from': move.fromField, 'to': move.toField}
                     if not(game.getCurrentPlayer() is None):
                         data['currP'] = game.getCurrentPlayer().mq.shortenedId
                     self.distributeToAll(game, Message('move', data))
+                    self.distributeToAll(game, Message('movehist', {'user': mq.player.name, 'str': move.str}))
             
             # TODO check if the game is over
                 

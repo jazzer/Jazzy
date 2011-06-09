@@ -21,12 +21,14 @@ import uuid
 import copy
 from jazzy.logic.Board import Board
 from jazzy.server.MessageHandler import Message
+from jazzy.logic.MoveHistory import MoveHistory
 
 class ClassicGame():
     
     def __init__(self):
         self.id = uuid.uuid4().hex
         self.players = []
+        self.moveHistory = MoveHistory()
         self.board = Board(self, width=8, height=8)
         self.currentPlayerId = 0
         self.possibleMoves = None
@@ -37,14 +39,14 @@ class ClassicGame():
         self.COLORS = ['white', 'black']
         
        
-    def move(self, fromField, toField):
-        self.board.move(fromField, toField)
+    def move(self, move):
+        self.board.move(move)
         # next players turn
         self.currentPlayerId = (self.currentPlayerId + 1) % self.NUM_PLAYERS
         # calc possible moves for the next round
         self.possibleMoves = None
         self.parsePossibleMoves(self.getCurrentPlayer())
-        return [{'from': fromField, 'to': toField}]
+        return [move]
         
         
     def addPlayer(self, player):
@@ -89,9 +91,9 @@ class ClassicGame():
         # get all their candidate moves
         self.possibleMoves = set()
         for pos in pieces:
-            results = self.board.fields[pos].getTargets(pos)
+            results = self.board.fields[pos].getPossibleMoves(pos)
             print(str(results))
-            self.possibleMoves |= self.board.fields[pos].getTargets(pos)
+            self.possibleMoves |= self.board.fields[pos].getPossibleMoves(pos)
         # filter
         self.possibleMoves = self.filterMoves(self.possibleMoves, player)
         print("I think you can move like this: " + str(self.possibleMoves))
@@ -103,7 +105,7 @@ class ClassicGame():
             print('filtering ' + str(move))
             # create a board copy for analysis purposes
             whatIfBoard = copy.deepcopy(self.board)
-            whatIfBoard.move(move[0], move[1])
+            whatIfBoard.move(move)
             #print("what if? \n" + whatIfBoard.__unicode__())
             # did the player stay in check?
             otherPlayer = self.getNextPlayer(player)
@@ -116,10 +118,10 @@ class ClassicGame():
                 
         return moveSet
         
-    def isLegalMove(self, fromField, toField, sentPlayer):
+    def isLegalMove(self, move, sentPlayer):
         return True
         self.parsePossibleMoves(sentPlayer)
-        if (fromField, toField) in self.possibleMoves:
+        if (move) in self.possibleMoves:
             return True
         return False
     

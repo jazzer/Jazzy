@@ -18,6 +18,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 
+from jazzy.logic.MoveHistory import Move
+
+
 class Piece(object):
     def __init__(self, color, board):
         self.moveType = []
@@ -25,7 +28,7 @@ class Piece(object):
         self.board = board
         self.shortName = ' '
 
-    def getTargets(self, currPos):
+    def getPossibleMoves(self, currPos):
         resultSet = set()
         for mType in self.moveType:
             movedPos = currPos
@@ -61,7 +64,7 @@ class Piece(object):
                     stop = True
 
                 # found a place to move to    
-                resultSet.add((currPos, movedPos))
+                resultSet.add(Move(currPos, movedPos))
                 
                 if stop:
                     break;
@@ -83,14 +86,14 @@ class King(Piece):
         Piece.__init__(self, color, board)
         self.shortName = 'k'
         self.moveType = [
-                         {'dirX': 1, 'dirY': 1, 'max': 1}, 
-                         {'dirX': 0, 'dirY': 1, 'max': 1}, 
-                         {'dirX': -1, 'dirY': 1, 'max': 1}, 
-                         {'dirX': 1, 'dirY': 0, 'max': 1}, 
-                         {'dirX': -1, 'dirY': 0, 'max': 1}, 
-                         {'dirX': 1, 'dirY': -1, 'max': 1}, 
-                         {'dirX': 0, 'dirY': -1, 'max': 1}, 
-                         {'dirX': -1, 'dirY': -1, 'max': 1}, 
+                         {'dirX': 1, 'dirY': 1, 'max': 1},
+                         {'dirX': 0, 'dirY': 1, 'max': 1},
+                         {'dirX':-1, 'dirY': 1, 'max': 1},
+                         {'dirX': 1, 'dirY': 0, 'max': 1},
+                         {'dirX':-1, 'dirY': 0, 'max': 1},
+                         {'dirX': 1, 'dirY':-1, 'max': 1},
+                         {'dirX': 0, 'dirY':-1, 'max': 1},
+                         {'dirX':-1, 'dirY':-1, 'max': 1},
                         ]
         
         
@@ -142,13 +145,13 @@ class Knight(Piece):
         self.shortName = 'n'
         self.moveType = [
                          {'dirX': 1, 'dirY': 2, 'max': 1},
-                         {'dirX': -1, 'dirY': 2, 'max': 1},
-                         {'dirX': 1, 'dirY': -2, 'max': 1},
-                         {'dirX': -1, 'dirY': -2, 'max': 1},
+                         {'dirX':-1, 'dirY': 2, 'max': 1},
+                         {'dirX': 1, 'dirY':-2, 'max': 1},
+                         {'dirX':-1, 'dirY':-2, 'max': 1},
                          {'dirX': 2, 'dirY': 1, 'max': 1},
-                         {'dirX': 2, 'dirY': -1, 'max': 1},
-                         {'dirX': -2, 'dirY': 1, 'max': 1}, 
-                         {'dirX': -2, 'dirY': -1, 'max': 1} 
+                         {'dirX': 2, 'dirY':-1, 'max': 1},
+                         {'dirX':-2, 'dirY': 1, 'max': 1},
+                         {'dirX':-2, 'dirY':-1, 'max': 1} 
                         ]
         
         
@@ -160,23 +163,23 @@ class Pawn(Piece):
         self.START_BOOST = 2
         self.NORMAL_SPEED = 1
         
-    def getTargets(self, currPos):
+    def getPossibleMoves(self, currPos):
         row = currPos // self.board.width
-        dirY = 1 if self.color == 'black' else -1
+        dirY = 1 if self.color == 'black' else - 1
         if (row == 1 and self.color == 'black') or (row == (self.board.height - 2) and self.color == 'white'):
             self.moveType = [
                              {'dirX': 0, 'dirY': dirY, 'max': self.START_BOOST, 'move_only': True},
                              {'dirX': 1, 'dirY': dirY, 'max': 1, 'hit_only': True},
-                             {'dirX': -1, 'dirY': dirY, 'max': 1, 'hit_only': True}
+                             {'dirX':-1, 'dirY': dirY, 'max': 1, 'hit_only': True}
                              ]
         else:
             self.moveType = [
                              {'dirX': 0, 'dirY': dirY, 'max': self.NORMAL_SPEED, 'move_only': True},
                              {'dirX': 1, 'dirY': dirY, 'max': 1, 'hit_only': True},
-                             {'dirX': -1, 'dirY': dirY, 'max': 1, 'hit_only': True}
+                             {'dirX':-1, 'dirY': dirY, 'max': 1, 'hit_only': True}
                              ]
 
-        return super(Pawn, self).getTargets(currPos)
+        return super(Pawn, self).getPossibleMoves(currPos)
     
     
 class Coin(Piece):
