@@ -22,12 +22,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 import time
 import http.server
 import re
-from MessageQueuePool import MessageQueuePool
+from MessageHandler import MessageQueuePool
 from GamePool import GamePool
 from jazzy.logic.DifferentBoardGames import *
 from jazzy.logic.DifferentPiecesGames import *
 from jazzy.logic.HandycapGames import *
-from Message import Message
+from MessageHandler import Message
 from Player import Player
 import json
 import os
@@ -88,15 +88,18 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         #self.send_header("Content-type", "text/html")
         self.end_headers()
 
-        real_file = file #re.sub("^/", '', file)
-        fo = open(STATIC_SERVE_BASE + real_file, "rb")
-        while True:
-            buffer = fo.read(4096)
-            if buffer:
-                self.wfile.write(buffer)
-            else:
-                break
-        fo.close()
+        try:
+            real_file = file #re.sub("^/", '', file)
+            fo = open(STATIC_SERVE_BASE + real_file, "rb")
+            while True:
+                buffer = fo.read(4096)
+                if buffer:
+                    self.wfile.write(buffer)
+                else:
+                    break
+            fo.close()
+        except IOError:
+            print('Could not serve that file. Not found!')
 
     def createPlayer(self, game):
         player = Player()
@@ -115,6 +118,8 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         params = self.path.split("/")[1:]
         print(self.path)
         print(params)
+        if len(params) > 1:
+            mq = mqPool.get(params[1])
         
         jsonoutput = {}
         
@@ -133,14 +138,12 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
         
-        # retrieve the MessageQueue (/getmq/191ac8ac8b3e3...) 
+        # retrieve the MessageQueue (/getmq/191 
         if (params[0] == 'getmq'):
             jsonoutput = self.sendMQ(params)
-            #jsonoutput = json.dumps([{'mid': 'm100103216', 'mtype': 'move', 'from': '12', 'to': '28'}, {'mid': 'm29243228', 'mtype': 'move', 'from': '62', 'to': '45'}, {'mid': 'm30103216', 'mtype': 'chat', 'user': 'Bernd', 'msg': 'Hallo. Kann\'s losgehen?'}, {'mid': 'm4540103216', 'mtype': 'srvmsg', 'msg': 'Server funktioniert ;-)'}])
 
         # acknowledge reception of messages from the queue
         elif (params[0] == 'ackmq'):
-            mq = mqPool.get(params[1])
             # search for the message
             found = False
             for i in range(0, len(mq.msgs)):
@@ -157,24 +160,29 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             jsonoutput = self.sendMQ(params)
             
         elif (params[0] == "post" and params[2] == "move"):            
-            mq = mqPool.get(params[1])
             game = mq.game
             fromField = int(params[3])
             toField = int(params[4])
-            # check move for correctness the move
+            # check move for correctness
             isLegalMove = game.isLegalMove(fromField, toField, mq.player)
+            # TEMP TODO
+            game.parsePossibleMoves(game.getCurrentPlayer())
             
             # put the message to all players
             if isLegalMove:
                 moves = game.move(fromField, toField)
                 for move in moves:
-                    self.distributeToAll(game, Message('move', {'from': move['from'], 'to': move['to']}))
+                    data = {'from': move['from'], 'to': move['to']}
+                    if not(game.getCurrentPlayer() is None):
+                        data['currP'] = game.getCurrentPlayer().mq.shortenedId
+                    self.distributeToAll(game, Message('move', data))
+            
+            # TODO check if the game is over
                 
             jsonoutput = self.sendMQ(params)
             
         # transfer chat message     
         elif (params[0] == "post" and params[2] == "chat"):            
-            mq = mqPool.get(params[1])
             self.distributeToAll(mq.game, Message('chat', {'user': mq.player.name, 'msg': params[3]}), filter_player=mq.player)
                 
 
@@ -188,14 +196,13 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             # nicely say hello (next time)
             mq.addMsg(Message("srvmsg", {'msg': 'Welcome to the server!'}))
             mq.addMsg(Message("srvmsg", {'msg': 'We are playing ' + availible_games[params[1]]['desc']}))            
+
         elif (params[0] == "getsit"):
-            mq = mqPool.get(params[1])
-            flipped = True if mq.player.color == 'black' else False
-            msg = Message("gamesit", {'fen': mq.game.board.getFenPos(), 'board_size': str(mq.game.board.width) + 'x' + str(mq.game.board.height), 'flipped': flipped })
-            jsonoutput = json.dumps([msg.data])
+            jsonoutput = json.dumps([mq.game.getSituationMessage(mq).data])
+        
         elif (params[0] == "join"):
             game = gamePool.games[params[1]]
-            mq = self.createPlayer(game)           
+            mq = self.createPlayer(game)
             jsonoutput = json.dumps({'mqId': mq.id})
             self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Player joined.'}), mq.player)
          

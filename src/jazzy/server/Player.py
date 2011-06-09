@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 
 
-from MessageQueue import MessageQueue
+from MessageHandler import MessageQueue
 
 class Player():
 

@@ -29,5 +29,55 @@ class Message(object):
         self.data['mid'] = uuid.uuid4().hex
         print("built msg: " + str(self.data))
         
+    def __str__(self):
+        return self.__unicode__()
+    
+    def __repr__(self):
+        return self.__unicode__()
+    
     def __unicode__(self):
         return self.data
+
+
+
+
+class MessageQueue(object):
+
+    def __init__(self):
+        self.id = uuid.uuid4().hex
+        self.shortenedId = self.id[0:10]
+        self.msgs = []
+        # self.player
+        # self.game
+        
+    def addMsg(self, message):
+        self.msgs.append(message.data)
+        
+    def __unicode__(self):
+        return self.msgs
+    
+    def __str__(self):
+        return self.__unicode__()
+        
+        
+
+
+class MessageQueuePool(object):
+    
+    def __init__(self):
+        self.mqs = {};
+
+    def add(self, mqObject):
+        self.mqs[mqObject.id] = mqObject;
+        
+    def get(self, mqId):
+        if not (mqId in self.mqs):
+            return None 
+        return self.mqs[mqId]
+    
+    def __unicode__(self):
+        return "MessageQueuePool"
+        
+    def __str__(self):
+        return self.__unicode__()
+

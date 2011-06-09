@@ -50,6 +50,8 @@ var mqId = undefined;
 var lastParsedMsg = undefined;
 var activeJSONCall = false;
 var dnd_clicked = false;
+var currPlayer = undefined;
+var myTurn = true;
 
 
 
@@ -169,7 +171,7 @@ function buildClassicBoard(cols, rows, flippedParam) {
 }
 
 function _dnd_down(thisElement) {
-	if (thisElement.children().length > 0 && !dnd_clicked) {	
+	if (myTurn && thisElement.children().length > 0 && !dnd_clicked) {	
 		dragSource = thisElement.attr('id').replace(/^field/, "");
 		thisElement.addClass('highlight_input_move_from');
 	}	
@@ -255,7 +257,28 @@ function _shortenFen(fenString) {
 
 function move(from, to) {
 	// sanitize input?
-	$("#field" + from).children().detach().appendTo($("#field" + to).children().remove().end());
+	// without animation: $("#field" + from).children().detach().appendTo($("#field" + to).children().remove().end());
+
+	// animate the move
+	fromField = $("#field" + from);
+	toField = $("#field" + to);	
+	
+	toField.children().fadeOut(350);
+
+	fromField.children().css({position: "absolute",
+				zindex: 1,
+				left: fromField.offset().left,
+				top: fromField.offset().top})
+		.animate({ 
+				left: toField.offset().left,
+				top: toField.offset().top
+	    	}, 400, "swing", function(xDiff, yDiff) {
+		$(this).css({
+			"margin-left": "0px",
+    			"margin-top": "0px",
+			"zindex": 0
+		}).detach().appendTo(toField.children().remove().end())
+	});
 }
 
 
@@ -435,6 +458,18 @@ function recalcInterval(success) {
 	}
 }
 
+function parseCurrPlayer(currPlayerValue) {
+	currPlayer = currPlayerValue;
+	if (currPlayer == mqId.toString().substring(0, 10)) {
+		document.title = "[DING] " + document.title;
+		myTurn = true;
+	} else {
+		document.title = document.title.replace(/\[DING\] /, "");
+		myTurn = false;
+	}
+}
+
+
 function parseMQ(data) {
 	// did we receive messages? if so, keep checking frequently
 	recalcInterval(data.length > 0);
@@ -447,9 +482,10 @@ function parseMQ(data) {
 			case "move":
 				move(data[i]['from'], data[i]['to']); 
 				highlight_move(data[i]['from'], data[i]['to']);
+				parseCurrPlayer(data[i]['currP']);		
 				break;
 			case "movehist":
-				addServerMessage(data[i]['user'] + " played <b>" + data[i]['move'] + "</b>"); 
+				addServerMessage(data[i]['user'] + " played <b>" + data[i]['moveStr'] + "</b>"); 
 				break;
 			case "chat":
 				addChatMessage(decodeURIComponent(data[i]['user']), decodeURIComponent(data[i]['msg'])); 
@@ -458,7 +494,10 @@ function parseMQ(data) {
 				// build the board
 				boardSize = data[i]['board_size'].split('x');
 				buildClassicBoard(boardSize[0], boardSize[1], data[i]['flipped']);
-				loadFen(data[i]['fen']); 
+				// load the position
+				loadFen(data[i]['fen']);
+				// check if it's my turn
+				parseCurrPlayer(data[i]['currP']);
 				break;
 			case "srvmsg":
 				addServerMessage(data[i]['msg']);

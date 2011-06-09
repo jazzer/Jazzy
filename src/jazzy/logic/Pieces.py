@@ -26,7 +26,7 @@ class Piece(object):
         self.shortName = ' '
 
     def getTargets(self, currPos):
-        resultList = []
+        resultSet = set()
         for mType in self.moveType:
             movedPos = currPos
             stop = False
@@ -61,12 +61,12 @@ class Piece(object):
                     stop = True
 
                 # found a place to move to    
-                resultList.append(movedPos)
+                resultSet.add((currPos, movedPos))
                 
                 if stop:
                     break;
 
-        return resultList
+        return resultSet
     
     def getShortName(self):
         if self.color == 'white':
@@ -175,7 +175,6 @@ class Pawn(Piece):
                              {'dirX': 1, 'dirY': dirY, 'max': 1, 'hit_only': True},
                              {'dirX': -1, 'dirY': dirY, 'max': 1, 'hit_only': True}
                              ]
-
 
         return super(Pawn, self).getTargets(currPos)
     

@@ -27,8 +27,9 @@ class Board(object):
         self.game = game
         self.width = width
         self.height = height
-        self.clear() # self.pieces is created here
+        self.clear() # self.fields is created here
         self.pieceMap = {'k': King, 'q': Queen, 'r': Rook, 'b': Bishop, 'n': Knight, 'p': Pawn, 'c': Coin}
+        self.usedPieces = self.pieceMap.keys()
         
         # settings
         self.LIMIT_TOP_BOTTOM = True
@@ -81,13 +82,15 @@ class Board(object):
     def loadFenPos(self, fenString):
         # clear fields
         self.clear()
+        self.usedPieces = set()
+        
         # create new pieces        
         chars = list(fenString)
         posCounter = 0
         addValue = 0
         for i in range(len(chars)):
             char = chars[i]
-            if char == "/":
+            if char == '/':
                 posCounter = posCounter + addValue
                 addValue = 0
                 continue;
@@ -99,11 +102,15 @@ class Board(object):
                     addValue = 0
                 # piece of some kind
                 pieceClass = self.pieceMap[char.lower()]
+                self.usedPieces.add(char.lower());
                 color = 'white' if char.isupper() else 'black'
                 piece = pieceClass(color, self)
                 #print("setting " + piece.__unicode__() + " to " + str(posCounter))
                 self.fields[posCounter] = piece
-                posCounter += 1       
+                posCounter += 1     
+                
+        self.game.parsePossibleMoves(self.game.getCurrentPlayer())
+        
     
     def getFenPos(self):
         fenString = ''
@@ -140,18 +147,23 @@ class Board(object):
             # desired pieces here, add up their possible moves
             targets |= set(piece.getTargets(i))
         return targets
-    
+
+   
     def findPieces(self, pTypes, pColors):
         result = set()
         for i in range(len(self.fields)):
             piece = self.fields[i]
             if piece is None:
                 continue
-            if piece.shortName.lower() in pTypes:
+            if pTypes is None or piece.shortName.lower() in pTypes:
                 if pColors is None or piece.color in pColors:
                     result.add(i) # save the piece's position, not the piece itself!
                     #print(str(result))
         return result
+
+    def findPlayersPieces(self, player):
+        return self.findPieces(None, player.color)
+
         
     def __unicode__(self):
         result = ""
