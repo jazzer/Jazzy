@@ -183,7 +183,6 @@ function _dnd_up(thisElement) {
 	dropTarget = thisElement.attr('id').replace(/^field/, "");
 	if (!isNaN(dragSource) && !isNaN(dropTarget) && dragSource != dropTarget) {
 		// post move to server and move only upon response (means move was okay)!
-		doAck();		
 		serverCall('post/' + mqId + '/move/' + dragSource + '/' + dropTarget, function(data) {parseMQ(data);}, true, true)
 	} 
 
@@ -321,7 +320,6 @@ function sendChat() {
 	$('input[name="chatmsg"]').attr('value', '');
 	addChatMessage("_", msg);
 	// send the message to the server for distribution
-	doAck();
 	serverCall('post/' + mqId + '/chat/' + msg, function(data) {parseMQ(data);}, true, true);
 }
 
@@ -391,7 +389,7 @@ function createNewGameIds(type) {
 
 
 function serverCall(relUrl, successFunc, asnycValue, preventCaching) {
-	var callUrl = relUrl;
+	var callUrl = relUrl + ackString();
 	if (preventCaching) {
 		callUrl = callUrl + "/" + new Date().getTime();
 	}
@@ -410,13 +408,12 @@ function sendMessage(type, options) {
 	parseMQ(data);
 }
 
-function doAck() {
-	if (lastParsedMsg != undefined) {
-		jsonUrl = server_url + "/ackmq/" + mqId + "/" + lastParsedMsg;
-		// call the server synchronously
-		serverCall('ackmq/' + mqId + '/' + lastParsedMsg, function(data) {}, false, false);	
-		lastParsedMsg = undefined;
+function ackString() {
+	if (lastParsedMsg == undefined) {
+		return '';
 	}
+	return "/ack/" + lastParsedMsg;
+
 }
 
 function getMQ() {
@@ -427,11 +424,7 @@ function getMQ() {
 	activeJSONCall = true;
 
 	// don't forget to acknowledge!
-	var jsonUrl = server_url + "/getmq/" + mqId + "/" + new Date().getTime();
-	if (lastParsedMsg != undefined) {
-		jsonUrl = server_url + "/ackmq/" + mqId + "/" + lastParsedMsg;
-		lastParsedMsg = undefined;
-	}
+	var jsonUrl = server_url + "/getmq/" + mqId + ackString() + "/" + new Date().getTime();
 	// retrieve (plus possibly acknowledge last)
 	_debug("now checking url " + jsonUrl, 5);
 			
@@ -478,6 +471,13 @@ function parseMQ(data) {
 
 	if (data.length > 0) {
 		_debug("Received message queue: " + JSON.stringify(data, null, '\t'), 2);
+	}
+	
+	// check if someone already parsed this
+	for (var i=0;i<data.length;i++) {
+		if (lastParsedMsg == data[i]['mid']) {
+			return;
+		}
 	}
 	
 	for (var i=0;i<data.length;i++) {

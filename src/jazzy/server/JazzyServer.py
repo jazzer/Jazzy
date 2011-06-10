@@ -120,45 +120,49 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         params = self.path.split("/")[1:]
         print(self.path)
         print(params)
-        if len(params) > 1:
-            mq = mqPool.get(params[1])
         
-        jsonoutput = {}
-        
+        # -----------------------
         # serving static content?
-        #if re.match('[a-zA-Z0-9_-]+\.[html|js|css|ico](\?\d*)?', params[0]):
+        #------------------------
         if re.match('[^\.]+\.[html|js|css](\?\d*)?', self.path):
             self.serveStaticText(self.path)
             return
         if re.match('[^\.]+\.[ico|png|jpe?g|gif](\?\d*)?', self.path):
             self.serveStaticBinary(self.path)
             return
-
-        # dynamic content!
+        
+        # -----------------------
+        # dynamic content
+        # -----------------------
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
+        
+        jsonoutput = {}
+        if len(params) > 1:
+            mq = mqPool.get(params[1])
+
+        # check if there is an acknowledgement included starting at an arbitrary index
+        for i in range(0, len(params)):
+            if (params[i] == 'ack'):
+                print('ACKNOWLEDGEMENT PARSING!')
+                # search for the message
+                found = False
+                for j in range(0, len(mq.msgs)):
+                    #print("comparing " + mq.msgs[i]['mid'] + " to " + params[2])
+                    if mq.msgs[j]['mid'] == params[i + 1]:
+                        #print("found acked msg. at pos " + str(i))
+                        found = True;
+                        break;
+                # delete parsed ones
+                if found:
+                    print('Length before: ' + str(len(mq.msgs)))
+                    mq.msgs = list(mq.msgs[j + 1:])
+                    print('Length after: ' + str(len(mq.msgs)))
 
         
         # retrieve the MessageQueue (/getmq/191 
         if (params[0] == 'getmq'):
-            jsonoutput = self.sendMQ(params)
-
-        # acknowledge reception of messages from the queue
-        elif (params[0] == 'ackmq'):
-            # search for the message
-            found = False
-            for i in range(0, len(mq.msgs)):
-                #print("comparing " + mq.msgs[i]['mid'] + " to " + params[2])
-                if mq.msgs[i]['mid'] == params[2]:
-                    #print("found acked msg. at pos " + str(i))
-                    found = True;
-                    break;
-            # delete parsed ones
-            if found:
-                mq.msgs = list(mq.msgs[i + 1:])
-                
-            # send the current MQ (now without acked stuff) to use bandwidth efficiently
             jsonoutput = self.sendMQ(params)
             
         elif (params[0] == "post" and params[2] == "move"):            

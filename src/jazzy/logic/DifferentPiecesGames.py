@@ -31,7 +31,7 @@ class CoinGame(ClassicGame):
             self.board.fields[pos].color = None
 
     def move(self, move):
-        coin_pos = self.board.findPieces("c", None).pop() # there only is one ;-)
+        coin_pos = self.board.findPieces('c', None).pop() # there only is one ;-)
         coin_target = coin_pos + (move.toField - move.fromField)
         self.board.move(Move(coin_pos, coin_target))
         # normal stuff
