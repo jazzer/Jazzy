@@ -156,8 +156,8 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                     break;
             # delete parsed ones
             if found:
-                mq.msgs = mq.msgs[i + 1:]
-            
+                mq.msgs = list(mq.msgs[i + 1:])
+                
             # send the current MQ (now without acked stuff) to use bandwidth efficiently
             jsonoutput = self.sendMQ(params)
             
@@ -182,7 +182,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                     if not(game.getCurrentPlayer() is None):
                         data['currP'] = game.getCurrentPlayer().mq.shortenedId
                     self.distributeToAll(game, Message('move', data))
-                    self.distributeToAll(game, Message('movehist', {'user': mq.player.name, 'str': move.str}))
+                self.distributeToAll(game, Message('movehist', {'user': mq.player.name, 'str': postedMove.str}))
             
             # TODO check if the game is over
                 

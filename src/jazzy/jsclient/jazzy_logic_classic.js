@@ -41,7 +41,7 @@ var interval_factor = 1.4;
 	DO NOT CHANGE ANYTHING BELOW HERE 
 	UNLESS YOU KNOW WHAT YOU DO! */
 var dragSource = undefined;
-var debugLevel = 4;
+var debugLevel = 3;
 var refreshInterval = 2;
 var sinceLastRefresh = 0;
 var fields = board_cols*board_rows;
@@ -51,7 +51,7 @@ var lastParsedMsg = undefined;
 var activeJSONCall = false;
 var dnd_clicked = false;
 var currPlayer = undefined;
-var myTurn = true;
+var myTurn = false;
 
 
 
@@ -263,8 +263,8 @@ function move(from, to) {
 	fromField = $("#field" + from);
 	toField = $("#field" + to);	
 	
-	toField.children().fadeOut(350);
-
+	toField.children().fadeOut(250).remove();
+		
 	fromField.children().css({position: "absolute",
 				zindex: 1,
 				left: fromField.offset().left,
@@ -272,13 +272,10 @@ function move(from, to) {
 		.animate({ 
 				left: toField.offset().left,
 				top: toField.offset().top
-	    	}, 400, "swing", function(xDiff, yDiff) {
-		$(this).css({
-			"margin-left": "0px",
-    			"margin-top": "0px",
-			"zindex": 0
-		}).detach().appendTo(toField.children().remove().end())
-	});
+	    	}, 400, "swing", function() {
+		});
+	fromField.children().detach().appendTo(toField);
+
 }
 
 
@@ -459,11 +456,16 @@ function recalcInterval(success) {
 }
 
 function parseCurrPlayer(currPlayerValue) {
+	if (currPlayerValue == undefined) {
+		return;
+	}
+
 	currPlayer = currPlayerValue;
-	if (currPlayer == mqId.toString().substring(0, 10)) {
+	if (!myTurn && currPlayer == mqId.toString().substring(0, 10)) {
 		document.title = "[DING] " + document.title;
 		myTurn = true;
-	} else {
+	} 
+	else if (myTurn && currPlayer != mqId.toString().substring(0, 10)) {
 		document.title = document.title.replace(/\[DING\] /, "");
 		myTurn = false;
 	}
@@ -474,8 +476,10 @@ function parseMQ(data) {
 	// did we receive messages? if so, keep checking frequently
 	recalcInterval(data.length > 0);
 
-	_debug("Received message queue: " + JSON.stringify(data, null, '\t'), 4);
-	// TODO parse all the messages (different types!)
+	if (data.length > 0) {
+		_debug("Received message queue: " + JSON.stringify(data, null, '\t'), 2);
+	}
+	
 	for (var i=0;i<data.length;i++) {
 		mtype = data[i]['mtype'];
 		switch (mtype) {

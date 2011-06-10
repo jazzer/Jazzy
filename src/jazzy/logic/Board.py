@@ -174,7 +174,7 @@ class Board(object):
             if piece is None:
                 continue
             if pTypes is None or piece.shortName.lower() in pTypes:
-                if pColors is None or piece.color in pColors:
+                if pColors is None or (not(piece.color is None) and piece.color in pColors):
                     result.add(i) # save the piece's position, not the piece itself!
                     #print(str(result))
         return result

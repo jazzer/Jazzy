@@ -18,6 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 from jazzy.logic.ClassicGame import ClassicGame
+from jazzy.logic.MoveHistory import Move
 
 class CoinGame(ClassicGame):
     def __init__(self):
@@ -29,18 +30,18 @@ class CoinGame(ClassicGame):
         for pos in coin_pos:
             self.board.fields[pos].color = None
 
-    def move(self, fromField, toField):
+    def move(self, move):
         coin_pos = self.board.findPieces("c", None).pop() # there only is one ;-)
-        coin_target = coin_pos + (toField - fromField)
-        self.board.move(coin_pos, coin_target)
+        coin_target = coin_pos + (move.toField - move.fromField)
+        self.board.move(Move(coin_pos, coin_target))
         # normal stuff
-        return [{'from': coin_pos, 'to': coin_target}] + super(CoinGame, self).move(fromField, toField)
+        return [Move(coin_pos, coin_target)] + super(CoinGame, self).move(move)
         
         
-    def isLegalMove(self, fromField, toField, sentPlayer):
+    def isLegalMove(self, move, sentPlayer):
         # check if the coin can move the same way
         coin_pos = self.board.findPieces("c", None).pop() # there only is one ;-)
-        diff = self.board.getDiffPos(self.board.splitPos(fromField), self.board.splitPos(toField))
+        diff = self.board.getDiffPos(self.board.splitPos(move.fromField), self.board.splitPos(move.toField))
         coin_target_XY = self.board.addPos(self.board.splitPos(coin_pos), diff)
         # coin target field must be empty now (before having moved the piece!)
         coin_target = self.board.mergePos(coin_target_XY[0], coin_target_XY[1])
@@ -55,7 +56,7 @@ class CoinGame(ClassicGame):
         self.board.fields[coin_pos] = None
         
         # do the normal things
-        result = super(CoinGame, self).isLegalMove(fromField, toField, sentPlayer)
+        result = super(CoinGame, self).isLegalMove(move, sentPlayer)
     
         # restore coin
         self.board.fields[coin_pos] = coin
