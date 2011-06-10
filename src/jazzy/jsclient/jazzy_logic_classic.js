@@ -262,10 +262,12 @@ function move(from, to) {
 	fromField = $("#field" + from);
 	toField = $("#field" + to);	
 	
-	toField.children().fadeOut(250).remove();
+	toField.children().css({'z-index': '2', 'position': 'absolute'}).fadeOut(400, function() {
+		$(this).remove();
+	});
 		
-	fromField.children().css({position: "absolute",
-				zindex: 1,
+	fromField.children().css({position: 'absolute',
+				'z-index': 1,
 				left: fromField.offset().left,
 				top: fromField.offset().top})
 		.animate({ 
@@ -273,7 +275,7 @@ function move(from, to) {
 				top: toField.offset().top
 	    	}, 400, "swing", function() {
 		});
-	fromField.children().detach().appendTo(toField);
+	fromField.children().detach().prependTo(toField);
 
 }
 

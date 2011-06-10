@@ -145,7 +145,6 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         # check if there is an acknowledgement included starting at an arbitrary index
         for i in range(0, len(params)):
             if (params[i] == 'ack'):
-                print('ACKNOWLEDGEMENT PARSING!')
                 # search for the message
                 found = False
                 for j in range(0, len(mq.msgs)):
@@ -156,10 +155,8 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                         break;
                 # delete parsed ones
                 if found:
-                    print('Length before: ' + str(len(mq.msgs)))
                     mq.msgs = list(mq.msgs[j + 1:])
-                    print('Length after: ' + str(len(mq.msgs)))
-
+                
         
         # retrieve the MessageQueue (/getmq/191 
         if (params[0] == 'getmq'):

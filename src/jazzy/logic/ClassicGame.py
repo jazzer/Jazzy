@@ -100,6 +100,7 @@ class ClassicGame():
         
     def filterMoves(self, moveSet, player):
         # TODO filter moves to check and such
+        return moveSet
         
         for move in set(moveSet): # work on a copy to be able to remove inside
             print('filtering ' + str(move))
