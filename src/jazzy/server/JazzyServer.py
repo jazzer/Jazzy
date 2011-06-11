@@ -186,20 +186,18 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             toField = int(params[4])
             postedMove = Move(fromField, toField)
             # check move for correctness
-            isLegalMove = game.isLegalMove(postedMove, mq.subject)
-            # TEMP TODO
-            game.parsePossibleMoves(game.getCurrentPlayer())
+            isLegalMove = game.isLegalMove(postedMove)
             
             # put the message to all players
             if isLegalMove:
                 postedMove.parse(mq.game.board)
                 game.moveHistory.moves.append(postedMove)
-                moves = game.move(postedMove)
+                moves = game.move(postedMove, game.board)
                 for move in moves:
                     move.parse(mq.game.board)
                     data = {'from': move.fromField, 'to': move.toField}
-                    if not(game.getCurrentPlayer() is None):
-                        data['currP'] = game.getCurrentPlayer().mq.shortenedId
+                    if not(game.board.getCurrentPlayer() is None):
+                        data['currP'] = game.board.getCurrentPlayer().mq.shortenedId
                     self.distributeToAll(game, Message('move', data))
                 self.distributeToAll(game, Message('movehist', {'user': mq.subject.name, 'str': postedMove.str}))
             

@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 
 from jazzy.logic.MoveHistory import Move
-
+import copy
 
 class Piece(object):
     def __init__(self, color, board):
@@ -79,6 +79,12 @@ class Piece(object):
     def __unicode__(self):
         return "[piece] type: " + self.getShortName()
 
+    def __deepcopy__(self, memo):
+        board = self.board
+        self.board = None
+        result = copy.copy(self)#, memo)
+        self.board = board
+        return result
 
 
 class King(Piece):

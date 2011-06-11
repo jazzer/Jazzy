@@ -44,10 +44,15 @@ class Move():
             return
         self.takenPiece = copy.deepcopy(board.fields[self.toField])
         # generate text representation
-        pieceName = '' if self.fromPiece.shortName == 'p' else self.fromPiece.shortName.upper()
-        moveOrCapture = '-' if self.takenPiece is None else 'x'
-        annotation = '' if self.annotation is None else ' (' + self.annotation + ')' 
-        self.str = pieceName + board.fieldToString(self.fromField) + moveOrCapture + board.fieldToString(self.toField) + annotation
+        if self.annotation == 'CASTLING_KINGSIDE':
+            self.str = '0-0'
+        elif self.annotation == 'CASTLING_QUEENSIDE':
+            self.str = '0-0-0'
+        else:
+            pieceName = '' if self.fromPiece.shortName == 'p' else self.fromPiece.shortName.upper()
+            moveOrCapture = '-' if self.takenPiece is None else 'x'
+            annotation = '' if self.annotation is None else ' (' + self.annotation + ')' 
+            self.str = pieceName + board.fieldToString(self.fromField) + moveOrCapture + board.fieldToString(self.toField) + annotation
         
     def __eq__(self, move2):
         return move2.fromField == self.fromField and move2.toField == self.toField
@@ -56,6 +61,9 @@ class Move():
         return hash(str(self.fromField) + ":" + str(self.toField))
     
     def __str__(self):
+        return self.__unicode__()
+    
+    def __repr__(self):
         return self.__unicode__()
     
     def __unicode__(self):

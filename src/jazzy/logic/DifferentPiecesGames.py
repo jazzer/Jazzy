@@ -38,7 +38,7 @@ class CoinGame(ClassicGame):
         return [Move(coin_pos, coin_target)] + super(CoinGame, self).move(move)
         
         
-    def isLegalMove(self, move, sentPlayer):
+    def isLegalMove(self, move):
         # check if the coin can move the same way
         coin_pos = self.board.findPieces("c", None).pop() # there only is one ;-)
         diff = self.board.getDiffPos(self.board.splitPos(move.fromField), self.board.splitPos(move.toField))
@@ -56,7 +56,7 @@ class CoinGame(ClassicGame):
         self.board.fields[coin_pos] = None
         
         # do the normal things
-        result = super(CoinGame, self).isLegalMove(move, sentPlayer)
+        result = super(CoinGame, self).isLegalMove(move)
     
         # restore coin
         self.board.fields[coin_pos] = coin

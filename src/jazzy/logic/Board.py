@@ -31,11 +31,23 @@ class Board(object):
         self.clear() # self.fields is created here
         self.pieceMap = {'k': King, 'q': Queen, 'r': Rook, 'b': Bishop, 'n': Knight, 'p': Pawn, 'c': Coin}
         self.usedPieces = self.pieceMap.keys()
+        self.moveCount = 0
         
         # settings
         self.LIMIT_TOP_BOTTOM = True
         self.LIMIT_LEFT_RIGHT = True
         self.CAN_TAKE_OWN_PIECES = False
+    
+    def getCurrentPlayer(self):
+        if len(self.game.players) == 0:
+            return None
+        if len(self.game.players) <= (self.moveCount % self.game.NUM_PLAYERS):
+            return None
+        return self.game.players[self.moveCount % self.game.NUM_PLAYERS]
+
+    def getNextPlayer(self, player):
+        return self.game.players[(self.game.players.find(player) + 1) % self.game.NUM_PLAYERS]
+
     
     def splitPos(self, pos):
         return (pos % self.width, pos // self.width)
@@ -127,7 +139,7 @@ class Board(object):
                 self.fields[posCounter] = piece
                 posCounter += 1     
                 
-        self.game.parsePossibleMoves(self.game.getCurrentPlayer())
+        self.game.parsePossibleMoves()
         
     
     def getFenPos(self):
@@ -194,4 +206,17 @@ class Board(object):
                     result = result + "|" + piece.getShortName()
             result = result + "|\n"
         return result
-            
+    
+    def __deepcopy__(self, memo):
+            result = Board(self.game, self.width, self.height)
+            result.moveCount = self.moveCount
+            for i in range(len(self.fields)):
+                if self.fields[i] is None:
+                    result.fields[i] = None
+                else:
+                    copiedPiece = copy.copy(self.fields[i])
+                    copiedPiece.board = result
+                    result.fields[i] = copiedPiece
+            # restore the game
+            result.game = self.game;
+            return result

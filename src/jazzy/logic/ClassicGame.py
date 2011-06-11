@@ -22,6 +22,7 @@ import copy
 from jazzy.logic.Board import Board
 from jazzy.server.MessageHandler import Message
 from jazzy.logic.MoveHistory import MoveHistory
+from jazzy.server.Player import Player
 
 class ClassicGame():
     
@@ -31,44 +32,52 @@ class ClassicGame():
         self.watchers = []
         self.moveHistory = MoveHistory()
         self.board = Board(self, width=8, height=8)
+        self.fenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
         self.currentPlayerId = 0
         self.possibleMoves = None
-        self.board.loadFenPos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+        self.kingPieceTypes = {'k'}
         
         # settings
         self.NUM_PLAYERS = 2
         self.COLORS = ['white', 'black']
+        self.CHECK_FOR_CHECK = True
         
+        self.joinedPlayers = 0
+        
+        self.endInit()
+    
+    def endInit(self):
+        # load position
+        self.board.loadFenPos(self.fenPos)
+        # pregenerate players to avoid nasty errors before all players have joined
+        for i in range(self.NUM_PLAYERS):
+            player = Player()
+            player.color = self.COLORS[i]
+            self.players.append(player)            
        
-    def move(self, move):
-        self.board.move(move)
-        # next players turn
-        self.currentPlayerId = (self.currentPlayerId + 1) % self.NUM_PLAYERS
-        # calc possible moves for the next round
-        self.possibleMoves = None
-        self.parsePossibleMoves(self.getCurrentPlayer())
+    def move(self, move, board):
+        # delegate the actual moving to the board we are operating on
+        board.move(move)
+        # next player's turn on that board
+        board.moveCount = board.moveCount + 1
+        self.currentPlayerId = board.moveCount % self.NUM_PLAYERS
+
+        if board == self.board:
+            # calc possible moves for the next round
+            self.possibleMoves = None
+            self.parsePossibleMoves()
         return [move]
         
         
     def addPlayer(self, player):
         player.game = self
-        player.color = self.COLORS[len(self.players)]
-        self.players.append(player)
+        player.color = self.COLORS[self.joinedPlayers]
+        self.players[self.joinedPlayers] = player
+        self.joinedPlayers = self.joinedPlayers + 1
     
     def addWatcher(self, watcher):
         self.watchers.append(watcher)
         
-    def getCurrentPlayer(self):
-        if len(self.players) == 0:
-            return None
-        if len(self.players) < self.currentPlayerId + 1:
-            return None
-        return self.players[self.currentPlayerId]
-
-    def getNextPlayer(self, player):
-        for i in range(len(self.players)):
-            if self.players[i] == player:
-                return self.players[(i + 1) % len(self.players)]
         
     def getSituationMessage(self, mq):
         if mq.watching:
@@ -85,8 +94,8 @@ class ClassicGame():
             data['lmove_from'] = lastMove.fromField
             data['lmove_to'] = lastMove.toField
         # add current player if applicable    
-        if not(self.getCurrentPlayer() is None):
-            data['currP'] = self.getCurrentPlayer().mq.shortenedId
+        if not(self.board.getCurrentPlayer() is None):
+            data['currP'] = self.board.getCurrentPlayer().mq.shortenedId
         return Message("gamesit", data)
         
     
@@ -97,57 +106,67 @@ class ClassicGame():
             self.board.fields[pawn_pos].NORMAL_SPEED = NORMAL_SPEED
     
     
-    def parsePossibleMoves(self, player):
-        if player is None or not(self.possibleMoves is None):
+    def parsePossibleMoves(self):
+        if self.board.getCurrentPlayer() is None:
             return
+        elif not(self.possibleMoves is None):
+            return            
         
-        moveSet = self.findAllPieceMoves()
-        # filter
-        moveSet = self.filterMovesByRules(moveSet, player)
-        #moveSet = self.filterMovesToCheck(moveSet, player)
+        moveSet = self.getPossibleMoves(self.board, checkTest = self.CHECK_FOR_CHECK)
         print("I think current player could move like this: " + str(moveSet))
         self.possibleMoves = moveSet
+        
+    def getPossibleMoves(self, board, checkTest = True):
+        moveSet = self.findAllPieceMoves(board)
+        # filter
+        moveSet = self.filterMovesByRules(moveSet, board)
+        if checkTest:
+            moveSet = self.filterMovesToCheck(moveSet, board)
+        return moveSet
     
-    def findAllPieceMoves(self):
+    def findAllPieceMoves(self, board):
         # get all the player's pieces
-        pieces = self.board.findPlayersPieces(self.players[self.currentPlayerId])
+        pieces = board.findPlayersPieces(board.getCurrentPlayer())
         # get all their candidate moves
         moveSet = set()
         for pos in pieces:
-            results = self.board.fields[pos].getPossibleMoves(pos)
-            print(str(results))
-            moveSet |= self.board.fields[pos].getPossibleMoves(pos)
+            moveSet |= board.fields[pos].getPossibleMoves(pos)
         return moveSet
         
-    def filterMovesByRules(self, moveSet, player):
+    def filterMovesByRules(self, moveSet, board):
         # add (!) castling options here
-        # add promotion variants
+        # add promotion variants?
         # add en passant moves
         return moveSet
 
-    def filterMovesToCheck(self, moveSet, player):
-        # TODO filter moves to check and such
-        return moveSet
-        
+    def filterMovesToCheck(self, moveSet, board):
         for move in set(moveSet): # work on a copy to be able to remove inside
-            print('filtering ' + str(move))
+            move.parse(self.board)
+            #print('filtering ' + str(move))
             # create a board copy for analysis purposes
             whatIfBoard = copy.deepcopy(self.board)
-            whatIfBoard.move(move)
+            self.move(move, whatIfBoard)
             #print("what if? \n" + whatIfBoard.__unicode__())
             # did the player stay in check?
-            otherPlayer = self.getNextPlayer(player)
-            kings = whatIfBoard.findPieces("k", player.color)
-            targets = whatIfBoard.getPlayerTargets(otherPlayer)
-            selfInCheck = (len(kings) > 0 and kings.issubset(targets))
-            if selfInCheck:
-                moveSet.remove(move)
-                print('THAT WOULD BE CHECK!')
+            kingPositions = whatIfBoard.findPieces(self.kingPieceTypes, board.getCurrentPlayer().color)
+            if (len(kingPositions) == 1):
+                nextMoves = self.getPossibleMoves(whatIfBoard, checkTest = False)
+                # check all the moves for one which killed the last king
+                targetFields = []
+                for nextMove in nextMoves:
+                    targetFields.append(nextMove.toField)
+                selfInCheck = (len(kingPositions) > 0 and kingPositions.issubset(set(targetFields)))
+                #print("Kings: " + str(kingPositions) + "\nTargets: " + str(set(targetFields)))
+                #print(str(selfInCheck))
+                if selfInCheck:
+                    moveSet.remove(move)
                 
         return moveSet
         
-    def isLegalMove(self, move, sentPlayer):
-        self.parsePossibleMoves(sentPlayer)
+    def isLegalMove(self, move):
+        self.parsePossibleMoves()
+        if self.possibleMoves is None:
+            return False
         if move in self.possibleMoves:
             return True
         return False
