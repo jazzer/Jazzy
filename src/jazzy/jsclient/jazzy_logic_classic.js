@@ -528,6 +528,12 @@ function parseMQ(data) {
 			case "chat":
 				addChatMessage(decodeURIComponent(data[i]['user']), decodeURIComponent(data[i]['msg'])); 
 				break;
+			case "gameover":
+				goMsg = "Game finished. Result: " + data[i]['result'] + " (" + data[i]['msg'] + ")"
+				addServerMessage(goMsg);
+				alert(goMsg);
+				// TODO play sound 
+				break;
 			case "gamesit":
 				// build the board
 				boardSize = data[i]['board_size'].split('x');

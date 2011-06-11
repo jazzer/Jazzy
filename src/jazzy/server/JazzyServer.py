@@ -200,7 +200,10 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                         data['currP'] = game.board.getCurrentPlayer().mq.shortenedId
                     self.distributeToAll(game, Message('move', data))
                 self.distributeToAll(game, Message('movehist', {'user': mq.subject.name, 'str': postedMove.str}))
-            
+                
+                result = game.getGameOverMessage()
+                if not(result is None):
+                    self.distributeToAll(game, result)
             # TODO check if the game is over
                 
             jsonoutput = self.sendMQ(params)

@@ -39,14 +39,20 @@ class Board(object):
         self.CAN_TAKE_OWN_PIECES = False
     
     def getCurrentPlayer(self):
-        if len(self.game.players) == 0:
-            return None
-        if len(self.game.players) <= (self.moveCount % self.game.NUM_PLAYERS):
-            return None
         return self.game.players[self.moveCount % self.game.NUM_PLAYERS]
 
+    def getNextCurrentPlayer(self):
+        return self.game.players[(self.moveCount + 1) % self.game.NUM_PLAYERS]
+
     def getNextPlayer(self, player):
-        return self.game.players[(self.game.players.find(player) + 1) % self.game.NUM_PLAYERS]
+        for pos in range(len(self.game.players)):
+            if self.game.players[pos] == player:
+                found = True
+                break
+            
+        if not found:
+            return None
+        return self.game.players[(pos + 1) % self.game.NUM_PLAYERS]
 
     
     def splitPos(self, pos):
@@ -164,7 +170,7 @@ class Board(object):
         self.fields[move.toField] = fromPiece
         self.fields[move.fromField] = None
         
-    def getPlayerTargets(self, player):
+    def getPlayerMoves(self, player):
         targets = set([])
         for i in range(len(self.fields)):
             piece = self.fields[i]
@@ -177,17 +183,30 @@ class Board(object):
             # desired pieces here, add up their possible moves
             targets |= set(piece.getPossibleMoves(i))
         return targets
-
+    
+    def isInCheck(self, player):
+        kingPositions = self.findPieces(self.game.kingPieceTypes, player.color)
+        if (len(kingPositions) != 1):
+            return False
+            
+        nextMoves = self.game.getPossibleMoves(self, checkTest = False, player = self.getNextPlayer(player))
+        # check all the moves for one which killed the last king
+        targetFields = []
+        for nextMove in nextMoves:
+            targetFields.append(nextMove.toField)
+        selfInCheck = (len(kingPositions) > 0 and set(kingPositions).issubset(set(targetFields)))
+        return selfInCheck
    
     def findPieces(self, pTypes, pColors):
-        result = set()
+        ''' returns list of requested pieces '''
+        result = []
         for i in range(len(self.fields)):
             piece = self.fields[i]
             if piece is None:
                 continue
             if pTypes is None or piece.shortName.lower() in pTypes:
                 if pColors is None or (not(piece.color is None) and piece.color in pColors):
-                    result.add(i) # save the piece's position, not the piece itself!
+                    result.append(i) # save the piece's position, not the piece itself!
                     #print(str(result))
         return result
 

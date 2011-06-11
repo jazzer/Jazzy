@@ -23,37 +23,42 @@ from jazzy.logic.Board import Board
 from jazzy.server.MessageHandler import Message
 from jazzy.logic.MoveHistory import MoveHistory
 from jazzy.server.Player import Player
+from jazzy.logic.GameOver import GameOver
 
 class ClassicGame():
     
     def __init__(self):
-        self.id = uuid.uuid4().hex
-        self.players = []
-        self.watchers = []
-        self.moveHistory = MoveHistory()
-        self.board = Board(self, width=8, height=8)
-        self.fenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
-        self.currentPlayerId = 0
-        self.possibleMoves = None
-        self.kingPieceTypes = {'k'}
-        
+        self.startInit()        
+        self.endInit()
+    
+    def startInit(self):
         # settings
         self.NUM_PLAYERS = 2
         self.COLORS = ['white', 'black']
         self.CHECK_FOR_CHECK = True
         
+        # setup code
+        self.id = uuid.uuid4().hex
+        self.players = []
+        self.watchers = []
+        self.moveHistory = MoveHistory()
+        self.board_width = 8
+        self.board_height = 8
+        self.fenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+        self.currentPlayerId = 0
+        self.possibleMoves = None
+        self.kingPieceTypes = {'k'}
         self.joinedPlayers = 0
-        
-        self.endInit()
     
     def endInit(self):
-        # load position
-        self.board.loadFenPos(self.fenPos)
+        self.board = Board(self, width=self.board_width, height=self.board_height)
         # pregenerate players to avoid nasty errors before all players have joined
         for i in range(self.NUM_PLAYERS):
             player = Player()
             player.color = self.COLORS[i]
             self.players.append(player)            
+        # load position
+        self.board.loadFenPos(self.fenPos)
        
     def move(self, move, board):
         # delegate the actual moving to the board we are operating on
@@ -105,41 +110,66 @@ class ClassicGame():
             self.board.fields[pawn_pos].START_BOOST = START_BOOST
             self.board.fields[pawn_pos].NORMAL_SPEED = NORMAL_SPEED
     
+    def getGameOverMessage(self):
+        player = self.board.getNextCurrentPlayer()
+        msg = None
+        go = GameOver(self.board)
+        if go.noLegalMove():
+            if go.inCheck():
+                msg = 'Checkmate'
+                winner = player.mq.shortenedId
+                result = '1-0' if player.color == self.COLORS[0] else '0-1'
+            else:
+                msg = 'Stalemate'
+                winner = ''
+                result = '0.5-0.5'
+        
+        # TODO 50 moves, repetition
+        
+        # build message
+        if not(msg is None):
+            return Message('gameover', {'winner': winner, 'msg': msg, 'result': result})
+            
+        return None
     
     def parsePossibleMoves(self):
         if self.board.getCurrentPlayer() is None:
             return
         elif not(self.possibleMoves is None):
-            return            
+            return        
         
-        moveSet = self.getPossibleMoves(self.board, checkTest = self.CHECK_FOR_CHECK)
+        moveSet = self.getPossibleMoves(self.board, checkTest=self.CHECK_FOR_CHECK)
         print("I think current player could move like this: " + str(moveSet))
         self.possibleMoves = moveSet
         
-    def getPossibleMoves(self, board, checkTest = True):
-        moveSet = self.findAllPieceMoves(board)
+    def getPossibleMoves(self, board, checkTest=True, player=None):
+        # default
+        if player is None:
+            player = board.getCurrentPlayer()
+            
+        moveSet = self.findAllPieceMoves(board, player)
         # filter
-        moveSet = self.filterMovesByRules(moveSet, board)
+        moveSet = self.filterMovesByRules(moveSet, board, player)
         if checkTest:
-            moveSet = self.filterMovesToCheck(moveSet, board)
+            moveSet = self.filterMovesToCheck(moveSet, board, player)
         return moveSet
     
-    def findAllPieceMoves(self, board):
+    def findAllPieceMoves(self, board, player):
         # get all the player's pieces
-        pieces = board.findPlayersPieces(board.getCurrentPlayer())
+        pieces = board.findPlayersPieces(player)
         # get all their candidate moves
         moveSet = set()
         for pos in pieces:
             moveSet |= board.fields[pos].getPossibleMoves(pos)
         return moveSet
         
-    def filterMovesByRules(self, moveSet, board):
+    def filterMovesByRules(self, moveSet, board, player):
         # add (!) castling options here
         # add promotion variants?
         # add en passant moves
         return moveSet
 
-    def filterMovesToCheck(self, moveSet, board):
+    def filterMovesToCheck(self, moveSet, board, player):
         for move in set(moveSet): # work on a copy to be able to remove inside
             move.parse(self.board)
             #print('filtering ' + str(move))
@@ -147,22 +177,11 @@ class ClassicGame():
             whatIfBoard = copy.deepcopy(self.board)
             self.move(move, whatIfBoard)
             #print("what if? \n" + whatIfBoard.__unicode__())
-            # did the player stay in check?
-            kingPositions = whatIfBoard.findPieces(self.kingPieceTypes, board.getCurrentPlayer().color)
-            if (len(kingPositions) == 1):
-                nextMoves = self.getPossibleMoves(whatIfBoard, checkTest = False)
-                # check all the moves for one which killed the last king
-                targetFields = []
-                for nextMove in nextMoves:
-                    targetFields.append(nextMove.toField)
-                selfInCheck = (len(kingPositions) > 0 and kingPositions.issubset(set(targetFields)))
-                #print("Kings: " + str(kingPositions) + "\nTargets: " + str(set(targetFields)))
-                #print(str(selfInCheck))
-                if selfInCheck:
-                    moveSet.remove(move)
-                
+            # did the player stay in check?            
+            if whatIfBoard.isInCheck(player):
+                moveSet.remove(move)                
         return moveSet
-        
+            
     def isLegalMove(self, move):
         self.parsePossibleMoves()
         if self.possibleMoves is None:

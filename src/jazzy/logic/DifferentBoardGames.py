@@ -18,28 +18,32 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 from jazzy.logic.ClassicGame import ClassicGame
-from jazzy.logic.Board import Board
 
 class CylindricGame(ClassicGame):    
-    def __init__(self):
+    def endInit(self):
         # do the normal things
-        super(CylindricGame,self).__init__()
+        super(CylindricGame,self).endInit()
         # change something
         self.board.LIMIT_LEFT_RIGHT = False
 
 class LosAlamosGame(ClassicGame):    
-    def __init__(self):
+    def startInit(self):
         # do the normal things
-        super(LosAlamosGame,self).__init__()
+        super(LosAlamosGame,self).startInit()
         # change something
-        self.board = Board(self, 6,6)
-        self.board.loadFenPos('rnqknr/pppppp/6/6/PPPPPP/RNQKNR')
+        self.board_width = 6
+        self.board_height = 6
+        self.fenPos = 'rnqknr/pppppp/6/6/PPPPPP/RNQKNR'
+    
+    def endInit(self):
+        # do the normal things
+        super(LosAlamosGame,self).endInit()
         # slow down the pawns
         self.setPawnSpeed(1,1)
             
 class PawnGame(ClassicGame):
-    def __init__(self):
+    def startInit(self):
         # do the normal things
-        super(PawnGame,self).__init__()
+        super(PawnGame,self).startInit()
         # change something
-        self.board.loadFenPos('8/pppppppp/8/8/8/8/PPPPPPPP/8')
+        self.fenPos = '8/pppppppp/8/8/8/8/PPPPPPPP/8'
