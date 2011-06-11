@@ -19,47 +19,61 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 from jazzy.logic.ClassicGame import ClassicGame
 from jazzy.logic.MoveHistory import Move
+from jazzy.logic.GameOver import GameOver
+from jazzy.server.MessageHandler import Message
 
 class CoinGame(ClassicGame):
-    def __init__(self):
+    def startInit(self):
         # do the normal things
-        super(CoinGame, self).__init__()
+        super(CoinGame, self).startInit()
         # change something
-        self.board.loadFenPos('rnbqkbnr/pppppppp/8/8/8/4C3/PPPPPPPP/RNBQKBNR')
+        self.fenPos = 'rnbqkbnr/pppppppp/8/8/8/4C3/PPPPPPPP/RNBQKBNR'
+    
+    def endInit(self):
+        # do the normal things
+        super(CoinGame, self).endInit()
+        # change something
         coin_pos = self.board.findPieces('c', None)
         for pos in coin_pos:
             self.board.fields[pos].color = None
+            
+    def getGameOverMessage(self):
+        player = self.board.getCurrentPlayer()
+        msg = None
+        go = GameOver(self.board)
+        if go.noLegalMove() and not go.inCheck():
+            msg = 'No move left'
+            winner = player.mq.shortenedId
+            result = '0-1' if player.color == self.COLORS[0] else '1-0'
+            return Message('gameover', {'winner': winner, 'msg': msg, 'result': result})
+        else:
+            return super(CoinGame, self).getGameOverMessage()
 
-    def move(self, move):
-        coin_pos = self.board.findPieces('c', None).pop() # there only is one ;-)
+    def move(self, move, board):
+        coin_pos = board.findPieces('c', None).pop() # there only is one ;-)
         coin_target = coin_pos + (move.toField - move.fromField)
-        self.board.move(Move(coin_pos, coin_target))
+        board.move(Move(coin_pos, coin_target))
         # normal stuff
-        return [Move(coin_pos, coin_target)] + super(CoinGame, self).move(move)
-        
-        
-    def isLegalMove(self, move):
-        # check if the coin can move the same way
-        coin_pos = self.board.findPieces('c', None).pop() # there only is one ;-)
-        diff = self.board.getDiffPos(self.board.splitPos(move.fromField), self.board.splitPos(move.toField))
-        coin_target_XY = self.board.addPos(self.board.splitPos(coin_pos), diff)
-        # coin target field must be empty now (before having moved the piece!)
-        coin_target = self.board.mergePos(coin_target_XY[0], coin_target_XY[1])
-        if not (self.board.fields[coin_target] is None):
-            return False
-        # coin must respect borders as well of course
-        if not self.board.staysInBoard(coin_pos, coin_target, diff[0], diff[1]):
-            return False   
-        
-        # temporarly hide coin (to keep normal move tests)
-        coin = self.board.fields[coin_pos]
-        self.board.fields[coin_pos] = None
-        
-        # do the normal things
-        result = super(CoinGame, self).isLegalMove(move)
+        return [Move(coin_pos, coin_target)] + super(CoinGame, self).move(move, board)
     
-        # restore coin
-        self.board.fields[coin_pos] = coin
+    def filterMovesByRules(self, moveSet, board, player):
+        moveSet = super(CoinGame, self).filterMovesByRules(moveSet, board, player)
         
-        return result
-
+        for move in set(moveSet):
+            # check if the coin can move the same way
+            coin_pos = board.findPieces('c', None).pop() # there only is one ;-)
+            diff = board.getDiffPos(board.splitPos(move.fromField), board.splitPos(move.toField))
+            coin_target_XY = board.addPos(board.splitPos(coin_pos), diff)
+            # coin target field must be empty now (before having moved the piece!)
+            coin_target = board.mergePos(coin_target_XY[0], coin_target_XY[1])
+            # coin must respect borders as well of course
+            if not board.staysInBoard(coin_pos, coin_target, diff[0], diff[1]):
+                moveSet.remove(move)   
+                continue
+            try:
+                if not (board.fields[coin_target] is None):
+                    moveSet.remove(move)
+            except IndexError:
+                pass
+        return moveSet    
+        

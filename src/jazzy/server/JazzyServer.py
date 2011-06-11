@@ -72,7 +72,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         
             
     def serveStaticText(self, file):
-        print("serving " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
+        #print("serving " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
         real_file = re.sub("\?.*", '', file)
         a_file = open(STATIC_SERVE_BASE + real_file, encoding='utf-8')
         a_string = a_file.read()
@@ -85,7 +85,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 
 
     def serveStaticBinary(self, file):
-        print("serving binary " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
+        #print("serving binary " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
         self.send_response(200)
         #self.send_header("Content-type", "text/html")
         self.end_headers()
@@ -129,8 +129,8 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         """Respond to a GET request."""
         # examine string
         params = self.path.split("/")[1:]
-        print(self.path)
-        print(params)
+        #print(self.path)
+        #print(params)
         
         # -----------------------
         # serving static content?
@@ -178,7 +178,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             
         elif (params[0] == 'post' and params[2] == 'move'):            
             # filter watchers attempting to post stuff
-            if mq.watching:
+            if mq.watching or mq.game.finished == True:
                 return
             
             game = mq.game
@@ -192,16 +192,24 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             if isLegalMove:
                 postedMove.parse(mq.game.board)
                 game.moveHistory.moves.append(postedMove)
+                
                 moves = game.move(postedMove, game.board)
+                
+                # analyze if game is over
+                result = game.getGameOverMessage()
+                if not(result is None):
+                    game.finished = True
+
+                # post all the move the particular game created
                 for move in moves:
                     move.parse(mq.game.board)
                     data = {'from': move.fromField, 'to': move.toField}
-                    if not(game.board.getCurrentPlayer() is None):
+                    if not(game.board.getCurrentPlayer() is None and not(game.finished)):
                         data['currP'] = game.board.getCurrentPlayer().mq.shortenedId
                     self.distributeToAll(game, Message('move', data))
                 self.distributeToAll(game, Message('movehist', {'user': mq.subject.name, 'str': postedMove.str}))
                 
-                result = game.getGameOverMessage()
+                # distribute the game over message if there was one
                 if not(result is None):
                     self.distributeToAll(game, result)
             # TODO check if the game is over
@@ -252,7 +260,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             
         else:
             jsonoutput = json.dumps({})
-        print(jsonoutput)
+        #print(jsonoutput)
         self.output_raw(jsonoutput)
                        
         

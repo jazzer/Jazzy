@@ -33,7 +33,7 @@ class Piece(object):
         for mType in self.moveType:
             movedPos = currPos
             stop = False
-            for _ in range(1, mType['max'] + 1):
+            for _ in range(mType['max']):
                 startPos = movedPos
                 
                 parts = self.board.splitPos(movedPos)
@@ -44,23 +44,28 @@ class Piece(object):
                 newCol = (col + mType['dirX'] + self.board.width) % self.board.width
                 newRow = (row + mType['dirY'] + self.board.height) % self.board.height
                     
-                movedPos = self.board.mergePos(newCol, newRow) 
+                movedPos = self.board.mergePos(newCol, newRow)
+                
+                # compute some features
+                fields = self.board.fields
+                practically_empty = (fields[movedPos] is None) or (fields[movedPos].color is None) 
+                capturable_piece = (not(practically_empty) and (self.board.CAN_TAKE_OWN_PIECES or (not(self.board.CAN_TAKE_OWN_PIECES) and fields[movedPos].color != fields[currPos].color)))
 
                 # hit another piece?
-                if ('hit_only' in mType and mType['hit_only'] == True) and (self.board.fields[movedPos] is None or self.board.fields[movedPos].color == self.board.fields[currPos].color):
+                if ('hit_only' in mType and mType['hit_only'] == True and practically_empty):
                     break
-                elif ('move_only' in mType and mType['move_only'] == True) and not(self.board.fields[movedPos] is None):
+                elif ('move_only' in mType and mType['move_only'] == True) and not practically_empty:
                     break
                      
                 # stay in bounds     
                 if not self.board.staysInBoard(startPos, movedPos, mType['dirX'], mType['dirY']):
                     break
-                    
                 
+                # break if non-capturable piece blocks the way (usually own-colored)
+                if not(practically_empty) and not(capturable_piece):
+                    break                                     
                 # stop if hit a piece on our way
-                if not ('move_only' in mType) and not ('hit_only' in mType) and not(self.board.fields[movedPos] is None):
-                    if not (self.board.CAN_TAKE_OWN_PIECES) and self.board.fields[movedPos].color == self.color: 
-                        break
+                if capturable_piece:
                     stop = True
 
                 # found a place to move to    

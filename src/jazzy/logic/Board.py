@@ -62,7 +62,7 @@ class Board(object):
         return self.width * row + col
     
     def addPos(self, start, diff):
-        return (start[0] + diff[0], start[1] + diff[1])
+        return ((start[0] + diff[0]) % self.width, (start[1] + diff[1]) % self.height)
     
     def getDiffPos(self, fromXY, toXY):
         return (toXY[0] - fromXY[0], toXY[1] - fromXY[1])
@@ -144,8 +144,6 @@ class Board(object):
                 #print("setting " + piece.__unicode__() + " to " + str(posCounter))
                 self.fields[posCounter] = piece
                 posCounter += 1     
-                
-        self.game.parsePossibleMoves()
         
     
     def getFenPos(self):

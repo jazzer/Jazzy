@@ -49,7 +49,8 @@ class ClassicGame():
         self.possibleMoves = None
         self.kingPieceTypes = {'k'}
         self.joinedPlayers = 0
-    
+        self.finished = False
+            
     def endInit(self):
         self.board = Board(self, width=self.board_width, height=self.board_height)
         # pregenerate players to avoid nasty errors before all players have joined
