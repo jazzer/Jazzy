@@ -153,7 +153,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         if len(params) > 1:
             mq = mqPool.get(params[1])
             # can't answer if mq is unknown
-            if mq is None and params[0] != 'new' and params[0] != 'join' and params[0] != 'watch':
+            if mq is None and not(params[0] in {'new', 'join', 'watch', 'getgames'}):
                 return
 
         # check if there is an acknowledgement included starting at an arbitrary index

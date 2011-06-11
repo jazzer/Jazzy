@@ -22,7 +22,6 @@ import copy
 from jazzy.logic.Board import Board
 from jazzy.server.MessageHandler import Message
 from jazzy.logic.MoveHistory import MoveHistory
-from jazzy.server.Player import Player
 
 class ClassicGame():
     
@@ -92,7 +91,7 @@ class ClassicGame():
         
     
     def setPawnSpeed(self, START_BOOST, NORMAL_SPEED):
-        pawn_pos_set = self.board.findPieces('p', {'white', 'black'})
+        pawn_pos_set = self.board.findPieces('p', set(self.COLORS))
         for pawn_pos in pawn_pos_set:
             self.board.fields[pawn_pos].START_BOOST = START_BOOST
             self.board.fields[pawn_pos].NORMAL_SPEED = NORMAL_SPEED
@@ -105,8 +104,8 @@ class ClassicGame():
         moveSet = self.findAllPieceMoves()
         # filter
         moveSet = self.filterMovesByRules(moveSet, player)
-        moveSet = self.filterMovesToCheck(moveSet, player)
-        print("I think you can move like this: " + str(moveSet))
+        #moveSet = self.filterMovesToCheck(moveSet, player)
+        print("I think current player could move like this: " + str(moveSet))
         self.possibleMoves = moveSet
     
     def findAllPieceMoves(self):
@@ -148,9 +147,8 @@ class ClassicGame():
         return moveSet
         
     def isLegalMove(self, move, sentPlayer):
-        return True
         self.parsePossibleMoves(sentPlayer)
-        if (move) in self.possibleMoves:
+        if move in self.possibleMoves:
             return True
         return False
     
