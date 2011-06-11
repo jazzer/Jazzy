@@ -47,7 +47,7 @@ class Piece(object):
                 movedPos = self.board.mergePos(newCol, newRow) 
 
                 # hit another piece?
-                if ('hit_only' in mType and mType['hit_only'] == True) and (self.board.fields[movedPos] is None):
+                if ('hit_only' in mType and mType['hit_only'] == True) and (self.board.fields[movedPos] is None or self.board.fields[movedPos].color == self.board.fields[currPos].color):
                     break
                 elif ('move_only' in mType and mType['move_only'] == True) and not(self.board.fields[movedPos] is None):
                     break

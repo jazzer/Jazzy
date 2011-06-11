@@ -40,7 +40,7 @@ class CoinGame(ClassicGame):
         
     def isLegalMove(self, move):
         # check if the coin can move the same way
-        coin_pos = self.board.findPieces("c", None).pop() # there only is one ;-)
+        coin_pos = self.board.findPieces('c', None).pop() # there only is one ;-)
         diff = self.board.getDiffPos(self.board.splitPos(move.fromField), self.board.splitPos(move.toField))
         coin_target_XY = self.board.addPos(self.board.splitPos(coin_pos), diff)
         # coin target field must be empty now (before having moved the piece!)
