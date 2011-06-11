@@ -127,7 +127,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         if re.match('[^\.]+\.[html|js|css](\?\d*)?', self.path):
             self.serveStaticText(self.path)
             return
-        if re.match('[^\.]+\.[ico|png|jpe?g|gif](\?\d*)?', self.path):
+        if re.match('[^\.]+\.[ico|png|jpe?g|gif|ogg|mp3](\?\d*)?', self.path):
             self.serveStaticBinary(self.path)
             return
         

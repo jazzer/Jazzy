@@ -261,6 +261,7 @@ function move(from, to) {
 	// animate the move
 	fromField = $("#field" + from);
 	toField = $("#field" + to);	
+	isCapture = (toField.children().length > 0);
 	
 	toField.children().css({'z-index': '2', 'position': 'absolute'}).fadeOut(400, function() {
 		$(this).remove();
@@ -276,7 +277,21 @@ function move(from, to) {
 	    	}, 400, "swing", function() {
 		});
 	fromField.children().detach().prependTo(toField);
+	// sound
+	if (isCapture) {
+		playSound('media/capture');
+	} else {
+		playSound('media/move');
+	}
+}
 
+function playSound(url) {
+	// snif webkit?
+	//var audio = new Audio(url + '.ogg');
+	//audio.play();
+	var audio = new Audio();
+	audio.src = url+".ogg";
+	audio.play();
 }
 
 
