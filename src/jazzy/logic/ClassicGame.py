@@ -22,12 +22,14 @@ import copy
 from jazzy.logic.Board import Board
 from jazzy.server.MessageHandler import Message
 from jazzy.logic.MoveHistory import MoveHistory
+from jazzy.server.Player import Player
 
 class ClassicGame():
     
     def __init__(self):
         self.id = uuid.uuid4().hex
         self.players = []
+        self.watchers = []
         self.moveHistory = MoveHistory()
         self.board = Board(self, width=8, height=8)
         self.currentPlayerId = 0
@@ -53,6 +55,9 @@ class ClassicGame():
         player.game = self
         player.color = self.COLORS[len(self.players)]
         self.players.append(player)
+    
+    def addWatcher(self, watcher):
+        self.watchers.append(watcher)
         
     def getCurrentPlayer(self):
         if len(self.players) == 0:
@@ -67,7 +72,11 @@ class ClassicGame():
                 return self.players[(i + 1) % len(self.players)]
         
     def getSituationMessage(self, mq):
-        flipped = True if mq.player.color == 'black' else False
+        if mq.watching:
+            flipped = False
+        else:
+            flipped = True if mq.subject.color == 'black' else False
+            
         data = {'fen': mq.game.board.getFenPos(),
                 'board_size': str(mq.game.board.width) + 'x' + str(mq.game.board.height),
                 'flipped': flipped}

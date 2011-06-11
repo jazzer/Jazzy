@@ -47,7 +47,8 @@ class MessageQueue(object):
         self.id = uuid.uuid4().hex
         self.shortenedId = self.id[0:10]
         self.msgs = []
-        # self.player
+        self.watching = False
+        # self.subject (Player or Watcher)
         # self.game
         
     def addMsg(self, message):

@@ -30,7 +30,7 @@ from jazzy.logic.HandycapGames import *
 from MessageHandler import Message
 from jazzy.logic.MoveHistory import Move
 from jazzy.logic.MoveHistory import MoveHistory
-from Player import Player
+from Player import Player, Watcher
 import json
 import os
 
@@ -66,7 +66,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         return json.dumps(mq.msgs)
     
     def distributeToAll(self, game, msg, filter_player=None):
-        for player in game.players:
+        for player in game.players + game.watchers:
             if player != filter_player:
                 player.mq.addMsg(msg)
         
@@ -110,7 +110,18 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         game.addPlayer(player)
         gamePool.add(game)
         # backlinks for the MQ
-        mq.player = player
+        mq.subject = player
+        mq.game = game
+        return mq
+
+    def createWatcher(self, game):
+        watcher = Watcher()
+        mq = watcher.mq
+        mqPool.add(mq)            
+        game.addWatcher(watcher)
+        gamePool.add(game)
+        # backlinks for the MQ
+        mq.subject = watcher
         mq.game = game
         return mq
     
@@ -165,13 +176,17 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         if (params[0] == 'getmq'):
             jsonoutput = self.sendMQ(params)
             
-        elif (params[0] == "post" and params[2] == "move"):            
+        elif (params[0] == 'post' and params[2] == 'move'):            
+            # filter watchers attempting to post stuff
+            if mq.watching:
+                return
+            
             game = mq.game
             fromField = int(params[3])
             toField = int(params[4])
             postedMove = Move(fromField, toField)
             # check move for correctness
-            isLegalMove = game.isLegalMove(postedMove, mq.player)
+            isLegalMove = game.isLegalMove(postedMove, mq.subject)
             # TEMP TODO
             game.parsePossibleMoves(game.getCurrentPlayer())
             
@@ -186,37 +201,50 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                     if not(game.getCurrentPlayer() is None):
                         data['currP'] = game.getCurrentPlayer().mq.shortenedId
                     self.distributeToAll(game, Message('move', data))
-                self.distributeToAll(game, Message('movehist', {'user': mq.player.name, 'str': postedMove.str}))
+                self.distributeToAll(game, Message('movehist', {'user': mq.subject.name, 'str': postedMove.str}))
             
             # TODO check if the game is over
                 
             jsonoutput = self.sendMQ(params)
             
         # transfer chat message     
-        elif (params[0] == "post" and params[2] == "chat"):            
-            self.distributeToAll(mq.game, Message('chat', {'user': mq.player.name, 'msg': params[3]}), filter_player=mq.player)
+        elif (params[0] == 'post' and params[2] == 'chat'):            
+            # filter watchers attempting to post stuff
+            if mq.watching:
+                return
+            
+            self.distributeToAll(mq.game, Message('chat', {'user': mq.subject.name, 'msg': params[3]}), filter_player=mq.player)
                 
 
         # starting a new game (e.g. /new/classic)
-        elif (params[0] == "new"):
+        elif (params[0] == 'new'):
             gameClass = availible_games[params[1]]['class'] # create desired game
             game = gameClass()
             mq = self.createPlayer(game)
             # generate answer
             jsonoutput = json.dumps({'gameId': game.id, 'mqId': mq.id})
             # nicely say hello (next time)
-            mq.addMsg(Message("srvmsg", {'msg': 'Welcome to the server!'}))
-            mq.addMsg(Message("srvmsg", {'msg': 'We are playing ' + availible_games[params[1]]['desc']}))            
+            mq.addMsg(Message('srvmsg', {'msg': 'Welcome to the server!'}))
+            mq.addMsg(Message('srvmsg', {'msg': 'We are playing ' + availible_games[params[1]]['desc']}))            
 
-        elif (params[0] == "getsit"):
+        elif (params[0] == 'getsit'):
             jsonoutput = json.dumps([mq.game.getSituationMessage(mq).data])
         
-        elif (params[0] == "join"):
+        elif (params[0] == 'join'):
             game = gamePool.games[params[1]]
             # check if more players are accepted for the game
+            if (len(game.players) >= game.NUM_PLAYERS):
+                jsonoutput = json.dumps({'msg': 'Sorry. Game is already full.'})
+            
             mq = self.createPlayer(game)
             jsonoutput = json.dumps({'mqId': mq.id})
-            self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Player joined.'}), mq.player)
+            self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Player joined.'}), mq.subject)
+
+        elif (params[0] == 'watch'):
+            game = gamePool.games[params[1]]
+            mq = self.createWatcher(game)
+            jsonoutput = json.dumps({'mqId': mq.id})
+            self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Watcher joined.'}), mq.subject)
          
         elif (params[0] == 'getgames'):
             jsonoutput = json.dumps(availible_games_json)

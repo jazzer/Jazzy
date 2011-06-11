@@ -52,6 +52,7 @@ var activeJSONCall = false;
 var dnd_clicked = false;
 var currPlayer = undefined;
 var myTurn = false;
+var isWatching = false;
 
 
 
@@ -89,21 +90,27 @@ function _playInit() {
 	});	
 }
 
+function watchGame() {
+	joinOrWatchGame('watch');
+}
+
 function joinGame() {
+	joinOrWatchGame('join');
+}
+
+function joinOrWatchGame(messageType) {
 	$(function() {
 		gameId = window.location.href.match(/[\dA-Fa-f]+$/);
-		serverCall("join/" + gameId, function(data) {
+		serverCall(messageType + "/" + gameId, function(data) {
 			mqId = data['mqId'];
 			if (mqId != undefined) {
 				location.href = server_url + '/play.html?' + mqId;
 			} else {
-				console.debug($('#messages'));
 				$('#messages').append($('<span>').addClass('message').html(data['msg']));
 			}		
 		}, false, true);	
 	});
 }
-
 
 function load_availible_games() {
 	$(function() {
@@ -116,11 +123,6 @@ function load_availible_games() {
 	});
 }
 
-
-function joinGameWatch() {
-	gameId = window.location.href.match(/[\dA-Fa-f]+$/);
-	serverCall("joinwatch/" + gameId, function(data) {parseMQ(data);}, false, true);	
-}
 
 function buildClassicBoard(cols, rows, flippedParam) {
 	if (cols == board_cols && rows == board_rows && flippedParam == flipped) {
@@ -153,9 +155,11 @@ function buildClassicBoard(cols, rows, flippedParam) {
 				field.attr('id', 'field'+(fields-counter-1));
 			}
 			// set events for drag and drop
-			field.mousedown(function() {_dnd_down($(this))});
-			field.mouseup(function() {_dnd_up($(this))});
-			field.click(function() {_dnd_click($(this))});
+			if (!isWatching) {
+				field.mousedown(function() {_dnd_down($(this))});
+				field.mouseup(function() {_dnd_up($(this))});
+				field.click(function() {_dnd_click($(this))});
+			}
 			
 			// append it to the board			
 			$("#board").append(field);
@@ -425,11 +429,6 @@ function serverCall(relUrl, successFunc, asnycValue, preventCaching) {
 	});
 }
 
-function sendMessage(type, options) {
-	var data = "" // TODO call url and retrieve MQ as an answer
-	parseMQ(data);
-}
-
 function ackString() {
 	if (lastParsedMsg == undefined) {
 		return '';
@@ -491,6 +490,13 @@ function _changeDebugLevel() {
 		debugLevel = $('[name="debugLevel"]').attr('value');
 	});
 }
+
+function makeWatching() {
+	isWatching = true;
+	// remove events (have already been set)
+	$("div[id^='field']").unbind();
+}
+
 
 
 function parseMQ(data) {

@@ -32,3 +32,16 @@ class Player():
     
     def __str__(self):
         return self.__unicode__()
+    
+    
+class Watcher():
+    def __init__(self):
+        self.mq = MessageQueue()
+        self.mq.watching = True
+        self.name = "John Doe"
+        
+    def __unicode__(self):
+        return "[Watcher]"
+    
+    def __str__(self):
+        return self.__unicode__()    
