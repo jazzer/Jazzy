@@ -74,7 +74,10 @@ function _playInit() {
 
 		// which MessageQueue are we operating on?
 		mqId = window.location.href.match(/[\dA-Fa-f]+$/);
-				
+
+		// show debug level in UI
+		$('[name="debugLevel"]').attr('value', debugLevel);				
+
 		// request current situation (enables returning after problems)
 		serverCall("getsit/" + mqId, function(data) {parseMQ(data);}, false, true);	
 		//lastParsedMsg = undefined;
@@ -262,7 +265,7 @@ function move(from, to) {
 	fromField = $("#field" + from);
 	toField = $("#field" + to);	
 	isCapture = (toField.children().length > 0);
-	isPiece = (toField.children().length > 0);
+	isPiece = (fromField.children().length > 0);
 
 	if (!isPiece) {
 		return;
@@ -481,6 +484,12 @@ function parseCurrPlayer(currPlayerValue) {
 		document.title = document.title.replace(/\[DING\] /, "");
 		myTurn = false;
 	}
+}
+
+function _changeDebugLevel() {
+	$(function() {
+		debugLevel = $('[name="debugLevel"]').attr('value');
+	});
 }
 
 
