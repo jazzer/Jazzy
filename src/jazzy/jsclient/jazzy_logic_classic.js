@@ -262,6 +262,11 @@ function move(from, to) {
 	fromField = $("#field" + from);
 	toField = $("#field" + to);	
 	isCapture = (toField.children().length > 0);
+	isPiece = (toField.children().length > 0);
+
+	if (!isPiece) {
+		return;
+	}
 	
 	toField.children().css({'z-index': '2', 'position': 'absolute'}).fadeOut(400, function() {
 		$(this).remove();
@@ -286,9 +291,6 @@ function move(from, to) {
 }
 
 function playSound(url) {
-	// snif webkit?
-	//var audio = new Audio(url + '.ogg');
-	//audio.play();
 	var audio = new Audio();
 	audio.src = url+".ogg";
 	audio.play();
@@ -515,6 +517,12 @@ function parseMQ(data) {
 				// build the board
 				boardSize = data[i]['board_size'].split('x');
 				buildClassicBoard(boardSize[0], boardSize[1], data[i]['flipped']);
+				// fix highlight
+				highlight_clear();
+				if (data[i]['lmove_from'] != undefined && data[i]['lmove_to'] != undefined) {
+					highlight_move(data[i]['lmove_from'], data[i]['lmove_to']);
+				}
+				
 				// load the position
 				loadFen(data[i]['fen']);
 				// check if it's my turn

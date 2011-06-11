@@ -71,6 +71,12 @@ class ClassicGame():
         data = {'fen': mq.game.board.getFenPos(),
                 'board_size': str(mq.game.board.width) + 'x' + str(mq.game.board.height),
                 'flipped': flipped}
+        # add last move if applicable    
+        if len(self.moveHistory.moves) > 0:
+            lastMove = self.moveHistory.moves[-1];
+            data['lmove_from'] = lastMove.fromField
+            data['lmove_to'] = lastMove.toField
+        # add current player if applicable    
         if not(self.getCurrentPlayer() is None):
             data['currP'] = self.getCurrentPlayer().mq.shortenedId
         return Message("gamesit", data)

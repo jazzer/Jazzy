@@ -141,6 +141,9 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         jsonoutput = {}
         if len(params) > 1:
             mq = mqPool.get(params[1])
+            # can't answer if mq is unknown
+            if mq is None and params[0] != 'new' and params[0] != 'join' and params[0] != 'watch':
+                return
 
         # check if there is an acknowledgement included starting at an arbitrary index
         for i in range(0, len(params)):
@@ -210,6 +213,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         
         elif (params[0] == "join"):
             game = gamePool.games[params[1]]
+            # check if more players are accepted for the game
             mq = self.createPlayer(game)
             jsonoutput = json.dumps({'mqId': mq.id})
             self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Player joined.'}), mq.player)
