@@ -82,23 +82,36 @@ class ClassicGame():
             self.board.fields[pawn_pos].START_BOOST = START_BOOST
             self.board.fields[pawn_pos].NORMAL_SPEED = NORMAL_SPEED
     
+    
     def parsePossibleMoves(self, player):
         if player is None or not(self.possibleMoves is None):
             return
         
+        moveSet = self.findAllPieceMoves()
+        # filter
+        moveSet = self.filterMovesByRules(moveSet, player)
+        moveSet = self.filterMovesToCheck(moveSet, player)
+        print("I think you can move like this: " + str(moveSet))
+        self.possibleMoves = moveSet
+    
+    def findAllPieceMoves(self):
         # get all the player's pieces
         pieces = self.board.findPlayersPieces(self.players[self.currentPlayerId])
         # get all their candidate moves
-        self.possibleMoves = set()
+        moveSet = set()
         for pos in pieces:
             results = self.board.fields[pos].getPossibleMoves(pos)
             print(str(results))
-            self.possibleMoves |= self.board.fields[pos].getPossibleMoves(pos)
-        # filter
-        self.possibleMoves = self.filterMoves(self.possibleMoves, player)
-        print("I think you can move like this: " + str(self.possibleMoves))
+            moveSet |= self.board.fields[pos].getPossibleMoves(pos)
+        return moveSet
         
-    def filterMoves(self, moveSet, player):
+    def filterMovesByRules(self, moveSet, player):
+        # add (!) castling options here
+        # add promotion variants
+        # add en passant moves
+        return moveSet
+
+    def filterMovesToCheck(self, moveSet, player):
         # TODO filter moves to check and such
         return moveSet
         
