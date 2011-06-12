@@ -42,10 +42,10 @@ availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic Chess'},
                    'Cylindric': {'class': CylindricGame, 'desc': 'Cylindric Chess'},
                    'Pawn': {'class': PawnGame, 'desc': 'Pawn Chess'},
                    'Los_Alamos': {'class': LosAlamosGame, 'desc': 'Los Alamos'},
-                   'Handycap_Queen': {'class': HandycapQueenGame, 'desc': 'Handcap (White without Queen)'},
-                   'Handycap_Rook': {'class': HandycapRookGame, 'desc': 'Handcap (White without rook a1)'},
-                   'Handycap_Knight': {'class': HandycapKnightGame, 'desc': 'Handcap (White without knight b1)'},
-                   'Handycap_PawnAndMove': {'class': HandycapPawnAndMoveGame, 'desc': 'Handcap (Black without pawn f7)'},
+                   'Handycap_Queen': {'class': HandycapQueenGame, 'desc': 'Handycap (White without Queen)'},
+                   'Handycap_Rook': {'class': HandycapRookGame, 'desc': 'Handycap (White without rook a1)'},
+                   'Handycap_Knight': {'class': HandycapKnightGame, 'desc': 'Handycap (White without knight b1)'},
+                   'Handycap_PawnAndMove': {'class': HandycapPawnAndMoveGame, 'desc': 'Handycap (Black without pawn f7)'},
                    'Coin': {'class': CoinGame, 'desc': 'Coin Chess'}}
 availible_games_json = {}
 for key in availible_games.keys():
@@ -222,7 +222,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             if mq.watching:
                 return
             
-            self.distributeToAll(mq.game, Message('chat', {'user': mq.subject.name, 'msg': params[3]}), filter_player=mq.player)
+            self.distributeToAll(mq.game, Message('chat', {'user': mq.subject.name, 'msg': params[3]}), filter_player=mq.subject)
                 
 
         # starting a new game (e.g. /new/classic)
