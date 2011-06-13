@@ -142,13 +142,6 @@ class ClassicGame():
             data['currP'] = self.board.getCurrentPlayer().mq.shortenedId
         return Message("gamesit", data)
         
-    
-    def setPawnSpeed(self, START_BOOST, NORMAL_SPEED):
-        pawn_pos_set = self.board.findPieces('p', set(self.COLORS))
-        for pawn_pos in pawn_pos_set:
-            self.board.fields[pawn_pos].START_BOOST = START_BOOST
-            self.board.fields[pawn_pos].NORMAL_SPEED = NORMAL_SPEED
-    
     def getGameOverMessage(self):
         player = self.board.getNextCurrentPlayer()
         go = GameOver(self.board)

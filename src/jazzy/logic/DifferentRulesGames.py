@@ -87,3 +87,39 @@ class ChecklessGame(ClassicGame):
             else:
                 return None
         return result
+    
+# http://en.wikipedia.org/wiki/Antichess
+class AntiGame(ClassicGame):   
+    # check is not important here
+    def startInit(self):
+        # default
+        super(AntiGame, self).startInit()
+        # change
+        self.CHECK_FOR_CHECK = False
+    
+    # force capturing if possible
+    def filterMovesByRules(self, moveSet, board, player):
+        # default
+        moveSet = super(AntiGame, self).filterMovesByRules(moveSet, board, player)
+        # change
+        captureMoves = []
+        for move in moveSet:
+            if not(board.fields[move.toField] is None):
+                captureMoves.append(move)
+        if len(captureMoves) > 0:
+            return set(captureMoves)
+        # default
+        return moveSet
+     
+    # you won if you lost all your pieces, no other game over handling 
+    def getGameOverMessage(self):
+        player = self.board.getCurrentPlayer()
+        go = GameOver(self.board)
+        if go.noPiecesLeft():
+            msg = 'No pieces left'
+            winner = player.mq.shortenedId
+            result = '1-0' if player.color == self.COLORS[0] else '0-1'
+            return self._generateGameOverMessage(msg, result, winner)
+        else:
+            return None
+        
