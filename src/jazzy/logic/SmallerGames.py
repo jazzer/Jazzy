@@ -18,19 +18,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 from jazzy.logic.ClassicGame import ClassicGame
+from jazzy.logic.Pieces import *
 
-class HandycapPawnAndMoveGame(ClassicGame):
-     def startInit(self):
-        super(HandycapPawnAndMoveGame, self).startInit('rnbqkbnr/ppppp1pp/8/8/8/8/PPPPPPPP/RNBQKBNR')
+class MicroGame(ClassicGame):    
+    def startInit(self):
+        super(MicroGame,self).startInit('knbr/p3/4/3P/RNBK')
+        self.pieceMap['p'] = SlowPawn
 
-class HandycapKnightGame(ClassicGame):    
+class LosAlamosGame(ClassicGame):    
     def startInit(self):
-        super(HandycapKnightGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R1BQKBNR')
-        
-class HandycapRookGame(ClassicGame):    
-    def startInit(self):
-        super(HandycapRookGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1NBQKBNR')
-        
-class HandycapQueenGame(ClassicGame):    
-    def startInit(self):
-        super(HandycapQueenGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR')
+        super(LosAlamosGame,self).startInit('rnqknr/pppppp/6/6/PPPPPP/RNQKNR')
+        self.pieceMap['p'] = SlowPawn

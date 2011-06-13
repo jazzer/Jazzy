@@ -21,13 +21,12 @@ from jazzy.logic.ClassicGame import ClassicGame
 from jazzy.logic.MoveHistory import Move
 from jazzy.logic.GameOver import GameOver
 from jazzy.server.MessageHandler import Message
+from jazzy.logic.Pieces import *
 
 class CoinGame(ClassicGame):
     def startInit(self):
-        # do the normal things
-        super(CoinGame, self).startInit()
-        # change something
-        self.fenPos = 'rnbqkbnr/pppppppp/8/8/8/4C3/PPPPPPPP/RNBQKBNR'
+        super(CoinGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/4C3/PPPPPPPP/RNBQKBNR')
+        self.pieceMap['c'] = Coin
     
     def endInit(self):
         # do the normal things

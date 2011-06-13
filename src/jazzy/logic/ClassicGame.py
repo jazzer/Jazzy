@@ -19,40 +19,53 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 import uuid
 import copy
+import re
 from jazzy.logic.Board import Board
 from jazzy.server.MessageHandler import Message
 from jazzy.logic.MoveHistory import MoveHistory
 from jazzy.server.Player import Player
 from jazzy.logic.GameOver import GameOver
+from jazzy.logic.Pieces import *
 
 class ClassicGame():
-    
+       
     def __init__(self):
-        self.startInit()        
+        self.startInit()
         self.endInit()
     
-    def startInit(self):
+    def startInit(self, fenPos = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'):
         # settings
         self.NUM_PLAYERS = 2
         self.COLORS = ['white', 'black']
         self.CHECK_FOR_CHECK = True
+        self.PROMOTION = True
+        self.CASTLING = True
+        self.EN_PASSANT = True
+        
+        # handle fen
+        self.fenPos = fenPos
+        self.inferBoardSize(); 
         
         # setup code
         self.id = uuid.uuid4().hex
         self.players = []
         self.watchers = []
         self.moveHistory = MoveHistory()
-        self.board_width = 8
-        self.board_height = 8
-        self.fenPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
         self.currentPlayerId = 0
         self.possibleMoves = None
+        
+        # piece settings
+        self.pawnPieceTypes = {'p'}
         self.kingPieceTypes = {'k'}
+        self.pieceMap = {'k': King, 'q': Queen, 'r': Rook, 'b': Bishop, 'n': Knight, 'p': Pawn}
+        self.usedPieces = self.pieceMap.keys()
+        
         self.joinedPlayers = 0
         self.finished = False
             
     def endInit(self):
-        self.board = Board(self, width=self.board_width, height=self.board_height)
+        if not hasattr(self, 'board') or self.board == None:
+            self.board = Board(self, width=self.board_width, height=self.board_height)
         # pregenerate players to avoid nasty errors before all players have joined
         for i in range(self.NUM_PLAYERS):
             player = Player()
@@ -60,6 +73,22 @@ class ClassicGame():
             self.players.append(player)            
         # load position
         self.board.loadFenPos(self.fenPos)
+        
+    def inferBoardSize(self):
+        # get board's height
+        self.board_height = self.fenPos.count('/') + 1
+        # get board's width
+        chars = list(self.fenPos[:self.fenPos.find('/') + 1])
+        width = len(chars)
+        addValue = 0
+        for char in chars:
+            if re.match('\d', char):
+                addValue = addValue * 10 + int(char)
+            elif addValue != 0:
+                width += addValue - 1
+                addValue = 0
+                            
+        self.board_width = width - 1
        
     def move(self, move, board):
         # delegate the actual moving to the board we are operating on
@@ -163,11 +192,26 @@ class ClassicGame():
         for pos in pieces:
             moveSet |= board.fields[pos].getPossibleMoves(pos)
         return moveSet
+    
+    def parseCastling(self, moveSet, board, player):
+        return moveSet
+
+    def parsePromotion(self, moveSet, board, player):
+        return moveSet
+
+    def parseEnPassant(self, moveSet, board, player):
+        return moveSet
         
     def filterMovesByRules(self, moveSet, board, player):
         # add (!) castling options here
+        if self.CASTLING:
+            self.parseCastling(moveSet, board, player)
         # add promotion variants?
+        if self.PROMOTION:
+            self.parsePromotion(moveSet, board, player)
         # add en passant moves
+        if self.EN_PASSANT:
+            self.parseEnPassant(moveSet, board, player)
         return moveSet
 
     def filterMovesToCheck(self, moveSet, board, player):

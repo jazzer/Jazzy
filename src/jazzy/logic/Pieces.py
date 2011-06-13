@@ -191,6 +191,12 @@ class Pawn(Piece):
                              ]
 
         return super(Pawn, self).getPossibleMoves(currPos)
+
+class SlowPawn(Pawn):
+    def __init__(self, color, board):
+        Pawn.__init__(self, color, board)
+        # settings
+        self.START_BOOST = 1
     
     
 class Coin(Piece):

@@ -531,7 +531,7 @@ function parseMQ(data) {
 			case "gameover":
 				goMsg = "Game finished. Result: " + data[i]['result'] + " (" + data[i]['msg'] + ")"
 				addServerMessage(goMsg);
-				alert(goMsg);
+				setTimeout(function () { alert(goMsg); }, 1000);
 				// TODO play sound 
 				break;
 			case "gamesit":

@@ -26,21 +26,6 @@ class CylindricGame(ClassicGame):
         # change something
         self.board.LIMIT_LEFT_RIGHT = False
 
-class LosAlamosGame(ClassicGame):    
-    def startInit(self):
-        # do the normal things
-        super(LosAlamosGame,self).startInit()
-        # change something
-        self.board_width = 6
-        self.board_height = 6
-        self.fenPos = 'rnqknr/pppppp/6/6/PPPPPP/RNQKNR'
-    
-    def endInit(self):
-        # do the normal things
-        super(LosAlamosGame,self).endInit()
-        # slow down the pawns
-        self.setPawnSpeed(1,1)
-            
 class PawnGame(ClassicGame):
     def startInit(self):
         # do the normal things

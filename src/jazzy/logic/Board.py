@@ -29,8 +29,6 @@ class Board(object):
         self.width = width
         self.height = height
         self.clear() # self.fields is created here
-        self.pieceMap = {'k': King, 'q': Queen, 'r': Rook, 'b': Bishop, 'n': Knight, 'p': Pawn, 'c': Coin}
-        self.usedPieces = self.pieceMap.keys()
         self.moveCount = 0
         
         # settings
@@ -114,11 +112,11 @@ class Board(object):
         self.fields = []
         for _ in range(self.width * self.height):
             self.fields.append(None)
-        
+    
     def loadFenPos(self, fenString):
         # clear fields
         self.clear()
-        self.usedPieces = set()
+        self.game.usedPieces = set()
         
         # create new pieces        
         chars = list(fenString)
@@ -137,8 +135,8 @@ class Board(object):
                     posCounter = posCounter + addValue
                     addValue = 0
                 # piece of some kind
-                pieceClass = self.pieceMap[char.lower()]
-                self.usedPieces.add(char.lower());
+                pieceClass = self.game.pieceMap[char.lower()]
+                self.game.usedPieces.add(char.lower());
                 color = 'white' if char.isupper() else 'black'
                 piece = pieceClass(color, self)
                 #print("setting " + piece.__unicode__() + " to " + str(posCounter))
