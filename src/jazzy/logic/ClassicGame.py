@@ -33,7 +33,7 @@ class ClassicGame():
         self.startInit()
         self.endInit()
     
-    def startInit(self, fenPos = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'):
+    def startInit(self, fenPos='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'):
         # settings
         self.NUM_PLAYERS = 2
         self.COLORS = ['white', 'black']
@@ -41,6 +41,12 @@ class ClassicGame():
         self.PROMOTION = True
         self.CASTLING = True
         self.EN_PASSANT = True
+        
+        # piece settings
+        self.pawnPieceTypes = {'p'}
+        self.kingPieceTypes = {'k'}
+        self.pieceMap = {'k': King, 'q': Queen, 'r': Rook, 'b': Bishop, 'n': Knight, 'p': Pawn}
+        self.usedPieces = self.pieceMap.keys()
         
         # handle fen
         self.fenPos = fenPos
@@ -54,25 +60,28 @@ class ClassicGame():
         self.currentPlayerId = 0
         self.possibleMoves = None
         
-        # piece settings
-        self.pawnPieceTypes = {'p'}
-        self.kingPieceTypes = {'k'}
-        self.pieceMap = {'k': King, 'q': Queen, 'r': Rook, 'b': Bishop, 'n': Knight, 'p': Pawn}
-        self.usedPieces = self.pieceMap.keys()
         
+        # internal stuff
         self.joinedPlayers = 0
         self.finished = False
             
     def endInit(self):
+        # create board if it has not yet been done (by overloading and because of special needs)
         if not hasattr(self, 'board') or self.board == None:
             self.board = Board(self, width=self.board_width, height=self.board_height)
+        
         # pregenerate players to avoid nasty errors before all players have joined
         for i in range(self.NUM_PLAYERS):
             player = Player()
             player.color = self.COLORS[i]
-            self.players.append(player)            
+            self.players.append(player)  
+                      
         # load position
         self.board.loadFenPos(self.fenPos)
+
+        # promotion settings
+        self.promotionFields = [[self.board.getRankFields(0)], [self.board.getRankFields(self.board_height - 1)]]
+
         
     def inferBoardSize(self):
         # get board's height

@@ -28,7 +28,5 @@ class CylindricGame(ClassicGame):
 
 class PawnGame(ClassicGame):
     def startInit(self):
-        # do the normal things
-        super(PawnGame,self).startInit()
-        # change something
-        self.fenPos = '8/pppppppp/8/8/8/8/PPPPPPPP/8'
+        super(PawnGame,self).startInit('8/pppppppp/8/8/8/8/PPPPPPPP/8')
+        # TODO game over handling!        

@@ -18,17 +18,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 from jazzy.logic.ClassicGame import ClassicGame
-from jazzy.logic.Pieces import *
 
+class HandicapPawnAndMoveGame(ClassicGame):
+     def startInit(self):
+        super(HandicapPawnAndMoveGame, self).startInit('rnbqkbnr/ppppp1pp/8/8/8/8/PPPPPPPP/RNBQKBNR')
 
-# http://en.wikipedia.org/wiki/Minichess
-
-class MicroGame(ClassicGame):    
+class HandicapKnightGame(ClassicGame):    
     def startInit(self):
-        super(MicroGame,self).startInit('knbr/p3/4/3P/RNBK')
-        self.pieceMap['p'] = SlowPawn
-
-class LosAlamosGame(ClassicGame):    
+        super(HandicapKnightGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R1BQKBNR')
+        
+class HandicapRookGame(ClassicGame):    
     def startInit(self):
-        super(LosAlamosGame,self).startInit('rnqknr/pppppp/6/6/PPPPPP/RNQKNR')
-        self.pieceMap['p'] = SlowPawn
+        super(HandicapRookGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1NBQKBNR')
+        
+class HandicapQueenGame(ClassicGame):    
+    def startInit(self):
+        super(HandicapQueenGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR')

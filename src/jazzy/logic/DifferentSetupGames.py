@@ -20,15 +20,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 from jazzy.logic.ClassicGame import ClassicGame
 from jazzy.logic.Pieces import *
 
-
-# http://en.wikipedia.org/wiki/Minichess
-
-class MicroGame(ClassicGame):    
+# http://en.wikipedia.org/wiki/Legan_chess
+class LeganGame(ClassicGame):    
     def startInit(self):
-        super(MicroGame,self).startInit('knbr/p3/4/3P/RNBK')
-        self.pieceMap['p'] = SlowPawn
-
-class LosAlamosGame(ClassicGame):    
-    def startInit(self):
-        super(LosAlamosGame,self).startInit('rnqknr/pppppp/6/6/PPPPPP/RNQKNR')
-        self.pieceMap['p'] = SlowPawn
+        super(LeganGame,self).startInit('knbrp3/bqpp4/npp5/rp1p3P/p3P1PR/5PPN/4PPQB/3PRBNK')
+        self.pieceMap['p'] = LeganPawn
+        self.promotionFields = [[0, 1, 2, 3, 8, 16, 24], [39, 47, 55, 60, 61, 62, 63]]

@@ -26,6 +26,7 @@ from MessageHandler import MessageQueuePool
 from GamePool import GamePool
 from jazzy.logic.DifferentBoardGames import *
 from jazzy.logic.DifferentPiecesGames import *
+from jazzy.logic.DifferentSetupGames import *
 from jazzy.logic.SmallerGames import *
 from jazzy.logic.HandicapGames import *
 from MessageHandler import Message
@@ -44,6 +45,8 @@ availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic Chess'},
                    'Pawn': {'class': PawnGame, 'desc': 'Pawn Chess'},
                    'Los_Alamos': {'class': LosAlamosGame, 'desc': 'Los Alamos'},
                    'Micro': {'class': MicroGame, 'desc': 'Micro chess'},
+                   'Legan': {'class': LeganGame, 'desc': 'Legan chess'},
+                   'Berolina': {'class': BerolinaGame, 'desc': 'Berolina chess'},
                    'Handicap_Queen': {'class': HandicapQueenGame, 'desc': 'Handicap (White without Queen)'},
                    'Handicap_Rook': {'class': HandicapRookGame, 'desc': 'Handicap (White without rook a1)'},
                    'Handicap_Knight': {'class': HandicapKnightGame, 'desc': 'Handicap (White without knight b1)'},

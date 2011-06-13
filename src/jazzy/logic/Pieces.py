@@ -27,6 +27,7 @@ class Piece(object):
         self.color = color
         self.board = board
         self.shortName = ' '
+        self.moveCount = 0
 
     def getPossibleMoves(self, currPos):
         resultSet = set()
@@ -173,30 +174,63 @@ class Pawn(Piece):
         # settings
         self.START_BOOST = 2
         self.NORMAL_SPEED = 1
+        self.STRAIGHT = {'type': 'move_only'}
+        self.DIAGONAL = {'type': 'hit_only'}
+        self.changedSpeed = False
+        # enable hooking
+        self.endInit()
+        
+    def endInit(self):
+        dirY = 1 if self.color == 'black' else - 1
+        self.moveType = [
+              {'dirX': 1, 'dirY': dirY, 'max': 1},
+              {'dirX':-1, 'dirY': dirY, 'max': 1},
+              {'dirX': 0, 'dirY': dirY, 'max': self.START_BOOST}
+        ]
+        # add types
+        if not(self.DIAGONAL is None):
+            self.moveType[0][self.DIAGONAL['type']] = True
+            self.moveType[1][self.DIAGONAL['type']] = True
+        if not(self.STRAIGHT is None):
+            self.moveType[2][self.STRAIGHT['type']] = True
+            
+        print(str(self.moveType))
         
     def getPossibleMoves(self, currPos):
-        row = currPos // self.board.width
-        dirY = 1 if self.color == 'black' else - 1
-        if (row == 1 and self.color == 'black') or (row == (self.board.height - 2) and self.color == 'white'):
-            self.moveType = [
-                             {'dirX': 0, 'dirY': dirY, 'max': self.START_BOOST, 'move_only': True},
-                             {'dirX': 1, 'dirY': dirY, 'max': 1, 'hit_only': True},
-                             {'dirX':-1, 'dirY': dirY, 'max': 1, 'hit_only': True}
-                             ]
-        else:
-            self.moveType = [
-                             {'dirX': 0, 'dirY': dirY, 'max': self.NORMAL_SPEED, 'move_only': True},
-                             {'dirX': 1, 'dirY': dirY, 'max': 1, 'hit_only': True},
-                             {'dirX':-1, 'dirY': dirY, 'max': 1, 'hit_only': True}
-                             ]
-
+        # move type can only change after first move in this standard configuration
+        if (self.moveCount == 1 and not self.changedSpeed):
+            for moveType in self.moveType:
+                if not('hit_only' in moveType):
+                    moveType['max'] = self.NORMAL_SPEED
+            self.changedSpeed = True
+        
         return super(Pawn, self).getPossibleMoves(currPos)
 
 class SlowPawn(Pawn):
     def __init__(self, color, board):
-        Pawn.__init__(self, color, board)
+        super(SlowPawn, self).__init__(self, color, board)
         # settings
         self.START_BOOST = 1
+
+class LeganPawn(Pawn):
+    def endInit(self):
+        super(LeganPawn, self).endInit()
+        # settings
+        dirX = 1 if self.color == 'black' else - 1
+        dirY = 1 if self.color == 'black' else - 1
+        self.moveType = [
+              {'dirX': 0, 'dirY': dirY, 'max': 1, 'hit_only': True},
+              {'dirX': dirX, 'dirY': 0, 'max': 1, 'hit_only': True},
+              {'dirX': dirX, 'dirY': dirY, 'max': self.START_BOOST, 'move_only': True}
+        ]
+
+class BerolinaPawn(Pawn):
+    def endInit(self):
+        # settings
+        self.DIAGONAL = {'type': 'move_only'}
+        self.STRAIGHT = {'type': 'hit_only'}
+
+        super(BerolinaPawn, self).endInit()
     
     
 class Coin(Piece):

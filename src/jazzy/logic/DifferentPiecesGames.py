@@ -23,6 +23,13 @@ from jazzy.logic.GameOver import GameOver
 from jazzy.server.MessageHandler import Message
 from jazzy.logic.Pieces import *
 
+
+# http://en.wikipedia.org/wiki/Berolina_chess
+class BerolinaGame(ClassicGame):
+    def startInit(self):
+        super(BerolinaGame, self).startInit()
+        self.pieceMap['p'] = BerolinaPawn
+    
 class CoinGame(ClassicGame):
     def startInit(self):
         super(CoinGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/4C3/PPPPPPPP/RNBQKBNR')

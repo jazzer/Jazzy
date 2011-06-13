@@ -165,6 +165,8 @@ class Board(object):
         fromPiece = self.fields[move.fromField]
         self.fields[move.toField] = fromPiece
         self.fields[move.fromField] = None
+        # count the move (important for pawns for example)
+        fromPiece.moveCount += 1 
         
     def getPlayerMoves(self, player):
         targets = set([])
@@ -180,12 +182,15 @@ class Board(object):
             targets |= set(piece.getPossibleMoves(i))
         return targets
     
+    def getRankFields(self, index):
+        return range(self.mergePos(0, index), self.mergePos(self.width - 1, index))
+    
     def isInCheck(self, player):
         kingPositions = self.findPieces(self.game.kingPieceTypes, player.color)
         if (len(kingPositions) != 1):
             return False
             
-        nextMoves = self.game.getPossibleMoves(self, checkTest = False, player = self.getNextPlayer(player))
+        nextMoves = self.game.getPossibleMoves(self, checkTest=False, player=self.getNextPlayer(player))
         # check all the moves for one which killed the last king
         targetFields = []
         for nextMove in nextMoves:
