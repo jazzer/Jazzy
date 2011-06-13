@@ -111,7 +111,7 @@ class AntiGame(ClassicGame):
         # default
         return moveSet
      
-    # you won if you lost all your pieces, no other game over handling 
+    # you won if you lost all your pieces
     def getGameOverMessage(self):
         player = self.board.getCurrentPlayer()
         go = GameOver(self.board)
@@ -121,5 +121,5 @@ class AntiGame(ClassicGame):
             result = '1-0' if player.color == self.COLORS[0] else '0-1'
             return self._generateGameOverMessage(msg, result, winner)
         else:
-            return None
+            return super(AntiGame, self).getGameOverMessage()
         
