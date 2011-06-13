@@ -120,6 +120,10 @@ class AntiGame(ClassicGame):
             winner = player.mq.shortenedId
             result = '1-0' if player.color == self.COLORS[0] else '0-1'
             return self._generateGameOverMessage(msg, result, winner)
-        else:
-            return super(AntiGame, self).getGameOverMessage()
+        elif go.noLegalMove():
+            msg = 'No legal move'
+            winner = ''
+            result = '0.5-0.5'
+            return self._generateGameOverMessage(msg, result, winner)
+        return None
         
