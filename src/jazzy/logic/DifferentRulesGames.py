@@ -19,13 +19,32 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 from jazzy.logic.ClassicGame import ClassicGame
 import math
+from jazzy.logic.GameOver import GameOver
 
 class ExtinctionGame(ClassicGame):    
-    pass
+    def getGameOverMessage(self):
+        # player extincted?
+        player = self.board.getNextCurrentPlayer()
+        go = GameOver(self.board)
+        if go.notRequiredPiecesLeft(self.usedPieces):
+            return self._valueResult(player, 'Extincted')
+        # default stuff
+        return super(ExtinctionGame, self).getGameOverMessage()
+        
+    def _valueResult(self, player, msg):
+        if msg == 'Extincted':
+            winner = player.mq.shortenedId
+            result = '1-0' if player.color == self.COLORS[0] else '0-1'
+            return self._generateGameOverMessage(msg, result, winner)
+        # default stuff
+        return super(ExtinctionGame, self)._valueResult(player, msg)
 
 # http://en.wikipedia.org/wiki/Monochromatic_chess
 class MonochromaticGame(ClassicGame):    
     def filterMovesByRules(self, moveSet, board, player):
+        self.colorCheck(self, moveSet, board, player, 1)
+        
+    def colorCheck(self, moveSet, board, player, modulo):
         # keep what's in basic game
         moveSet = super(MonochromaticGame, self).filterMovesByRules(moveSet, board, player)
         # filter our moves
@@ -33,20 +52,21 @@ class MonochromaticGame(ClassicGame):
             fromSplit = self.board.splitPos(move.fromField);
             toSplit = self.board.splitPos(move.toField);
             # Manhattan distance even or odd?
-            if (math.fabs(fromSplit[0] - toSplit[0]) + math.fabs(fromSplit[1] - toSplit[1])) % 2 == 1:
+            if (math.fabs(fromSplit[0] - toSplit[0]) + math.fabs(fromSplit[1] - toSplit[1])) % 2 == modulo:
                 moveSet.remove(move)
-        return moveSet    
+        return moveSet
+    
+    def _valueResult(self, player, msg):
+        if msg == 'Stalemate':
+            winner = self.board.getNextCurrentPlayer().mq.shortenedId
+            result = '0-1' if player.color == self.COLORS[0] else '1-0'
+            return self._generateGameOverMessage('No legal move', result, winner)
+        # default stuff
+        return super(ExtinctionGame, self)._valueResult(player, msg)
+
 
 # http://en.wikipedia.org/wiki/Monochromatic_chess
-class BichromaticGame(ClassicGame):    
+class BichromaticGame(MonochromaticGame):    
     def filterMovesByRules(self, moveSet, board, player):
-        # keep what's in basic game
-        moveSet = super(MonochromaticGame, self).filterMovesByRules(moveSet, board, player)
-        # filter our moves
-        for move in set(moveSet):
-            fromSplit = self.board.splitPos(move.fromField);
-            toSplit = self.board.splitPos(move.toField);
-            # Manhattan distance even or odd?
-            if (math.fabs(fromSplit[0] - toSplit[0]) + math.fabs(fromSplit[1] - toSplit[1])) % 2 == 0:
-                moveSet.remove(move)
-        return moveSet    
+        self.colorCheck(self, moveSet, board, player, 0)
+        

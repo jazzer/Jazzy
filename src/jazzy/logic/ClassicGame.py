@@ -151,26 +151,32 @@ class ClassicGame():
     
     def getGameOverMessage(self):
         player = self.board.getNextCurrentPlayer()
-        msg = None
         go = GameOver(self.board)
         if go.noLegalMove():
             if go.inCheck():
-                msg = 'Checkmate'
-                winner = player.mq.shortenedId
-                result = '1-0' if player.color == self.COLORS[0] else '0-1'
+                return self._generateGameOverMessage(player, 'Checkmate')
             else:
-                msg = 'Stalemate'
-                winner = ''
-                result = '0.5-0.5'
-        
-        # TODO 50 moves, repetition
-        
-        # build message
-        if not(msg is None):
-            return Message('gameover', {'winner': winner, 'msg': msg, 'result': result})
+                return self._generateGameOverMessage(player, 'Stalemate')
+            
+            # TODO 50 moves, repetition
             
         return None
     
+    def _valueResult(self, player, msg):
+        if msg == 'Checkmate':
+            winner = player.mq.shortenedId
+            result = '1-0' if player.color == self.COLORS[0] else '0-1'
+        elif msg == 'Stalemate':
+            winner = ''
+            result = '0.5-0.5'
+        
+        return self._generateGameOverMessage(msg, result, winner)
+            
+    def _generateGameOverMessage(self, msg, result, winner):
+        # build message
+        if not(msg is None):
+            return Message('gameover', {'winner': winner, 'msg': msg, 'result': result})
+        
     def parsePossibleMoves(self):
         if self.board.getCurrentPlayer() is None:
             return

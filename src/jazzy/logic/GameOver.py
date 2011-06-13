@@ -41,5 +41,8 @@ class GameOver(object):
     def notRequiredPiecesLeft(self, pieceSet):        
         currPlayer = self.board.getCurrentPlayer()
         pieces = self.board.findPlayersPieces(currPlayer)
-        return pieceSet in set(pieces)
+        pieceTypes = []
+        for piecePos in pieces:
+            pieceTypes.append(self.board.fields[piecePos].shortName)
+        return not pieceSet.issubset(set(pieceTypes))
     
