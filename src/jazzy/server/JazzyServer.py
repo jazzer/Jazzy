@@ -27,7 +27,7 @@ from GamePool import GamePool
 from jazzy.logic.DifferentBoardGames import *
 from jazzy.logic.DifferentPiecesGames import *
 from jazzy.logic.SmallerGames import *
-from jazzy.logic.HandycapGames import *
+from jazzy.logic.HandicapGames import *
 from MessageHandler import Message
 from jazzy.logic.MoveHistory import Move
 from jazzy.logic.MoveHistory import MoveHistory
@@ -44,10 +44,10 @@ availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic Chess'},
                    'Pawn': {'class': PawnGame, 'desc': 'Pawn Chess'},
                    'Los_Alamos': {'class': LosAlamosGame, 'desc': 'Los Alamos'},
                    'Micro': {'class': MicroGame, 'desc': 'Micro chess'},
-                   'Handycap_Queen': {'class': HandycapQueenGame, 'desc': 'Handycap (White without Queen)'},
-                   'Handycap_Rook': {'class': HandycapRookGame, 'desc': 'Handycap (White without rook a1)'},
-                   'Handycap_Knight': {'class': HandycapKnightGame, 'desc': 'Handycap (White without knight b1)'},
-                   'Handycap_PawnAndMove': {'class': HandycapPawnAndMoveGame, 'desc': 'Handycap (Black without pawn f7)'},
+                   'Handicap_Queen': {'class': HandicapQueenGame, 'desc': 'Handicap (White without Queen)'},
+                   'Handicap_Rook': {'class': HandicapRookGame, 'desc': 'Handicap (White without rook a1)'},
+                   'Handicap_Knight': {'class': HandicapKnightGame, 'desc': 'Handicap (White without knight b1)'},
+                   'Handicap_PawnAndMove': {'class': HandicapPawnAndMoveGame, 'desc': 'Handicap (Black without pawn f7)'},
                    'Coin': {'class': CoinGame, 'desc': 'Coin Chess'}}
 availible_games_json = {}
 for key in availible_games.keys():
