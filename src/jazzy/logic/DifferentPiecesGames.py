@@ -34,14 +34,6 @@ class CoinGame(ClassicGame):
     def startInit(self):
         super(CoinGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/4C3/PPPPPPPP/RNBQKBNR')
         self.pieceMap['c'] = Coin
-    
-    def endInit(self):
-        # do the normal things
-        super(CoinGame, self).endInit()
-        # change something
-        coin_pos = self.board.findPieces('c', None)
-        for pos in coin_pos:
-            self.board.fields[pos].color = None
             
     def getGameOverMessage(self):
         player = self.board.getCurrentPlayer()

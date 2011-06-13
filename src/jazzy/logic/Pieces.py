@@ -171,6 +171,11 @@ class Pawn(Piece):
     def __init__(self, color, board):
         Piece.__init__(self, color, board)
         self.shortName = 'p'
+
+        self.startInit()
+        self.endInit()
+    
+    def startInit(self):
         # settings
         self.START_BOOST = 2
         self.NORMAL_SPEED = 1
@@ -206,8 +211,8 @@ class Pawn(Piece):
         return super(Pawn, self).getPossibleMoves(currPos)
 
 class SlowPawn(Pawn):
-    def __init__(self, color, board):
-        super(SlowPawn, self).__init__(color, board)
+    def startInit(self):
+        super(SlowPawn, self).startInit()
         # settings
         self.START_BOOST = 1
 
@@ -234,5 +239,5 @@ class BerolinaPawn(Pawn):
     
 class Coin(Piece):
     def __init__(self, color, board):
-        Piece.__init__(self, color, board)
+        Piece.__init__(self, None, board)
         self.shortName = 'c'
