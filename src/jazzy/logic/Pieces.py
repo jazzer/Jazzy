@@ -194,7 +194,6 @@ class Pawn(Piece):
         if not(self.STRAIGHT is None):
             self.moveType[2][self.STRAIGHT['type']] = True
             
-        print(str(self.moveType))
         
     def getPossibleMoves(self, currPos):
         # move type can only change after first move in this standard configuration
@@ -208,7 +207,7 @@ class Pawn(Piece):
 
 class SlowPawn(Pawn):
     def __init__(self, color, board):
-        super(SlowPawn, self).__init__(self, color, board)
+        super(SlowPawn, self).__init__(color, board)
         # settings
         self.START_BOOST = 1
 

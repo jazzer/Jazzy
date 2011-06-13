@@ -27,6 +27,7 @@ from GamePool import GamePool
 from jazzy.logic.DifferentBoardGames import *
 from jazzy.logic.DifferentPiecesGames import *
 from jazzy.logic.DifferentSetupGames import *
+from jazzy.logic.DifferentRulesGames import *
 from jazzy.logic.SmallerGames import *
 from jazzy.logic.HandicapGames import *
 from MessageHandler import Message
@@ -35,6 +36,7 @@ from jazzy.logic.MoveHistory import MoveHistory
 from Player import Player, Watcher
 import json
 import os
+from jazzy.logic.DifferentRulesGames import MonochromaticGame
 
 HOST_NAME = '' # public!
 PORT_NUMBER = 8090
@@ -47,6 +49,8 @@ availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic Chess'},
                    'Micro': {'class': MicroGame, 'desc': 'Micro chess'},
                    'Legan': {'class': LeganGame, 'desc': 'Legan chess'},
                    'Berolina': {'class': BerolinaGame, 'desc': 'Berolina chess'},
+                   'Monochromatic': {'class': MonochromaticGame, 'desc': 'Monochromatic chess'},
+                   'Bichromatic': {'class': BichromaticGame, 'desc': 'Bichromatic chess'},
                    'Handicap_Queen': {'class': HandicapQueenGame, 'desc': 'Handicap (White without Queen)'},
                    'Handicap_Rook': {'class': HandicapRookGame, 'desc': 'Handicap (White without rook a1)'},
                    'Handicap_Knight': {'class': HandicapKnightGame, 'desc': 'Handicap (White without knight b1)'},

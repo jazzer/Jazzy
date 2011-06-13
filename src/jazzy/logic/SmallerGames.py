@@ -25,7 +25,7 @@ from jazzy.logic.Pieces import *
 
 class MicroGame(ClassicGame):    
     def startInit(self):
-        super(MicroGame,self).startInit('knbr/p3/4/3P/RNBK')
+        super(MicroGame,self).startInit('knbr/p3/4/3P/RBNK')
         self.pieceMap['p'] = SlowPawn
 
 class LosAlamosGame(ClassicGame):    

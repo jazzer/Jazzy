@@ -166,8 +166,8 @@ class Board(object):
         self.fields[move.toField] = fromPiece
         self.fields[move.fromField] = None
         # count the move (important for pawns for example)
-        fromPiece.moveCount += 1 
-        
+        fromPiece.moveCount += 1
+                
     def getPlayerMoves(self, player):
         targets = set([])
         for i in range(len(self.fields)):
