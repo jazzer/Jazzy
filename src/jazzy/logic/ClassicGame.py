@@ -154,9 +154,9 @@ class ClassicGame():
         go = GameOver(self.board)
         if go.noLegalMove():
             if go.inCheck():
-                return self._generateGameOverMessage(player, 'Checkmate')
+                return self._valueResult(player, 'Checkmate')
             else:
-                return self._generateGameOverMessage(player, 'Stalemate')
+                return self._valueResult(player, 'Stalemate')
             
             # TODO 50 moves, repetition
             

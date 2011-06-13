@@ -58,7 +58,7 @@ class MonochromaticGame(ClassicGame):
     
     def _valueResult(self, player, msg):
         if msg == 'Stalemate':
-            winner = self.board.getNextCurrentPlayer().mq.shortenedId
+            winner = self.board.getCurrentPlayer().mq.shortenedId
             result = '0-1' if player.color == self.COLORS[0] else '1-0'
             return self._generateGameOverMessage('No legal move', result, winner)
         # default stuff
@@ -70,3 +70,20 @@ class BichromaticGame(MonochromaticGame):
     def filterMovesByRules(self, moveSet, board, player):
         self.colorCheck(self, moveSet, board, player, 0)
         
+        
+        
+# http://en.wikipedia.org/wiki/Checkless_chess
+class ChecklessGame(ClassicGame):    
+    def getGameOverMessage(self):
+        result = super(ChecklessGame, self).getGameOverMessage()
+        if result is None:
+            player = self.board.getNextCurrentPlayer()
+            go = GameOver(self.board)
+            if go.inCheck():
+                msg = 'Check without mate'
+                winner = self.board.getCurrentPlayer().mq.shortenedId
+                result = '0-1' if player.color == self.COLORS[0] else '1-0'
+                return self._generateGameOverMessage(msg, result, winner)
+            else:
+                return None
+        return result
