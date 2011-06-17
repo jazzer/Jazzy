@@ -49,14 +49,18 @@ class DarkGame(ClassicGame):
         self.SHOW_LAST_MOVE = False
     
     def getFenPos(self, board, player):
-        visibleList = []
+        hiddenSet = set(range(board.width * board.height))
+        print(str(hiddenSet))
         # my pieces are visible
-        visibleList = visibleList + board.findPlayersPieces(player)
+        hiddenSet.difference_update(set(board.findPlayersPieces(player)))
+        print(str(hiddenSet))
         # my target fields are visible
         moves = board.getPlayerMoves(player)
         for move in moves:
-            visibleList.append(move.toField)
-        return self._getFenPosFiltered(board, player, visibleList)
+            if move.toField in hiddenSet:
+                hiddenSet.remove(move.toField)
+        print(str(hiddenSet))
+        return self._getFenPosFiltered(board, player, list(hiddenSet))
 
     def move(self, move, board):
         super(DarkGame, self).move(move, board)

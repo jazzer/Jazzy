@@ -251,14 +251,14 @@ class ClassicGame():
     def getFenPos(self, board, player):
         return self._getFenPosFiltered(board, player, [])
 
-    def _getFenPosFiltered(self, board, player, visibleList):
+    def _getFenPosFiltered(self, board, player, hiddenList):
         fenString = ''
         # build
         for row in range(board.height):
             for col in range(board.width):
                 pos = row * board.width + col
                 piece = board.fields[pos]
-                if piece is None or not(pos in visibleList):
+                if piece is None or pos in hiddenList:
                     fenString = fenString + '_'
                 else:
                     fenString = fenString + piece.getShortName()
