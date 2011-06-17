@@ -37,15 +37,11 @@ class Piece(object):
             for _ in range(mType['max']):
                 startPos = movedPos
                 
-                parts = self.board.splitPos(movedPos)
-                col = parts[0]
-                row = parts[1]
-
-                # calculate new position
-                newCol = (col + mType['dirX'] + self.board.width) % self.board.width
-                newRow = (row + mType['dirY'] + self.board.height) % self.board.height
-                    
-                movedPos = self.board.mergePos(newCol, newRow)
+                # move on board (respecting bounds)
+                movedPos = self.board.moveByDirection(startPos, mType['dirX'], mType['dirY'])
+                # did we hit bounds?
+                if movedPos is None:
+                    break
                 
                 # compute some features
                 fields = self.board.fields
@@ -57,11 +53,8 @@ class Piece(object):
                     break
                 elif ('move_only' in mType and mType['move_only'] == True) and not practically_empty:
                     break
-                     
-                # stay in bounds     
-                if not self.board.staysInBoard(startPos, movedPos, mType['dirX'], mType['dirY']):
-                    break
-                
+                 
+                                
                 # break if non-capturable piece blocks the way (usually own-colored)
                 if not(practically_empty) and not(capturable_piece):
                     break                                     

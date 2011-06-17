@@ -37,10 +37,14 @@ from Player import Player, Watcher
 import json
 import os
 from jazzy.logic.DifferentRulesGames import MonochromaticGame
+import gc
 
 HOST_NAME = '' # public!
 PORT_NUMBER = 8090
 STATIC_SERVE_BASE = "../jsclient"
+
+# enable garbage collection
+gc.enable()
 
 availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic Chess'},
                    'Cylindric': {'class': CylindricGame, 'desc': 'Cylindric Chess'},
@@ -52,6 +56,7 @@ availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic Chess'},
                    'Extinction': {'class': ExtinctionGame, 'desc': 'Extinction chess'},
                    'Checkless': {'class': ChecklessGame, 'desc': 'Checkless chess'},
                    'Anti': {'class': AntiGame, 'desc': 'Antichess'},
+                   'Atomic': {'class': AtomicGame, 'desc': 'Atomic chess'},
                    'Monochromatic': {'class': MonochromaticGame, 'desc': 'Monochromatic chess'},
                    'Bichromatic': {'class': BichromaticGame, 'desc': 'Bichromatic chess'},
                    'Handicap_Queen': {'class': HandicapQueenGame, 'desc': 'Handicap (White without Queen)'},

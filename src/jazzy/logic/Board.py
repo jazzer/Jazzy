@@ -65,30 +65,31 @@ class Board(object):
     def getDiffPos(self, fromXY, toXY):
         return (toXY[0] - fromXY[0], toXY[1] - fromXY[1])
     
-    def staysInBoard(self, fromField, toField, dirX, dirY):
-        fromXY = self.splitPos(fromField)
-        toXY = self.splitPos(toField)
+    def moveByDirectionFromPos(self, fromPos, dirX, dirY):
+        toPos = self.addPos(fromPos, (dirX, dirY))
                 
         if self.LIMIT_LEFT_RIGHT:
             toLeft = (dirX < 0)
             toRight = (dirX > 0)
-            if toLeft and toXY[0] > fromXY[0]:
-                #print("to left, but " + str(toXY[0]) + " > " + str(fromXY[0]))
-                return False
-            if toRight and toXY[0] < fromXY[0]:
-                #print("to right, but " + str(toXY[0]) + " < " + str(fromXY[0]))
-                return False
+            if toLeft and toPos[0] > fromPos[0]:
+                return None
+            if toRight and toPos[0] < fromPos[0]:
+                return None
         if self.LIMIT_TOP_BOTTOM:
             up = (dirY < 0)
             down = (dirY > 0)
-            if up and toXY[1] > fromXY[1]:
-                #print("up, but " + str(toXY[1]) + " > " + str(fromXY[1]))
-                return False
-            if down and toXY[1] < fromXY[1]:
-                #print("down, but " + str(toXY[1]) + " < " + str(fromXY[1]))
-                return False
+            if up and toPos[1] > fromPos[1]:
+                return None
+            if down and toPos[1] < fromPos[1]:
+                return None
         
-        return True
+        return toPos
+    
+    def moveByDirection(self, fromField, dirX, dirY):
+        result = self.moveByDirectionFromPos(self.splitPos(fromField), dirX, dirY)
+        if result is None:
+            return None
+        return self.mergePos(result[0], result[1])
     
     
     def fieldToString(self, id):

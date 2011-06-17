@@ -39,6 +39,18 @@ class ExtinctionGame(ClassicGame):
         # default stuff
         return super(ExtinctionGame, self)._valueResult(player, msg)
 
+# http://en.wikipedia.org/wiki/Atomic_chess
+class AtomicGame(ClassicGame):
+    def getGameOverMessage(self):
+        # king killed
+        player = self.board.getNextCurrentPlayer()
+        go = GameOver(self.board)
+        if go.notRequiredPiecesLeft(self.kingPieceTypes):
+            return self._valueResult(player, 'Extincted')
+        # default stuff
+        return super(ExtinctionGame, self).getGameOverMessage()
+        
+
 # http://en.wikipedia.org/wiki/Monochromatic_chess
 class MonochromaticGame(ClassicGame):    
     def filterMovesByRules(self, moveSet, board, player):
