@@ -71,7 +71,14 @@ class DarkGame(ClassicGame):
             player.mq.addMsg(sitMsg)
         return []
     
-    # TODO change gameover (extinction!)
+    def getGameOverMessage(self):
+        # king killed
+        player = self.board.getNextCurrentPlayer()
+        go = GameOver(self.board)
+        if go.notRequiredPiecesLeft(self.kingPieceTypes):
+            return self._valueResult(player, 'Extincted')
+        # default stuff
+        return super(DarkGame, self).getGameOverMessage()
 
 # http://en.wikipedia.org/wiki/Atomic_chess
 class AtomicGame(ClassicGame):
