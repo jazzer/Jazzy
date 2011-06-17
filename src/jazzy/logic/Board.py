@@ -145,23 +145,6 @@ class Board(object):
                 posCounter += 1     
         
     
-    def getFenPos(self):
-        fenString = ''
-        # build
-        for row in range(self.height):
-            for col in range(self.width):
-                piece = self.fields[row * self.width + col]
-                if piece is None:
-                    fenString = fenString + '_'
-                else:
-                    fenString = fenString + piece.getShortName()
-            fenString = fenString + '/'
-        # shorten
-        for length in range(self.width, 1, -1):
-            fenString = fenString.replace(('_' * length), str(length))
-            
-        return fenString[:-1]
-    
     def move(self, move):
         fromPiece = self.fields[move.fromField]
         self.fields[move.toField] = fromPiece

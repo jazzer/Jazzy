@@ -57,6 +57,7 @@ availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic Chess'},
                    'Checkless': {'class': ChecklessGame, 'desc': 'Checkless chess'},
                    'Anti': {'class': AntiGame, 'desc': 'Antichess'},
                    'Atomic': {'class': AtomicGame, 'desc': 'Atomic chess'},
+                   'Dark': {'class': DarkGame, 'desc': 'Dark chess'},
                    'Monochromatic': {'class': MonochromaticGame, 'desc': 'Monochromatic chess'},
                    'Bichromatic': {'class': BichromaticGame, 'desc': 'Bichromatic chess'},
                    'Handicap_Queen': {'class': HandicapQueenGame, 'desc': 'Handicap (White without Queen)'},
@@ -270,9 +271,12 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 
         elif (params[0] == 'watch'):
             game = gamePool.games[params[1]]
-            mq = self.createWatcher(game)
-            jsonoutput = json.dumps({'mqId': mq.id})
-            self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Watcher joined.'}), mq.subject)
+            if game.NO_WATCHERS:
+                jsonoutput = json.dumps([Message('srvmsg', {'msg': 'No watchers allowed.'}).data])
+            else:
+                mq = self.createWatcher(game)
+                jsonoutput = json.dumps({'mqId': mq.id})
+                self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Watcher joined.'}), mq.subject)
          
         elif (params[0] == 'getgames'):
             jsonoutput = json.dumps(availible_games_json)

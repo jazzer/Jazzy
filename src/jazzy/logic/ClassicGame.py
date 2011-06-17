@@ -41,6 +41,8 @@ class ClassicGame():
         self.PROMOTION = True
         self.CASTLING = True
         self.EN_PASSANT = True
+        self.NO_WATCHERS = False
+        self.SHOW_LAST_MOVE = True
         
         # piece settings
         self.pawnPieceTypes = {'p'}
@@ -129,11 +131,11 @@ class ClassicGame():
         else:
             flipped = True if mq.subject.color == 'black' else False
             
-        data = {'fen': mq.game.board.getFenPos(),
-                'board_size': str(mq.game.board.width) + 'x' + str(mq.game.board.height),
+        data = {'fen': self.getFenPos(self.board, mq.subject),
+                'board_size': str(self.board.width) + 'x' + str(self.board.height),
                 'flipped': flipped}
         # add last move if applicable    
-        if len(self.moveHistory.moves) > 0:
+        if len(self.moveHistory.moves) > 0 and self.SHOW_LAST_MOVE:
             lastMove = self.moveHistory.moves[-1];
             data['lmove_from'] = lastMove.fromField
             data['lmove_to'] = lastMove.toField
@@ -245,6 +247,27 @@ class ClassicGame():
         if move in self.possibleMoves:
             return True
         return False
+    
+    def getFenPos(self, board, player):
+        return self._getFenPosFiltered(board, player, [])
+
+    def _getFenPosFiltered(self, board, player, visibleList):
+        fenString = ''
+        # build
+        for row in range(board.height):
+            for col in range(board.width):
+                pos = row * board.width + col
+                piece = board.fields[pos]
+                if piece is None or not(pos in visibleList):
+                    fenString = fenString + '_'
+                else:
+                    fenString = fenString + piece.getShortName()
+            fenString = fenString + '/'
+        # shorten
+        for length in range(board.width, 1, -1):
+            fenString = fenString.replace(('_' * length), str(length))
+            
+        return fenString[:-1]
     
     def __unicode__(self):
         return "[Game] id=%s, type=%s" % (self.id, self.gameType)

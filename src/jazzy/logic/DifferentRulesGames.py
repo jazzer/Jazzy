@@ -40,6 +40,35 @@ class ExtinctionGame(ClassicGame):
         # default stuff
         return super(ExtinctionGame, self)._valueResult(player, msg)
 
+# http://en.wikipedia.org/wiki/Dark_chess
+class DarkGame(ClassicGame):
+    def startInit(self):
+        super(DarkGame, self).startInit()
+        self.CHECK_FOR_CHECK = False
+        self.NO_WATCHERS = True
+        self.SHOW_LAST_MOVE = False
+    
+    def getFenPos(self, board, player):
+        visibleList = []
+        # my pieces are visible
+        visibleList = visibleList + board.findPlayersPieces(player)
+        # my target fields are visible
+        moves = board.getPlayerMoves(player)
+        for move in moves:
+            visibleList.append(move.toField)
+        return self._getFenPosFiltered(board, player, visibleList)
+
+    def move(self, move, board):
+        super(DarkGame, self).move(move, board)
+        # always reissue current situation as message to all players
+        for player in self.players:
+            sitMsg = self.getSituationMessage(player.mq)
+            # issue the message to the player
+            player.mq.addMsg(sitMsg)
+        return []
+    
+    # TODO change gameover (extinction!)
+
 # http://en.wikipedia.org/wiki/Atomic_chess
 class AtomicGame(ClassicGame):
     def startInit(self, fenPos='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'):
