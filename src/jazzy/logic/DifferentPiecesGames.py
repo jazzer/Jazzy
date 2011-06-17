@@ -50,9 +50,11 @@ class CoinGame(ClassicGame):
     def move(self, move, board):
         coin_pos = board.findPieces('c', None).pop() # there only is one ;-)
         coin_target = coin_pos + (move.toField - move.fromField)
-        board.move(Move(coin_pos, coin_target))
+        coin_move = Move(coin_pos, coin_target)
+        coin_move.silent = True
+        board.move(coin_move)
         # normal stuff
-        return [Move(coin_pos, coin_target)] + super(CoinGame, self).move(move, board)
+        return [coin_move] + super(CoinGame, self).move(move, board)
     
     def filterMovesByRules(self, moveSet, board, player):
         moveSet = super(CoinGame, self).filterMovesByRules(moveSet, board, player)

@@ -166,8 +166,11 @@ class Board(object):
         fromPiece = self.fields[move.fromField]
         self.fields[move.toField] = fromPiece
         self.fields[move.fromField] = None
-        # count the move (important for pawns for example)
-        fromPiece.moveCount += 1
+        if not(move.toPiece is None):
+            if move.toPiece == '':
+                self.fields[move.toField] = None # remove the piece
+            else:
+                self.fields[move.toField] = move.toPiece
                 
     def getPlayerMoves(self, player):
         targets = set([])

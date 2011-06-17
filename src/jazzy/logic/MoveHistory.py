@@ -32,11 +32,12 @@ class Move():
     def __init__(self, fromField, toField):
         self.fromField = fromField
         self.toField = toField
-        #self.fromPiece 
-        #self.takenPiece  
-        #self.toPiece 
+        self.fromPiece = None
+        self.takenPiece = None  
+        self.toPiece = None 
         self.str = ''
         self.annotation = None
+        self.silent = False
         
     def parse(self, board):
         self.fromPiece = copy.deepcopy(board.fields[self.fromField])

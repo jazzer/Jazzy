@@ -159,6 +159,9 @@ class ClassicGame():
         if msg == 'Checkmate':
             winner = player.mq.shortenedId
             result = '1-0' if player.color == self.COLORS[0] else '0-1'
+        elif msg == 'Extincted':
+            winner = player.mq.shortenedId
+            result = '1-0' if player.color == self.COLORS[0] else '0-1'
         elif msg == 'Stalemate':
             winner = ''
             result = '0.5-0.5'

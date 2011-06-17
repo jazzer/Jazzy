@@ -221,6 +221,8 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                 for move in moves:
                     move.parse(mq.game.board)
                     data = {'from': move.fromField, 'to': move.toField}
+                    if move.silent:
+                        data['silent'] = True
                     if not(game.board.getCurrentPlayer() is None and not(game.finished)):
                         data['currP'] = game.board.getCurrentPlayer().mq.shortenedId
                     self.distributeToAll(game, Message('move', data))

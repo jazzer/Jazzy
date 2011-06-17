@@ -20,6 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 from jazzy.logic.ClassicGame import ClassicGame
 import math
 from jazzy.logic.GameOver import GameOver
+from jazzy.logic.MoveHistory import Move
 
 class ExtinctionGame(ClassicGame):    
     def getGameOverMessage(self):
@@ -41,6 +42,11 @@ class ExtinctionGame(ClassicGame):
 
 # http://en.wikipedia.org/wiki/Atomic_chess
 class AtomicGame(ClassicGame):
+    def startInit(self, fenPos='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'):
+        super(AtomicGame, self).startInit()
+        # settings
+        self.CHECK_FOR_CHECK = False
+        
     def getGameOverMessage(self):
         # king killed
         player = self.board.getNextCurrentPlayer()
@@ -48,8 +54,41 @@ class AtomicGame(ClassicGame):
         if go.notRequiredPiecesLeft(self.kingPieceTypes):
             return self._valueResult(player, 'Extincted')
         # default stuff
-        return super(ExtinctionGame, self).getGameOverMessage()
+        return super(AtomicGame, self).getGameOverMessage()
+     
+    def move(self, move, board):
+        capture = True
+        if board.fields[move.toField] is None:
+            capture = False
         
+        explosionMoves = super(AtomicGame, self).move(move, board)
+        
+        if not capture:
+            return explosionMoves
+        
+        # create explosion moves
+        target = move.toField
+        for x in [-1, 0, 1]:
+            for y in [-1, 0, 1]:
+                # piece itself
+                if x == 0 and y == 0:
+                    continue
+                # fields around it
+                explosionTarget = board.moveByDirection(target, x, y)
+                if explosionTarget is None:
+                    continue
+                if board.fields[explosionTarget] is None:
+                    continue 
+                if board.fields[explosionTarget].shortName in self.pawnPieceTypes:
+                    continue 
+                move = Move(explosionTarget, explosionTarget)
+                move.toPiece = '' # indicates that field will be cleared
+                move.silent = True
+                # execute on board
+                board.move(move) 
+                explosionMoves.append(move)
+                 
+        return explosionMoves
 
 # http://en.wikipedia.org/wiki/Monochromatic_chess
 class MonochromaticGame(ClassicGame):    

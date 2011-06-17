@@ -262,7 +262,7 @@ function _shortenFen(fenString) {
 }
 
 
-function move(from, to) {
+function move(from, to, silent) {
 	// sanitize input?
 	// without animation: $("#field" + from).children().detach().appendTo($("#field" + to).children().remove().end());
 
@@ -290,11 +290,16 @@ function move(from, to) {
 	    	}, 400, "swing", function() {
 		});
 	fromField.children().detach().prependTo(toField);
-	// sound
-	if (isCapture) {
-		playSound('media/capture');
-	} else {
-		playSound('media/move');
+
+	if (!silent) {
+		// highlight
+		highlight_move(from, to);
+		// sound
+		if (isCapture) {
+			playSound('media/capture');
+		} else {
+			playSound('media/move');
+		}
 	}
 }
 
@@ -519,8 +524,8 @@ function parseMQ(data) {
 		mtype = data[i]['mtype'];
 		switch (mtype) {
 			case "move":
-				move(data[i]['from'], data[i]['to']); 
-				highlight_move(data[i]['from'], data[i]['to']);
+				silent = data[i]['silent'] == true?true:false;
+				move(data[i]['from'], data[i]['to'], silent); 
 				parseCurrPlayer(data[i]['currP']);		
 				break;
 			case "movehist":
