@@ -69,6 +69,41 @@ h1, h2, h3, h4, h5, h6 {
 	background-color: #f66 !important;
 }
 
+/* data styles */
+
+#data .data_header {
+	background-color: #FFDD00;
+	padding: 0.45em;
+	padding-left: 18px;
+	text-align: left;
+	border-top: 1px dashed black;
+}
+#data .data_header .data_header_title {
+	font-weight: bolder;
+	font-size: 110%;
+	min-width: 25%;
+	float: left;
+}
+
+#data .data_header .inline_content {
+	font-size: 90%;
+	font-weight: normal;
+	padding-left: 3em;
+}
+#data .data_content {
+	background-color: #FFDDAA;
+	padding: 0.45em 1.45em;
+	padding-left: 18px;
+	text-align: left;
+	font-size: 90%;
+}
+#data .data_content_empty {
+	padding: 0em;
+}
+
+
+
+
 /* common styles for message and chat box */
 
 

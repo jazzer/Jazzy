@@ -12,7 +12,8 @@
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="jazzy_logic_classic.js"></script>
 <script type="text/javascript">
-	_playInit();	
+	_playInit();
+	_dataInit();
 </script>
 </head>
 
@@ -37,6 +38,30 @@
 <option>5</option>
 </select>
 </form>
+
+<!-- data display //-->
+<div id="data">
+<div id="data__game_type">
+<div class="data_header"><span class="data_header_title">Game Type</span> <span class="inline_content"></span></div>
+<div class="data_content_empty"></div>
+</div>
+<div id="data__turn">
+<div class="data_header"><span class="data_header_title">Turn</span> <span class="inline_content"></span></div>
+<div class="data_content_empty"></div>
+</div>
+<div id="data__clock">
+<div class="data_header"><span class="data_header_title">Clock</span> <span class="inline_content"></span></div>
+<div class="data_content_empty"></div>
+</div>
+<div id="data__move_history">
+<div class="data_header"><span class="data_header_title">Game History</span> <span class="inline_content"></span></div>
+<div class="data_content_empty"></div>
+</div>
+<div id="data__captured_pieces">
+<div class="data_header"><span class="data_header_title">Captured Pieces</span> <span class="inline_content"></span></div>
+<div class="data_content_empty"></div>
+</div>
+</div>
 
 <!-- message box //-->
 <h2>Messages</h2>

@@ -90,6 +90,39 @@ function _playInit() {
 	});	
 }
 
+function _dataInit() {
+	$(document).ready(function() {
+		// hide all
+		$('div[class^="data_content"]').children().remove().end().hide();
+		// setup events
+		$('div[id^="data__"]').toggle(function() {
+			id = $(this).attr('id').replace(/^data__/, '');
+			console.debug('show this (' + id + ')');
+			long_data = getLongData(id);
+			// remove short
+			$(this).find('[class^="inline_content"]').html('');
+			// set long and show it
+			$(this).find('[class^="data_content"]').html(long_data).toggleClass('data_content_empty').toggleClass('data_content').slideDown(500);
+		}, function() {
+			console.debug('hide this');
+			id = $(this).attr('id').replace(/^data__/, '');
+			short_data = getShortData(id);	
+			// set short
+			$(this).find('[class^="inline_content"]').html(short_data);
+			// hide long
+			$(this).find('[class^="data_content"]').slideUp(500, function() { $(this).toggleClass('data_content_empty').toggleClass('data_content'); });
+		});
+	});
+}
+
+function getLongData(type) {
+	return "THESE ARE THE LONG DATA FOR " + type;
+}
+
+function getShortData(type) {
+	return "short data for " + type;
+}
+
 function watchGame() {
 	joinOrWatchGame('watch');
 }
