@@ -174,6 +174,7 @@ function buildClassicBoard(cols, rows, flippedParam) {
 			var field = $("<div>");
 			// color scheme (lower right field is white!)
 			fieldPos = col+row + (flipped ? 0 : (cols+rows) % 2)
+			field.addClass("field");
 			if (fieldPos % 2 == 0) {
 				field.addClass("light");
 			} else {

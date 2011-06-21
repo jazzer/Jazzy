@@ -36,21 +36,33 @@ h1, h2, h3, h4, h5, h6 {
 	box-shadow: 0 0 5px 5px #888;
 }
 
-#board .dark {
-	background-color: #999;
+#board .field {
 	width: 48px;
 	height: 48px;
 	float: left;
-	background: -moz-linear-gradient(top, #999 0%, #aaa 50%, #aaa 50%, #999 100%);
+}
+
+#board .dark {
+	transition-property: background-color;
+	transition-duration: 1s;
+	background-color: #3D11B8;
+}
+
+#board .dark:hover {
+	transition-property: background-color;
+	transition-duration: 1s;
+	background-color: #351980;
 }
 
 #board .light {
-	background-color: #ccc;
-	width: 48px;
-	height: 48px;
-	float: left;
-	background: -moz-linear-gradient(top, #bbb 0%, #ccc 50%, #ccc 50%, #bbb 100%);
+	background-color: #508EAD;
 }
+#board .light:hover {
+	transition-property: background-color;
+	transition-duration: 1s;
+	background-color: #CAEAFA;
+}
+
 
 #board .clear_row {
 	clear: left;
