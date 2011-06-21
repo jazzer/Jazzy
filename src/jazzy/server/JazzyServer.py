@@ -60,6 +60,7 @@ availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic Chess'},
                    'Dark': {'class': DarkGame, 'desc': 'Dark chess'},
                    'Monochromatic': {'class': MonochromaticGame, 'desc': 'Monochromatic chess'},
                    'Bichromatic': {'class': BichromaticGame, 'desc': 'Bichromatic chess'},
+                   'Marseillais': {'class': MarseillaisGame, 'desc': 'Marseillais chess'},
                    'Handicap_Queen': {'class': HandicapQueenGame, 'desc': 'Handicap (White without Queen)'},
                    'Handicap_Rook': {'class': HandicapRookGame, 'desc': 'Handicap (White without rook a1)'},
                    'Handicap_Knight': {'class': HandicapKnightGame, 'desc': 'Handicap (White without knight b1)'},
@@ -224,8 +225,8 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                     data = {'from': move.fromField, 'to': move.toField}
                     if move.silent:
                         data['silent'] = True
-                    if not(game.board.getCurrentPlayer() is None and not(game.finished)):
-                        data['currP'] = game.board.getCurrentPlayer().mq.shortenedId
+                    if not(game.getCurrentPlayer(game.board) is None and not(game.finished)):
+                        data['currP'] = game.getCurrentPlayer(game.board).mq.shortenedId
                     self.distributeToAll(game, Message('move', data))
                 self.distributeToAll(game, Message('movehist', {'user': mq.subject.name, 'str': postedMove.str}))
                 

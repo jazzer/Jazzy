@@ -31,15 +31,15 @@ class GameOver(object):
         return len(self.board.game.possibleMoves) == 0
 
     def inCheck(self):
-        return self.board.isInCheck(self.board.getCurrentPlayer())
+        return self.board.isInCheck(self.board.game.getCurrentPlayer(self.board))
     
     def noPiecesLeft(self):
-        currPlayer = self.board.getCurrentPlayer()
+        currPlayer = self.board.game.getCurrentPlayer(self.board)
         pieces = self.board.findPlayersPieces(currPlayer)
         return len(pieces) == 0
 
     def notRequiredPiecesLeft(self, pieceSet):        
-        currPlayer = self.board.getCurrentPlayer()
+        currPlayer = self.board.game.getCurrentPlayer(self.board)
         pieces = self.board.findPlayersPieces(currPlayer)
         pieceTypes = []
         for piecePos in pieces:

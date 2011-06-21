@@ -26,7 +26,6 @@ class MoveHistory(object):
         self.moves = [];
         
      
-        
 
 class Move():
     def __init__(self, fromField, toField):
@@ -68,4 +67,18 @@ class Move():
         return self.__unicode__()
     
     def __unicode__(self):
-        return str(self.fromField) + "-" + str(self.toField) + " (=" + self.str +")"
+        return str(self.fromField) + "-" + str(self.toField) + " (=" + self.str + ")"
+    
+    
+class NullMove():
+    def __init__(self):
+        pass
+    
+    def __str__(self):
+        return self.__unicode__()
+    
+    def __repr__(self):
+        return self.__unicode__()
+    
+    def __unicode__(self):
+        return '-'

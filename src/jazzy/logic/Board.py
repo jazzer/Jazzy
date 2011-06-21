@@ -36,22 +36,6 @@ class Board(object):
         self.LIMIT_LEFT_RIGHT = True
         self.CAN_TAKE_OWN_PIECES = False
     
-    def getCurrentPlayer(self):
-        return self.game.players[self.moveCount % self.game.NUM_PLAYERS]
-
-    def getNextCurrentPlayer(self):
-        return self.game.players[(self.moveCount + 1) % self.game.NUM_PLAYERS]
-
-    def getNextPlayer(self, player):
-        for pos in range(len(self.game.players)):
-            if self.game.players[pos] == player:
-                found = True
-                break
-            
-        if not found:
-            return None
-        return self.game.players[(pos + 1) % self.game.NUM_PLAYERS]
-
     
     def splitPos(self, pos):
         return (pos % self.width, pos // self.width)
@@ -177,7 +161,7 @@ class Board(object):
         if (len(kingPositions) != 1):
             return False
             
-        nextMoves = self.game.getPossibleMoves(self, checkTest=False, player=self.getNextPlayer(player))
+        nextMoves = self.game.getPossibleMoves(self, checkTest=False, player=self.game.getNextPlayer(self, player))
         # check all the moves for one which killed the last king
         targetFields = []
         for nextMove in nextMoves:

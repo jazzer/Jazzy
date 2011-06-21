@@ -36,7 +36,7 @@ class CoinGame(ClassicGame):
         self.pieceMap['c'] = Coin
             
     def getGameOverMessage(self):
-        player = self.board.getCurrentPlayer()
+        player = self.getCurrentPlayer(self.board)
         msg = None
         go = GameOver(self.board)
         if go.noLegalMove() and not go.inCheck():

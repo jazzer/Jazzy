@@ -25,7 +25,7 @@ from jazzy.logic.MoveHistory import Move
 class ExtinctionGame(ClassicGame):    
     def getGameOverMessage(self):
         # player extincted?
-        player = self.board.getNextCurrentPlayer()
+        player = self.getNextCurrentPlayer(self.board)
         go = GameOver(self.board)
         if go.notRequiredPiecesLeft(self.usedPieces):
             return self._valueResult(player, 'Extincted')
@@ -73,7 +73,7 @@ class DarkGame(ClassicGame):
     
     def getGameOverMessage(self):
         # king killed
-        player = self.board.getNextCurrentPlayer()
+        player = self.getNextCurrentPlayer(self.board)
         go = GameOver(self.board)
         if go.notRequiredPiecesLeft(self.kingPieceTypes):
             return self._valueResult(player, 'Extincted')
@@ -89,7 +89,7 @@ class AtomicGame(ClassicGame):
         
     def getGameOverMessage(self):
         # king killed
-        player = self.board.getNextCurrentPlayer()
+        player = self.getNextCurrentPlayer(self.board)
         go = GameOver(self.board)
         if go.notRequiredPiecesLeft(self.kingPieceTypes):
             return self._valueResult(player, 'Extincted')
@@ -149,7 +149,7 @@ class MonochromaticGame(ClassicGame):
     
     def _valueResult(self, player, msg):
         if msg == 'Stalemate':
-            winner = self.board.getCurrentPlayer().mq.shortenedId
+            winner = self.getCurrentPlayer(self.board).mq.shortenedId
             result = '0-1' if player.color == self.COLORS[0] else '1-0'
             return self._generateGameOverMessage('No legal move', result, winner)
         # default stuff
@@ -168,11 +168,11 @@ class ChecklessGame(ClassicGame):
     def getGameOverMessage(self):
         result = super(ChecklessGame, self).getGameOverMessage()
         if result is None:
-            player = self.board.getNextCurrentPlayer()
+            player = self.getNextCurrentPlayer(self.board)
             go = GameOver(self.board)
             if go.inCheck():
                 msg = 'Check without mate'
-                winner = self.board.getCurrentPlayer().mq.shortenedId
+                winner = self.getCurrentPlayer(self.board).mq.shortenedId
                 result = '0-1' if player.color == self.COLORS[0] else '1-0'
                 return self._generateGameOverMessage(msg, result, winner)
             else:
@@ -204,7 +204,7 @@ class AntiGame(ClassicGame):
      
     # you won if you lost all your pieces
     def getGameOverMessage(self):
-        player = self.board.getCurrentPlayer()
+        player = self.getCurrentPlayer(self.board)
         go = GameOver(self.board)
         if go.noPiecesLeft():
             msg = 'No pieces left'
@@ -218,3 +218,20 @@ class AntiGame(ClassicGame):
             return self._generateGameOverMessage(msg, result, winner)
         return None
         
+# http://en.wikipedia.org/wiki/Marseillais_chess
+class MarseillaisGame(ClassicGame):   
+    def getCurrentPlayer(self, board):
+        return self.players[board.moveCount % self.NUM_PLAYERS]
+
+    def getNextCurrentPlayer(self, board):
+        return self.players[(board.moveCount + 1) % self.NUM_PLAYERS]
+
+    def getNextPlayer(self, board, player):
+        for pos in range(len(self.players)):
+            if self.players[pos] == player:
+                found = True
+                break
+            
+        if not found:
+            return None
+        return self.players[(pos + 1) % self.NUM_PLAYERS] 

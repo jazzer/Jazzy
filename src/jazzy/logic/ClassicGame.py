@@ -140,12 +140,12 @@ class ClassicGame():
             data['lmove_from'] = lastMove.fromField
             data['lmove_to'] = lastMove.toField
         # add current player if applicable    
-        if not(self.board.getCurrentPlayer() is None):
-            data['currP'] = self.board.getCurrentPlayer().mq.shortenedId
+        if not(self.getCurrentPlayer(self.board) is None):
+            data['currP'] = self.getCurrentPlayer(self.board).mq.shortenedId
         return Message("gamesit", data)
         
     def getGameOverMessage(self):
-        player = self.board.getNextCurrentPlayer()
+        player = self.getNextCurrentPlayer(self.board)
         go = GameOver(self.board)
         if go.noLegalMove():
             if go.inCheck():
@@ -175,8 +175,25 @@ class ClassicGame():
         if not(msg is None):
             return Message('gameover', {'winner': winner, 'msg': msg, 'result': result})
         
+    def getCurrentPlayer(self, board):
+        return self.players[board.moveCount % self.NUM_PLAYERS]
+
+    def getNextCurrentPlayer(self, board):
+        return self.players[(board.moveCount + 1) % self.NUM_PLAYERS]
+
+    def getNextPlayer(self, board, player):
+        found = False
+        for pos in range(len(self.players)):
+            if self.players[pos] == player:
+                found = True
+                break
+            
+        if not found:
+            return None
+        return self.players[(pos + 1) % self.NUM_PLAYERS]    
+        
     def parsePossibleMoves(self):
-        if self.board.getCurrentPlayer() is None:
+        if self.getCurrentPlayer(self.board) is None:
             return
         elif not(self.possibleMoves is None):
             return        
@@ -188,7 +205,7 @@ class ClassicGame():
     def getPossibleMoves(self, board, checkTest=True, player=None):
         # default
         if player is None:
-            player = board.getCurrentPlayer()
+            player = self.getCurrentPlayer(board)
             
         moveSet = self.findAllPieceMoves(board, player)
         # filter
@@ -275,6 +292,3 @@ class ClassicGame():
     def __str__(self):
         return self.__unicode__()
     
-    
-def enum(**enums):
-    return type('Enum', (), enums)   
