@@ -20,7 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 from jazzy.logic.ClassicGame import ClassicGame
 import math
 from jazzy.logic.GameOver import GameOver
-from jazzy.logic.MoveHistory import Move
+from jazzy.logic.Move import Move, NullMove
 
 class ExtinctionGame(ClassicGame):    
     def getGameOverMessage(self):
@@ -220,18 +220,29 @@ class AntiGame(ClassicGame):
         
 # http://en.wikipedia.org/wiki/Marseillais_chess
 class MarseillaisGame(ClassicGame):   
-    def getCurrentPlayer(self, board):
-        return self.players[board.moveCount % self.NUM_PLAYERS]
+    def move(self, move, board):
+        moveList = super(MarseillaisGame, self).move(move, board)
 
-    def getNextCurrentPlayer(self, board):
-        return self.players[(board.moveCount + 1) % self.NUM_PLAYERS]
+        print(str(board.moveHistory))
+        insertMove = True
+        if len(board.moveHistory) == 1:
+            insertMove = False
+        else:
+            # don't insert a NullMove if not both last moves have been made by the same player
+            if isinstance(board.moveHistory[-1], NullMove) or isinstance(board.moveHistory[-2], NullMove):
+                insertMove = False
+            elif board.moveHistory[-1].player == board.moveHistory[-2].player:
+                insertMove = False
+            # don't insert a NullMove if the last move has created check
+            if not isinstance(board.moveHistory[-1], NullMove) and board.isInCheck(self.getNextPlayer(board, board.moveHistory[-1].player)):
+                insertMove = False
 
-    def getNextPlayer(self, board, player):
-        for pos in range(len(self.players)):
-            if self.players[pos] == player:
-                found = True
-                break
-            
-        if not found:
-            return None
-        return self.players[(pos + 1) % self.NUM_PLAYERS] 
+        if insertMove:
+            nullMove = NullMove()
+            board.move(nullMove)
+            moveList.append(nullMove)
+        
+        # recalc possible moves for the next round
+        self.possibleMoves = None
+        
+        return moveList

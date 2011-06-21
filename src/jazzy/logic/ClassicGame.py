@@ -22,7 +22,7 @@ import copy
 import re
 from jazzy.logic.Board import Board
 from jazzy.server.MessageHandler import Message
-from jazzy.logic.MoveHistory import MoveHistory
+from jazzy.logic.Move import NullMove
 from jazzy.server.Player import Player
 from jazzy.logic.GameOver import GameOver
 from jazzy.logic.Pieces import *
@@ -58,8 +58,7 @@ class ClassicGame():
         self.id = uuid.uuid4().hex
         self.players = []
         self.watchers = []
-        self.moveHistory = MoveHistory()
-        self.currentPlayerId = 0
+        #self.currentPlayerId = 0
         self.possibleMoves = None
         
         
@@ -102,12 +101,18 @@ class ClassicGame():
         self.board_width = width - 1
        
     def move(self, move, board):
-        # delegate the actual moving to the board we are operating on
-        board.move(move)
-        # next player's turn on that board
-        board.moveCount = board.moveCount + 1
-        self.currentPlayerId = board.moveCount % self.NUM_PLAYERS
+        # annotate with current player
+        if not isinstance(move, NullMove):
+            move.player = self.getCurrentPlayer(board)
 
+        # delegate the actual moving to the board we are operating on
+        move.parse(board)
+        board.move(move)
+        # TODO parse check here?
+        
+        if isinstance(move, NullMove):
+            return [move]
+        
         if board == self.board:
             # calc possible moves for the next round
             self.possibleMoves = None
@@ -135,8 +140,8 @@ class ClassicGame():
                 'board_size': str(self.board.width) + 'x' + str(self.board.height),
                 'flipped': flipped}
         # add last move if applicable    
-        if len(self.moveHistory.moves) > 0 and self.SHOW_LAST_MOVE:
-            lastMove = self.moveHistory.moves[-1];
+        if len(self.board.moveHistory) > 0 and self.SHOW_LAST_MOVE:
+            lastMove = self.board.moveHistory[-1];
             data['lmove_from'] = lastMove.fromField
             data['lmove_to'] = lastMove.toField
         # add current player if applicable    
@@ -176,10 +181,12 @@ class ClassicGame():
             return Message('gameover', {'winner': winner, 'msg': msg, 'result': result})
         
     def getCurrentPlayer(self, board):
-        return self.players[board.moveCount % self.NUM_PLAYERS]
+        print(str(len(board.moveHistory)))
+        print(str(board.moveHistory))
+        return self.players[len(board.moveHistory) % self.NUM_PLAYERS]
 
     def getNextCurrentPlayer(self, board):
-        return self.players[(board.moveCount + 1) % self.NUM_PLAYERS]
+        return self.players[(len(board.moveHistory) + 1) % self.NUM_PLAYERS]
 
     def getNextPlayer(self, board, player):
         found = False

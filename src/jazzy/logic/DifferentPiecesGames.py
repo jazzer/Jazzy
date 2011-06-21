@@ -18,7 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 from jazzy.logic.ClassicGame import ClassicGame
-from jazzy.logic.MoveHistory import Move
+from jazzy.logic.Move import Move
 from jazzy.logic.GameOver import GameOver
 from jazzy.server.MessageHandler import Message
 from jazzy.logic.Pieces import *

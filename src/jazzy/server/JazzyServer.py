@@ -31,8 +31,7 @@ from jazzy.logic.DifferentRulesGames import *
 from jazzy.logic.SmallerGames import *
 from jazzy.logic.HandicapGames import *
 from MessageHandler import Message
-from jazzy.logic.MoveHistory import Move
-from jazzy.logic.MoveHistory import MoveHistory
+from jazzy.logic.Move import Move, NullMove
 from Player import Player, Watcher
 import json
 import os
@@ -209,9 +208,6 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             
             # put the message to all players
             if isLegalMove:
-                postedMove.parse(mq.game.board)
-                game.moveHistory.moves.append(postedMove)
-                
                 moves = game.move(postedMove, game.board)
                 
                 # analyze if game is over
@@ -219,13 +215,17 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                 if not(result is None):
                     game.finished = True
 
-                # post all the move the particular game created
-                for move in moves:
-                    move.parse(mq.game.board)
-                    data = {'from': move.fromField, 'to': move.toField}
-                    if move.silent:
+                # post all the moves the particular game created
+                for move in moves:                    
+                    if isinstance(move, NullMove):
+                        data = {'from': -1, 'to': -1}
                         data['silent'] = True
-                    if not(game.getCurrentPlayer(game.board) is None and not(game.finished)):
+                    else:
+                        move.parse(mq.game.board)
+                        data = {'from': move.fromField, 'to': move.toField}
+                        if move.silent:
+                            data['silent'] = True
+                    if not(game.getCurrentPlayer(game.board) is None) and not(game.finished):
                         data['currP'] = game.getCurrentPlayer(game.board).mq.shortenedId
                     self.distributeToAll(game, Message('move', data))
                 self.distributeToAll(game, Message('movehist', {'user': mq.subject.name, 'str': postedMove.str}))

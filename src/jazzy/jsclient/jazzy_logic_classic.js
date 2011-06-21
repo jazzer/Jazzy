@@ -299,6 +299,9 @@ function _shortenFen(fenString) {
 function move(from, to, silent) {
 	// sanitize input?
 	// without animation: $("#field" + from).children().detach().appendTo($("#field" + to).children().remove().end());
+	if (from == -1) {
+		return;
+	}
 
 	// animate the move
 	fromField = $("#field" + from);
@@ -558,7 +561,7 @@ function parseMQ(data) {
 		mtype = data[i]['mtype'];
 		switch (mtype) {
 			case "move":
-				silent = data[i]['silent'] == true?true:false;
+				silent = data[i]['silent'] == true?true:false;				
 				move(data[i]['from'], data[i]['to'], silent); 
 				parseCurrPlayer(data[i]['currP']);		
 				break;

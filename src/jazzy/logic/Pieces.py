@@ -18,7 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 
-from jazzy.logic.MoveHistory import Move
+from jazzy.logic.Move import Move
 import copy
 
 class Piece(object):

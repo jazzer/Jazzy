@@ -21,6 +21,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 import re
 import copy
 from jazzy.logic.Pieces import *
+from jazzy.logic.Move import Move, NullMove
 
 class Board(object):
 
@@ -29,7 +30,7 @@ class Board(object):
         self.width = width
         self.height = height
         self.clear() # self.fields is created here
-        self.moveCount = 0
+        self.moveHistory = []
         
         # settings
         self.LIMIT_TOP_BOTTOM = True
@@ -130,6 +131,11 @@ class Board(object):
         
     
     def move(self, move):
+        self.moveHistory.append(move)
+        
+        if isinstance(move, NullMove):
+            return
+        
         fromPiece = self.fields[move.fromField]
         self.fields[move.toField] = fromPiece
         self.fields[move.fromField] = None
@@ -200,7 +206,7 @@ class Board(object):
     
     def __deepcopy__(self, memo):
             result = Board(self.game, self.width, self.height)
-            result.moveCount = self.moveCount
+            result.moveHistory = copy.copy(self.moveHistory)
             for i in range(len(self.fields)):
                 if self.fields[i] is None:
                     result.fields[i] = None
