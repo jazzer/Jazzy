@@ -97,14 +97,12 @@ function _dataInit() {
 		// setup events
 		$('div[id^="data__"]').toggle(function() {
 			id = $(this).attr('id').replace(/^data__/, '');
-			console.debug('show this (' + id + ')');
 			long_data = getLongData(id);
 			// remove short
 			$(this).find('[class^="inline_content"]').html('');
 			// set long and show it
 			$(this).find('[class^="data_content"]').html(long_data).toggleClass('data_content_empty').toggleClass('data_content').slideDown(500);
 		}, function() {
-			console.debug('hide this');
 			id = $(this).attr('id').replace(/^data__/, '');
 			short_data = getShortData(id);	
 			// set short
@@ -224,20 +222,29 @@ function _dnd_up(thisElement) {
 	}
 	dropTarget = thisElement.attr('id').replace(/^field/, "");
 	if (!isNaN(dragSource) && !isNaN(dropTarget) && dragSource != dropTarget) {
-		// post move to server and move only upon response (means move was okay)!
-		serverCall('post/' + mqId + '/move/' + dragSource + '/' + dropTarget, function(data) {parseMQ(data);}, true, true)
+		postMove(dragSource, dropTarget);
 	} 
 
 	$("#field" + dragSource).removeClass('highlight_input_move_from');
 	dragSource = undefined; // this operation has been handled
 }
+
+function postMove(from, to, promotion) {
+	// post move to server and move only upon response (means move was okay)!
+	var url = 'post/' + mqId + '/move/' + from + '/' + to;
+	if (promotion != undefined) {
+		url += '/' + promotion
+	}
+	serverCall(url, function(data) {parseMQ(data);}, true, true);
+}
+
 function _dnd_click(thisElement) {
 	if (dragSource == undefined) {
-		_dnd_down(thisElement)
+		_dnd_down(thisElement);
 		dnd_clicked = true;
 	} else {
 		dnd_clicked = false;
-		_dnd_up(thisElement)
+		_dnd_up(thisElement);
 	}
 }
 
@@ -253,22 +260,26 @@ function loadFen(fenString) {
 	chars = cleanFen.split("");
 
 	for (var i = 0; i < chars.length; i++) {
-		// find right sprite and display it
-		var pos = piece_order.indexOf(chars[i].toLowerCase())*2;
-		// filter empty fields
-		if (pos < 0) {
-			continue;
-		}
-
-		if (chars[i] == chars[i].toLowerCase()) {
-			// black piece
-			pos = pos + 1;
-		}
-		var pieceImg = $("<div>");
-		pieceImg.css({'background-image': "url(" + server_url + piece_sprite_url + ")", 'background-color': "transparent", 'background-repeat': "no-repeat", 'height': piece_width, 'width': piece_width, 'background-position': "-0px -" + (pos*piece_width) + "px" });
-		
-		$("#field"+i).append(pieceImg);
+		$("#field"+i).append(getPieceDiv(chars[i]));
 	}
+}
+
+function getPieceDiv(pieceType) {
+	// find right sprite and display it
+	var pos = piece_order.indexOf(pieceType.toLowerCase())*2;
+	// filter empty fields
+	if (pos < 0) {
+		return '';
+	}
+
+	if (pieceType == pieceType.toLowerCase()) {
+		// black piece
+		pos = pos + 1;
+	}
+
+	var pieceDiv = $("<div>");
+	pieceDiv.css({'background-image': "url(" + server_url + piece_sprite_url + ")", 'background-color': "transparent", 'background-repeat': "no-repeat", 'height': piece_width, 'width': piece_width, 'background-position': "-0px -" + (pos*piece_width) + "px" });
+	return pieceDiv
 }
 
 
@@ -296,7 +307,7 @@ function _shortenFen(fenString) {
 }
 
 
-function move(from, to, silent) {
+function move(from, to, toPiece, silent) {
 	// sanitize input?
 	// without animation: $("#field" + from).children().detach().appendTo($("#field" + to).children().remove().end());
 	if (from == -1) {
@@ -325,6 +336,10 @@ function move(from, to, silent) {
 				left: toField.offset().left,
 				top: toField.offset().top
 	    	}, 400, "swing", function() {
+			// finished the move action, now do the promotion if requested
+			if (toPiece != undefined) {
+				$(this).fadeOut(400).parent().append(getPieceDiv(toPiece)).fadeIn(400);
+			}
 		});
 	fromField.children().detach().prependTo(toField);
 
@@ -338,6 +353,10 @@ function move(from, to, silent) {
 			playSound('media/move');
 		}
 	}
+
+	// reset click event memory
+	dragSource = undefined;
+	dnd_clicked = false;
 }
 
 function playSound(url) {
@@ -562,11 +581,29 @@ function parseMQ(data) {
 		switch (mtype) {
 			case "move":
 				silent = data[i]['silent'] == true?true:false;				
-				move(data[i]['from'], data[i]['to'], silent); 
-				parseCurrPlayer(data[i]['currP']);		
+				move(data[i]['from'], data[i]['to'], data[i]['toPiece'], silent); 
+				parseCurrPlayer(data[i]['currP']);
+				// TODO add ['check'] in server and client -> play sound (don't set when game is finished)
 				break;
 			case "movehist":
 				addServerMessage(data[i]['user'] + " played <b>" + data[i]['str'] + "</b>"); 
+				break;
+			case "promote":
+				// get options, offer, get decision and resend move
+				var selectionDiv = $('<div>');
+				for (elem in data[i]['options']) {
+					piece = data[i]['options'][elem];					
+					pieceDiv = getPieceDiv(piece).addClass('promotion_piece');
+					// add events
+					pieceDiv.bind("click", { Param1: data[i]['from'], Param2: data[i]['to'], Param3: piece }, function(event){
+						postMove(event.data.Param1, event.data.Param2, event.data.Param3);
+						selectionDiv.remove();
+					});
+					// add to parent div
+					selectionDiv.append(pieceDiv);
+				}
+				// call modally
+				$('#board').append(selectionDiv);				
 				break;
 			case "chat":
 				addChatMessage(decodeURIComponent(data[i]['user']), decodeURIComponent(data[i]['msg'])); 

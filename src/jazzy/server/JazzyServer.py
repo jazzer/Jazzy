@@ -200,42 +200,59 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                 return
             
             game = mq.game
+            # create move
             fromField = int(params[3])
             toField = int(params[4])
             postedMove = Move(fromField, toField)
+            # do we have a promotion option set?
+            if len(params) > 5 and params[5] != 'ack':
+                postedMove.toPiece = game.getPieceByString(params[5], game.board) 
+
+            
             # check move for correctness
             isLegalMove = game.isLegalMove(postedMove)
+            # parse move
+            postedMove.parse(game.board)
             
             # put the message to all players
             if isLegalMove:
-                moves = game.move(postedMove, game.board)
-                
-                # analyze if game is over
-                result = game.getGameOverMessage()
-                if not(result is None):
-                    game.finished = True
-
-                # post all the moves the particular game created
-                for move in moves:                    
-                    if isinstance(move, NullMove):
-                        data = {'from': -1, 'to': -1}
-                        data['silent'] = True
-                    else:
-                        move.parse(mq.game.board)
-                        data = {'from': move.fromField, 'to': move.toField}
-                        if move.silent:
+                # do we have to ask for promotion piece?
+                if game.moveNeedsPromotion(postedMove, game.board):
+                    msg = Message('promote', {'from': postedMove.fromField, 'to': postedMove.toField})
+                    # add options
+                    msg.data['options'] = game.getPromotionOptions(postedMove.fromPiece.color)
+                    jsonoutput = json.dumps([msg.data])
+                else:
+                    moves = game.move(postedMove, game.board)
+                    
+                    # analyze if game is over
+                    result = game.getGameOverMessage()
+                    if not(result is None):
+                        game.finished = True
+    
+                    # post all the moves the particular game created
+                    for move in moves:                    
+                        if isinstance(move, NullMove):
+                            data = {'from': -1, 'to': -1}
                             data['silent'] = True
-                    if not(game.getCurrentPlayer(game.board) is None) and not(game.finished):
-                        data['currP'] = game.getCurrentPlayer(game.board).mq.shortenedId
-                    self.distributeToAll(game, Message('move', data))
-                self.distributeToAll(game, Message('movehist', {'user': mq.subject.name, 'str': postedMove.str}))
-                
-                # distribute the game over message if there was one
-                if not(result is None):
-                    self.distributeToAll(game, result)
-            # TODO check if the game is over
-                
-            jsonoutput = self.sendMQ(params)
+                        else:
+                            # normal move
+                            move.parse(mq.game.board)
+                            data = {'from': move.fromField, 'to': move.toField}
+                            if move.silent:
+                                data['silent'] = True
+                            if not(move.toPiece is None):
+                                data['toPiece'] = move.toPiece.getShortName()
+                        if not(game.getCurrentPlayer(game.board) is None) and not(game.finished):
+                            data['currP'] = game.getCurrentPlayer(game.board).mq.shortenedId
+                        self.distributeToAll(game, Message('move', data))
+                    self.distributeToAll(game, Message('movehist', {'user': mq.subject.name, 'str': postedMove.str}))
+                    
+                    # distribute the game over message if there was one
+                    if not(result is None):
+                        self.distributeToAll(game, result)
+                    
+                    jsonoutput = self.sendMQ(params)
             
         # transfer chat message     
         elif (params[0] == 'post' and params[2] == 'chat'):            

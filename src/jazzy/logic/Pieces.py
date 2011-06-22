@@ -28,6 +28,7 @@ class Piece(object):
         self.board = board
         self.shortName = ' '
         self.moveCount = 0
+        self.value = 0
 
     def getPossibleMoves(self, currPos):
         resultSet = set()
@@ -90,6 +91,7 @@ class King(Piece):
     def __init__(self, color, board):
         Piece.__init__(self, color, board)
         self.shortName = 'k'
+        self.value = 100
         self.moveType = [
                          {'dirX': 1, 'dirY': 1, 'max': 1},
                          {'dirX': 0, 'dirY': 1, 'max': 1},
@@ -106,6 +108,7 @@ class Queen(Piece):
     def __init__(self, color, board):
         Piece.__init__(self, color, board)
         self.shortName = 'q'
+        self.value = 10
         diag_len = max(board.width, board.height)
         self.moveType = [
                          {'dirX': 1, 'dirY': 1, 'max': diag_len},
@@ -123,6 +126,7 @@ class Rook(Piece):
     def __init__(self, color, board):
         Piece.__init__(self, color, board)
         self.shortName = 'r'
+        self.value = 5
         self.moveType = [
                          {'dirX': 0, 'dirY': 1, 'max': board.height},
                          {'dirX': 1, 'dirY': 0, 'max': board.width},
@@ -136,6 +140,7 @@ class Bishop(Piece):
         Piece.__init__(self, color, board)
         self.shortName = 'b'
         diag_len = max(board.width, board.height)
+        self.value = 3
         self.moveType = [
                          {'dirX': 1, 'dirY': 1, 'max': diag_len},
                          {'dirX':-1, 'dirY': 1, 'max': diag_len},
@@ -148,6 +153,7 @@ class Knight(Piece):
     def __init__(self, color, board):
         Piece.__init__(self, color, board)
         self.shortName = 'n'
+        self.value = 2.9
         self.moveType = [
                          {'dirX': 1, 'dirY': 2, 'max': 1},
                          {'dirX':-1, 'dirY': 2, 'max': 1},
@@ -164,6 +170,7 @@ class Pawn(Piece):
     def __init__(self, color, board):
         Piece.__init__(self, color, board)
         self.shortName = 'p'
+        self.value = 1
 
         self.startInit()
         self.endInit()

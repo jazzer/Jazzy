@@ -81,6 +81,10 @@ h1, h2, h3, h4, h5, h6 {
 	background-color: #f66 !important;
 }
 
+.promotion_piece {
+	float: left;
+}
+
 /* data styles */
 
 #data .data_header {

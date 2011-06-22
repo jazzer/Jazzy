@@ -36,7 +36,7 @@ class Message(object):
         return self.__unicode__()
     
     def __unicode__(self):
-        return self.data
+        return str(self.data)
 
 
 

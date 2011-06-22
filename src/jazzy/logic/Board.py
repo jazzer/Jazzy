@@ -128,7 +128,7 @@ class Board(object):
                 #print("setting " + piece.__unicode__() + " to " + str(posCounter))
                 self.fields[posCounter] = piece
                 posCounter += 1     
-        
+ 
     
     def move(self, move):
         self.moveHistory.append(move)

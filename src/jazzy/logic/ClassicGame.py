@@ -43,6 +43,7 @@ class ClassicGame():
         self.EN_PASSANT = True
         self.NO_WATCHERS = False
         self.SHOW_LAST_MOVE = True
+        self.CAN_PROMOTE_TO_KING = False
         
         # piece settings
         self.pawnPieceTypes = {'p'}
@@ -58,9 +59,7 @@ class ClassicGame():
         self.id = uuid.uuid4().hex
         self.players = []
         self.watchers = []
-        #self.currentPlayerId = 0
         self.possibleMoves = None
-        
         
         # internal stuff
         self.joinedPlayers = 0
@@ -81,8 +80,11 @@ class ClassicGame():
         self.board.loadFenPos(self.fenPos)
 
         # promotion settings
-        self.promotionFields = [[self.board.getRankFields(0)], [self.board.getRankFields(self.board_height - 1)]]
-
+        self.promotionFields = {'white': self.board.getRankFields(0), 'black': self.board.getRankFields(self.board_height - 1)}
+        self.possiblePromotionPieces = self.usedPieces.difference(self.pawnPieceTypes)
+        if not self.CAN_PROMOTE_TO_KING:
+            self.possiblePromotionPieces.difference_update(self.kingPieceTypes)
+        self.possiblePromotionPieces = list(self.possiblePromotionPieces)    
         
     def inferBoardSize(self):
         # get board's height
@@ -99,6 +101,31 @@ class ClassicGame():
                 addValue = 0
                             
         self.board_width = width - 1
+        
+    def getPieceByString(self, string, board):
+        if not(string.lower() in self.pieceMap):
+            return None
+        
+        pieceClass = self.pieceMap[string.lower()]
+        if string == string.lower(): # meaning: if string is lowercase
+            color = 'black'
+        else:
+            color = 'white'
+        
+        return pieceClass(color, board)
+    
+    def moveNeedsPromotion(self, move, board):
+        # already defined promotion type?
+        if not(move.toPiece is None):
+            return False
+        # not even a pawn?
+        if not(move.fromPiece.shortName.lower() in self.pawnPieceTypes):
+            return False
+        # isn't target a promotion field?
+        if not(move.toField in self.promotionFields[move.fromPiece.color]):
+            return False
+        
+        return True
        
     def move(self, move, board):
         # annotate with current player
@@ -129,7 +156,13 @@ class ClassicGame():
     def addWatcher(self, watcher):
         self.watchers.append(watcher)
         
-        
+    def getPromotionOptions(self, color):
+        if color == 'white':
+            return [x.upper() for x in self.sortPieceList(self.possiblePromotionPieces)]
+        else:
+            return self.sortPieceList(self.possiblePromotionPieces)
+                        
+    
     def getSituationMessage(self, mq):
         if mq.watching:
             flipped = False
@@ -181,6 +214,9 @@ class ClassicGame():
         # build message
         if not(msg is None):
             return Message('gameover', {'winner': winner, 'msg': msg, 'result': result})
+       
+    def sortPieceList(self, pieceList):
+        return sorted(pieceList, key=lambda piece: self.pieceMap[piece](None, self.board).value, reverse=True)
         
     def getCurrentPlayer(self, board):
         print(str(len(board.moveHistory)))
