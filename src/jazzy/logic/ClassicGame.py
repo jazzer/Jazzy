@@ -141,9 +141,11 @@ class ClassicGame():
                 'flipped': flipped}
         # add last move if applicable    
         if len(self.board.moveHistory) > 0 and self.SHOW_LAST_MOVE:
+            # TODO select last non-NullMove
             lastMove = self.board.moveHistory[-1];
-            data['lmove_from'] = lastMove.fromField
-            data['lmove_to'] = lastMove.toField
+            if not isinstance(lastMove, NullMove):
+                data['lmove_from'] = lastMove.fromField
+                data['lmove_to'] = lastMove.toField
         # add current player if applicable    
         if not(self.getCurrentPlayer(self.board) is None):
             data['currP'] = self.getCurrentPlayer(self.board).mq.shortenedId
