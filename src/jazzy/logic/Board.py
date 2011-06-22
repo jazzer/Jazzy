@@ -131,7 +131,6 @@ class Board(object):
  
     
     def move(self, move):
-        self.moveHistory.append(move)
         
         if isinstance(move, NullMove):
             return

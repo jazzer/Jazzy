@@ -111,8 +111,8 @@ class AtomicGame(ClassicGame):
         for x in [-1, 0, 1]:
             for y in [-1, 0, 1]:
                 # piece itself
-                if x == 0 and y == 0:
-                    continue
+                #if x == 0 and y == 0:
+                #    continue
                 # fields around it
                 explosionTarget = board.moveByDirection(target, x, y)
                 if explosionTarget is None:
@@ -239,7 +239,7 @@ class MarseillaisGame(ClassicGame):
 
         if insertMove:
             nullMove = NullMove()
-            board.move(nullMove)
+            board.game.move(nullMove, board)
             moveList.append(nullMove)
         
         # recalc possible moves for the next round

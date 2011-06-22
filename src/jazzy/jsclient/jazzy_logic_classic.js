@@ -265,6 +265,10 @@ function loadFen(fenString) {
 }
 
 function getPieceDiv(pieceType) {
+	if (pieceType == '') {
+		return '';
+	}
+
 	// find right sprite and display it
 	var pos = piece_order.indexOf(pieceType.toLowerCase())*2;
 	// filter empty fields

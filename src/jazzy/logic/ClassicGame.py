@@ -131,9 +131,10 @@ class ClassicGame():
         # annotate with current player
         if not isinstance(move, NullMove):
             move.player = self.getCurrentPlayer(board)
+            move.parse(board)
 
         # delegate the actual moving to the board we are operating on
-        move.parse(board)
+        board.moveHistory.append(move)
         board.move(move)
         # TODO parse check here?
         
@@ -308,6 +309,14 @@ class ClassicGame():
             return False
         if move in self.possibleMoves:
             return True
+        
+        # check if promotion is okay (check piece type and color)
+        if not(move.toPiece is None):
+            if move.toPiece.color != move.fromPiece.color:
+                return False
+            if not(move.toPiece.shortName in self.getPromotionOptions(move.fromPiece.color)):
+                return False
+        
         return False
     
     def getFenPos(self, board, player):

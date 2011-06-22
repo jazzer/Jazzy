@@ -242,7 +242,10 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                             if move.silent:
                                 data['silent'] = True
                             if not(move.toPiece is None):
-                                data['toPiece'] = move.toPiece.getShortName()
+                                if move.toPiece == '':
+                                    data['toPiece'] = ''
+                                else:
+                                    data['toPiece'] = move.toPiece.getShortName()
                         if not(game.getCurrentPlayer(game.board) is None) and not(game.finished):
                             data['currP'] = game.getCurrentPlayer(game.board).mq.shortenedId
                         self.distributeToAll(game, Message('move', data))
