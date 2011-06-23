@@ -288,11 +288,13 @@ function getPieceDiv(pieceType) {
 
 
 function _lengthenFen(fenString) {
-	var replacement = "__"
+	var replacement = "__";
 	for (var i=2; i <= board_cols; i++) {
+		replacement = replacement + "_";
+	}
+	for (var i=board_cols; i >= 2; i--) {
 		var re = new RegExp(i, "g");
-		fenString = fenString.replace(re, replacement);
-		replacement = replacement + "_"
+		fenString = fenString.replace(re, replacement.substring(0,i));
 	}
 	return fenString;
 }
