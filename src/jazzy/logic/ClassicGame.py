@@ -335,7 +335,7 @@ class ClassicGame():
                     fenString = fenString + piece.getShortName()
             fenString = fenString + '/'
         # shorten
-        for length in range(board.width, 1, -1):
+        for length in range(board.width, 0, -1):
             fenString = fenString.replace(('_' * length), str(length))
             
         return fenString[:-1]

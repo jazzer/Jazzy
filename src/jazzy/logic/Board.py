@@ -159,7 +159,7 @@ class Board(object):
         return targets
     
     def getRankFields(self, index):
-        return range(self.mergePos(0, index), self.mergePos(self.width - 1, index))
+        return range(self.mergePos(0, index), self.mergePos(self.width - 1, index) + 1)
     
     def isInCheck(self, player):
         kingPositions = self.findPieces(self.game.kingPieceTypes, player.color)

@@ -310,7 +310,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             jsonoutput = json.dumps(availible_games_json)
             
         else:
-            jsonoutput = json.dumps({})
+            jsonoutput = json.dumps([])
         #print(jsonoutput)
         self.output_raw(jsonoutput)
                        
