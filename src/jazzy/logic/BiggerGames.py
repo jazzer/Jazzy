@@ -26,3 +26,10 @@ class ModernGame(ClassicGame):
     def startInit(self):
         super(ModernGame,self).startInit('rnbqkibnr/ppppppppp/9/9/9/9/PPPPPPPPP/RNBIKQBNR')
         self.pieceMap['i'] = PrimeMinister
+
+# http://en.wikipedia.org/wiki/Capablanca_chess
+class CapablancaGame(ClassicGame):    
+    def startInit(self):
+        super(CapablancaGame,self).startInit('rnibqkbhnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNIBQKBHNR')
+        self.pieceMap['i'] = Archbishop
+        self.pieceMap['h'] = Chancellor

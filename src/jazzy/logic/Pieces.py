@@ -257,3 +257,11 @@ class PrimeMinister(Piece):
             super(PrimeMinister, self).__init__(color, board)
             self.moveType = combinePieces(color, board, [Bishop, Knight])
             self.shortName = 'i'
+# add alias for Capablanca chess
+Archbishop = PrimeMinister
+
+class Chancellor(Piece):
+    def __init__(self, color, board):
+            super(Chancellor, self).__init__(color, board)
+            self.moveType = combinePieces(color, board, [Rook, Knight])
+            self.shortName = 'h'

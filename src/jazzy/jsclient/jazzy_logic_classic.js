@@ -26,7 +26,7 @@ var board_rows = 0;
 var flipped = false;
 /* sprites generated using http://csssprites.com/ */
 var piece_sprite_url = "/img/pieces/48px/sprite48.png";
-var piece_order = "kqrbnpci";
+var piece_order = "kqrbnpcih";
 var piece_width = 48;
 /* server settings */
 var server_url = self.location.protocol + "//" + self.location.host;
