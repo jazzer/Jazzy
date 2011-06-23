@@ -29,6 +29,7 @@ from jazzy.logic.DifferentPiecesGames import *
 from jazzy.logic.DifferentSetupGames import *
 from jazzy.logic.DifferentRulesGames import *
 from jazzy.logic.SmallerGames import *
+from jazzy.logic.BiggerGames import *
 from jazzy.logic.HandicapGames import *
 from MessageHandler import Message
 from jazzy.logic.Move import Move, NullMove
@@ -45,10 +46,10 @@ STATIC_SERVE_BASE = "../jsclient"
 # enable garbage collection
 gc.enable()
 
-availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic Chess'},
-                   'Cylindric': {'class': CylindricGame, 'desc': 'Cylindric Chess'},
-                   'Pawn': {'class': PawnGame, 'desc': 'Pawn Chess'},
-                   'Los_Alamos': {'class': LosAlamosGame, 'desc': 'Los Alamos'},
+availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic chess'},
+                   'Cylindric': {'class': CylindricGame, 'desc': 'Cylindric chess'},
+                   'Pawn': {'class': PawnGame, 'desc': 'Pawn chess'},
+                   'Los_Alamos': {'class': LosAlamosGame, 'desc': 'Los Alamos chess'},
                    'Micro': {'class': MicroGame, 'desc': 'Micro chess'},
                    'Legan': {'class': LeganGame, 'desc': 'Legan chess'},
                    'Berolina': {'class': BerolinaGame, 'desc': 'Berolina chess'},
@@ -60,6 +61,7 @@ availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic Chess'},
                    'Monochromatic': {'class': MonochromaticGame, 'desc': 'Monochromatic chess'},
                    'Bichromatic': {'class': BichromaticGame, 'desc': 'Bichromatic chess'},
                    'Marseillais': {'class': MarseillaisGame, 'desc': 'Marseillais chess'},
+                   'Modern': {'class': ModernGame, 'desc': 'Modern chess'},
                    'Handicap_Queen': {'class': HandicapQueenGame, 'desc': 'Handicap (White without Queen)'},
                    'Handicap_Rook': {'class': HandicapRookGame, 'desc': 'Handicap (White without rook a1)'},
                    'Handicap_Knight': {'class': HandicapKnightGame, 'desc': 'Handicap (White without knight b1)'},

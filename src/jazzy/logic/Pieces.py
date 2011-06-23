@@ -241,3 +241,19 @@ class Coin(Piece):
     def __init__(self, color, board):
         Piece.__init__(self, None, board)
         self.shortName = 'c'
+
+
+# combined pieces
+def combinePieces(color, board, classesList):
+    resultMoveType = []
+    for clazz in classesList:
+        object = clazz(color, board)
+        resultMoveType += object.moveType
+        del object
+    return resultMoveType
+
+class PrimeMinister(Piece):
+    def __init__(self, color, board):
+            super(PrimeMinister, self).__init__(color, board)
+            self.moveType = combinePieces(color, board, [Bishop, Knight])
+            self.shortName = 'i'
