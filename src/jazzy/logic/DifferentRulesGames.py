@@ -187,7 +187,8 @@ class AntiGame(ClassicGame):
         super(AntiGame, self).startInit()
         # change
         self.CHECK_FOR_CHECK = False
-    
+        self.CAN_PROMOTE_TO_KING = True
+        
     # force capturing if possible
     def filterMovesByRules(self, moveSet, board, player):
         # default

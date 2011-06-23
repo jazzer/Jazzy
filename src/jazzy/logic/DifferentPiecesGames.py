@@ -29,6 +29,17 @@ class BerolinaGame(ClassicGame):
     def startInit(self):
         super(BerolinaGame, self).startInit()
         self.pieceMap['p'] = BerolinaPawn
+
+class StationaryKingGame(ClassicGame):
+    def startInit(self):
+        super(StationaryKingGame, self).startInit()
+        self.pieceMap['k'] = StationaryKing
+        self.CASTLING = False
+        
+class StrongKingGame(ClassicGame):
+    def startInit(self):
+        super(StrongKingGame, self).startInit()
+        self.pieceMap['k'] = StrongKing
     
 class CoinGame(ClassicGame):
     def startInit(self):

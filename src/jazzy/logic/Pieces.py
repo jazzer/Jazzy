@@ -89,7 +89,7 @@ class Piece(object):
 
 class King(Piece):
     def __init__(self, color, board):
-        Piece.__init__(self, color, board)
+        super(King, self).__init__(color, board)
         self.shortName = 'k'
         self.value = 100
         self.moveType = [
@@ -102,6 +102,25 @@ class King(Piece):
                          {'dirX': 0, 'dirY':-1, 'max': 1},
                          {'dirX':-1, 'dirY':-1, 'max': 1},
                         ]
+
+class StrongKing(King):
+    def __init__(self, color, board):
+        super(King, self).__init__(color, board)
+        self.moveType = [
+                         {'dirX': 1, 'dirY': 1, 'max': 2},
+                         {'dirX': 0, 'dirY': 1, 'max': 2},
+                         {'dirX':-1, 'dirY': 1, 'max': 2},
+                         {'dirX': 1, 'dirY': 0, 'max': 2},
+                         {'dirX':-1, 'dirY': 0, 'max': 2},
+                         {'dirX': 1, 'dirY':-1, 'max': 2},
+                         {'dirX': 0, 'dirY':-1, 'max': 2},
+                         {'dirX':-1, 'dirY':-1, 'max': 2},
+                        ]
+
+class StationaryKing(King):
+    def __init__(self, color, board):
+        super(StationaryKing, self).__init__(color, board)
+        self.moveType = []
         
         
 class Queen(Piece):
