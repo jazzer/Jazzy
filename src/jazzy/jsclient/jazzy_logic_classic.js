@@ -596,20 +596,21 @@ function parseMQ(data) {
 				break;
 			case "promote":
 				// get options, offer, get decision and resend move
-				var selectionDiv = $('<div>');
+				var selectionDiv = $('<div>').html('Select which piece to promote to:<br/><br/>');
 				for (elem in data[i]['options']) {
 					piece = data[i]['options'][elem];					
 					pieceDiv = getPieceDiv(piece).addClass('promotion_piece');
 					// add events
 					pieceDiv.bind("click", { Param1: data[i]['from'], Param2: data[i]['to'], Param3: piece }, function(event){
 						postMove(event.data.Param1, event.data.Param2, event.data.Param3);
-						selectionDiv.remove();
+						// remove dialog
+						$.modal.close();
 					});
 					// add to parent div
 					selectionDiv.append(pieceDiv);
 				}
 				// call modally
-				$('#board').append(selectionDiv);				
+				selectionDiv.modal();				
 				break;
 			case "chat":
 				addChatMessage(decodeURIComponent(data[i]['user']), decodeURIComponent(data[i]['msg'])); 
