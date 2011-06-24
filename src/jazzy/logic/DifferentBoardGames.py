@@ -22,11 +22,13 @@ from jazzy.logic.ClassicGame import ClassicGame
 class CylindricGame(ClassicGame):    
     def endInit(self):
         # do the normal things
-        super(CylindricGame,self).endInit()
+        super(CylindricGame, self).endInit()
         # change something
         self.board.LIMIT_LEFT_RIGHT = False
 
-class PawnGame(ClassicGame):
+class HoleGame(ClassicGame):    
     def startInit(self):
-        super(PawnGame,self).startInit('8/pppppppp/8/8/8/8/PPPPPPPP/8')
-        # TODO game over handling!        
+        # do the normal things
+        super(HoleGame, self).startInit()
+        # change something
+        self.BLOCKED_FIELDS = [27, 28, 35, 36] # d4, d5, e4, e5

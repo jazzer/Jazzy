@@ -254,6 +254,16 @@ class BerolinaPawn(Pawn):
         self.STRAIGHT = {'type': 'hit_only'}
 
         super(BerolinaPawn, self).endInit()
+
+class FearPawn(Pawn):
+    def endInit(self):
+        super(FearPawn, self).endInit()
+        dirY = 1 if self.color == 'black' else - 1
+        # allow one step back as well
+        self.moveType += [
+              {'dirX': 0, 'dirY': -dirY, 'max': 1}
+        ]
+
     
     
 class Coin(Piece):

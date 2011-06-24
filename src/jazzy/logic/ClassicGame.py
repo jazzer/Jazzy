@@ -45,6 +45,9 @@ class ClassicGame():
         self.SHOW_LAST_MOVE = True
         self.CAN_PROMOTE_TO_KING = False
         
+        # global board settings
+        self.BLOCKED_FIELDS = []
+        
         # piece settings
         self.pawnPieceTypes = {'p'}
         self.kingPieceTypes = {'k'}
@@ -286,6 +289,10 @@ class ClassicGame():
         # add en passant moves
         if self.EN_PASSANT:
             self.parseEnPassant(moveSet, board, player)
+        # adhere to blocking status of fields
+        for move in set(moveSet):
+            if move.toField in self.BLOCKED_FIELDS:
+                moveSet.remove(move)
         return moveSet
 
     def filterMovesToCheck(self, moveSet, board, player):

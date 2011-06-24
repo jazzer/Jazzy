@@ -41,6 +41,13 @@ class StrongKingGame(ClassicGame):
         super(StrongKingGame, self).startInit()
         self.pieceMap['k'] = StrongKing
     
+
+class FearGame(ClassicGame):
+    def startInit(self):
+        super(FearGame, self).startInit()
+        self.pieceMap['p'] = FearPawn
+    
+
 class CoinGame(ClassicGame):
     def startInit(self):
         super(CoinGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/4C3/PPPPPPPP/RNBQKBNR')

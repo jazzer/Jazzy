@@ -37,7 +37,6 @@ class Board(object):
         self.LIMIT_LEFT_RIGHT = True
         self.CAN_TAKE_OWN_PIECES = False
     
-    
     def splitPos(self, pos):
         return (pos % self.width, pos // self.width)
     
