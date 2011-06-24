@@ -189,6 +189,8 @@ class Board(object):
     def findPlayersPieces(self, player):
         return self.findPieces(None, player.color)
 
+    def __str__(self):
+        return self.__unicode__()
         
     def __unicode__(self):
         result = ""

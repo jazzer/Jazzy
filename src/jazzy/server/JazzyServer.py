@@ -69,6 +69,7 @@ availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic chess'},
                    'StrongKing': {'class': StrongKingGame, 'desc': 'Strong King chess'},
                    'Fear': {'class': FearGame, 'desc': 'Fear chess'},
                    'Hole': {'class': HoleGame, 'desc': 'Hole chess'},
+                   'Andernach': {'class': AndernachGame, 'desc': 'Andernach chess'},
                    'Handicap_Queen': {'class': HandicapQueenGame, 'desc': 'Handicap (White without Queen)'},
                    'Handicap_Rook': {'class': HandicapRookGame, 'desc': 'Handicap (White without rook a1)'},
                    'Handicap_Knight': {'class': HandicapKnightGame, 'desc': 'Handicap (White without knight b1)'},
@@ -222,8 +223,9 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             # check move for correctness
             isLegalMove = game.isLegalMove(postedMove)
             # parse move
-            postedMove.parse(game.board)
-            
+            postedMove.simpleParse(game.board)
+            postedMove.fullParse(game.board)    
+                            
             # put the message to all players
             if isLegalMove:
                 # do we have to ask for promotion piece?
@@ -247,7 +249,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                             data['silent'] = True
                         else:
                             # normal move
-                            move.parse(mq.game.board)
+                            move.simpleParse(mq.game.board)
                             data = {'from': move.fromField, 'to': move.toField}
                             if move.silent:
                                 data['silent'] = True
@@ -259,7 +261,11 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                         if not(game.getCurrentPlayer(game.board) is None) and not(game.finished):
                             data['currP'] = game.getCurrentPlayer(game.board).mq.shortenedId
                         self.distributeToAll(game, Message('move', data))
+                        
                     self.distributeToAll(game, Message('movehist', {'user': mq.subject.name, 'str': postedMove.str}))
+                    
+                    # debug position
+                    print(str(game.board))
                     
                     # distribute the game over message if there was one
                     if not(result is None):

@@ -130,11 +130,11 @@ class ClassicGame():
         
         return True
        
-    def move(self, move, board):
+    def move(self, move, board, preGeneratePossibleMoves = True):
         # annotate with current player
         if not isinstance(move, NullMove):
             move.player = self.getCurrentPlayer(board)
-            move.parse(board)
+            move.simpleParse(board)
 
         # delegate the actual moving to the board we are operating on
         board.moveHistory.append(move)
@@ -144,7 +144,7 @@ class ClassicGame():
         if isinstance(move, NullMove):
             return [move]
         
-        if board == self.board:
+        if board == self.board and preGeneratePossibleMoves:
             # calc possible moves for the next round
             self.possibleMoves = None
             self.parsePossibleMoves()
@@ -238,6 +238,17 @@ class ClassicGame():
         if not found:
             return None
         return self.players[(pos + 1) % self.NUM_PLAYERS]    
+
+    def getNextColor(self, color):
+        found = False
+        for pos in range(len(self.COLORS)):
+            if self.COLORS[pos] == color:
+                found = True
+                break
+            
+        if not found:
+            return None
+        return self.COLORS[(pos + 1) % len(self.COLORS)]    
         
     def parsePossibleMoves(self):
         if self.getCurrentPlayer(self.board) is None:
@@ -246,7 +257,13 @@ class ClassicGame():
             return        
         
         moveSet = self.getPossibleMoves(self.board, checkTest=self.CHECK_FOR_CHECK)
+        
+        # debug
+        #for move in moveSet:
+        #    move.simpleParse(self.board)
+        #    move.fullParse(self.board)
         #print("I think current player could move like this: " + str(moveSet))
+        
         self.possibleMoves = moveSet
         
     def getPossibleMoves(self, board, checkTest=True, player=None):
@@ -297,7 +314,7 @@ class ClassicGame():
 
     def filterMovesToCheck(self, moveSet, board, player):
         for move in set(moveSet): # work on a copy to be able to remove inside
-            move.parse(self.board)
+            move.simpleParse(self.board)
             #print('filtering ' + str(move))
             # create a board copy for analysis purposes
             whatIfBoard = copy.deepcopy(self.board)

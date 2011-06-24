@@ -32,16 +32,18 @@ class Move():
         self.player = None
         self.isCheck = False
         
-    def parse(self, board):
+    def simpleParse(self, board):
         self.fromPiece = copy.deepcopy(board.fields[self.fromField])
         if self.fromPiece is None:
             return
         self.takenPiece = copy.deepcopy(board.fields[self.toField])
+            
+    def fullParse(self, board):
         # generate text representation
         if self.annotation == 'CASTLING_KINGSIDE':
-            self.str = '0-0'
+            self.str = 'O-O'
         elif self.annotation == 'CASTLING_QUEENSIDE':
-            self.str = '0-0-0'
+            self.str = 'O-O-O'
         else:
             pieceName = '' if self.fromPiece.shortName == 'p' else self.fromPiece.shortName.upper()
             moveOrCapture = '-' if self.takenPiece is None else 'x'

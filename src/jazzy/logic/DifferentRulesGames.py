@@ -21,6 +21,7 @@ from jazzy.logic.ClassicGame import ClassicGame
 import math
 from jazzy.logic.GameOver import GameOver
 from jazzy.logic.Move import Move, NullMove
+import copy
 
 class ExtinctionGame(ClassicGame):    
     def getGameOverMessage(self):
@@ -246,4 +247,20 @@ class MarseillaisGame(ClassicGame):
         # recalc possible moves for the next round
         self.possibleMoves = None
         
+        return moveList
+
+
+class AndernachGame(ClassicGame):   
+    def move(self, move, board):
+        moveList = super(AndernachGame, self).move(move, board, preGeneratePossibleMoves = False)
+        # flip color
+        if not(move.takenPiece is None):
+            board.fields[move.toField].setColor(self.getNextColor(board.fields[move.toField].color))
+            # make sure to have new color rendered
+            move.toPiece = copy.deepcopy(board.fields[move.toField])
+            
+        if board == self.board:
+            # calc possible moves for the next round
+            self.possibleMoves = None
+            self.parsePossibleMoves()
         return moveList

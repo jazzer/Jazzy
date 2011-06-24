@@ -29,6 +29,9 @@ class Piece(object):
         self.shortName = ' '
         self.moveCount = 0
         self.value = 0
+        
+    def setColor(self, color):
+        self.color = color;
 
     def getPossibleMoves(self, currPos):
         resultSet = set()
@@ -209,7 +212,7 @@ class Pawn(Piece):
         self.moveType = [
               {'dirX': 1, 'dirY': dirY, 'max': 1},
               {'dirX':-1, 'dirY': dirY, 'max': 1},
-              {'dirX': 0, 'dirY': dirY, 'max': self.START_BOOST}
+              {'dirX': 0, 'dirY': dirY, 'max': self.START_BOOST if self.moveCount == 0 else self.NORMAL_SPEED}
         ]
         # add types
         if not(self.DIAGONAL is None):
@@ -218,6 +221,9 @@ class Pawn(Piece):
         if not(self.STRAIGHT is None):
             self.moveType[2][self.STRAIGHT['type']] = True
             
+    def setColor(self, color):
+        super(Pawn, self).setColor(color)
+        self.endInit();
         
     def getPossibleMoves(self, currPos):
         # move type can only change after first move in this standard configuration
