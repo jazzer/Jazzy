@@ -220,8 +220,6 @@ class ClassicGame():
         return sorted(pieceList, key=lambda piece: self.pieceMap[piece](None, self.board).value, reverse=True)
         
     def getCurrentPlayer(self, board):
-        print(str(len(board.moveHistory)))
-        print(str(board.moveHistory))
         return self.players[len(board.moveHistory) % self.NUM_PLAYERS]
 
     def getNextCurrentPlayer(self, board):
@@ -245,7 +243,7 @@ class ClassicGame():
             return        
         
         moveSet = self.getPossibleMoves(self.board, checkTest=self.CHECK_FOR_CHECK)
-        print("I think current player could move like this: " + str(moveSet))
+        #print("I think current player could move like this: " + str(moveSet))
         self.possibleMoves = moveSet
         
     def getPossibleMoves(self, board, checkTest=True, player=None):

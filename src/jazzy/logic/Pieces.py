@@ -105,7 +105,7 @@ class King(Piece):
 
 class StrongKing(King):
     def __init__(self, color, board):
-        super(King, self).__init__(color, board)
+        super(StrongKing, self).__init__(color, board)
         self.moveType = [
                          {'dirX': 1, 'dirY': 1, 'max': 2},
                          {'dirX': 0, 'dirY': 1, 'max': 2},

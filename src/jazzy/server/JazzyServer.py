@@ -82,7 +82,8 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(bytes(repr(myString), 'UTF-8'))
 
     def output_raw(self, myString):
-        self.wfile.write(bytes(myString, 'UTF-8'))
+        if isinstance(myString, str):
+            self.wfile.write(bytes(myString, 'UTF-8'))
     
     def sendMQ(self, params):
         mq = mqPool.get(params[1])
