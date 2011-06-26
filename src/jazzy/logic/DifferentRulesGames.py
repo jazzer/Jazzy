@@ -23,7 +23,12 @@ from jazzy.logic.GameOver import GameOver
 from jazzy.logic.Move import Move, NullMove
 import copy
 
-class ExtinctionGame(ClassicGame):    
+class ExtinctionGame(ClassicGame):  
+    meta = {'title': 'Extinction Chess',
+            'desc': "",
+            'link': 'http://en.wikipedia.org/wiki/Extinction_chess',
+            'details': "",
+            'players': 2}  
     def getGameOverMessage(self):
         # player extincted?
         player = self.getNextCurrentPlayer(self.board)
@@ -41,8 +46,13 @@ class ExtinctionGame(ClassicGame):
         # default stuff
         return super(ExtinctionGame, self)._valueResult(player, msg)
 
-# http://en.wikipedia.org/wiki/Dark_chess
+
 class DarkGame(ClassicGame):
+    meta = {'title': 'Dark Chess',
+            'desc': "",
+            'link': 'http://en.wikipedia.org/wiki/Dark_chess',
+            'details': "",
+            'players': 2} 
     def startInit(self):
         super(DarkGame, self).startInit()
         self.CHECK_FOR_CHECK = False
@@ -81,8 +91,13 @@ class DarkGame(ClassicGame):
         # default stuff
         return super(DarkGame, self).getGameOverMessage()
 
-# http://en.wikipedia.org/wiki/Atomic_chess
+
 class AtomicGame(ClassicGame):
+    meta = {'title': 'Atomic Chess',
+            'desc': "",
+            'link': 'http://en.wikipedia.org/wiki/Atomic_chess',
+            'details': "",
+            'players': 2}
     def startInit(self, fenPos='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'):
         super(AtomicGame, self).startInit()
         # settings
@@ -131,8 +146,13 @@ class AtomicGame(ClassicGame):
                  
         return explosionMoves
 
-# http://en.wikipedia.org/wiki/Monochromatic_chess
-class MonochromaticGame(ClassicGame):    
+
+class MonochromaticGame(ClassicGame):  
+    meta = {'title': 'Monochromatic Chess',
+        'desc': "",
+        'link': 'http://en.wikipedia.org/wiki/Monochromatic_chess',
+        'details': "",
+        'players': 2}
     def filterMovesByRules(self, moveSet, board, player):
         self.colorCheck(self, moveSet, board, player, 1)
         
@@ -157,15 +177,25 @@ class MonochromaticGame(ClassicGame):
         return super(ExtinctionGame, self)._valueResult(player, msg)
 
 
-# http://en.wikipedia.org/wiki/Monochromatic_chess
+
 class BichromaticGame(MonochromaticGame):    
+    meta = {'title': 'Biochromatic Chess',
+        'desc': "",
+        'link': 'http://en.wikipedia.org/wiki/Monochromatic_chess',
+        'details': "",
+        'players': 2}
     def filterMovesByRules(self, moveSet, board, player):
         self.colorCheck(self, moveSet, board, player, 0)
         
         
-        
-# http://en.wikipedia.org/wiki/Checkless_chess
+ 
+
 class ChecklessGame(ClassicGame):    
+    meta = {'title': 'Checkless Chess',
+        'desc': "",
+        'link': 'http://en.wikipedia.org/wiki/Checkless_chess',
+        'details': "",
+        'players': 2} 
     def getGameOverMessage(self):
         result = super(ChecklessGame, self).getGameOverMessage()
         if result is None:
@@ -180,8 +210,13 @@ class ChecklessGame(ClassicGame):
                 return None
         return result
     
-# http://en.wikipedia.org/wiki/Antichess
-class AntiGame(ClassicGame):   
+
+class AntiGame(ClassicGame): 
+    meta = {'title': 'Anti Chess',
+        'desc': "",
+        'link': 'http://en.wikipedia.org/wiki/Antichess',
+        'details': "",
+        'players': 2} 
     # check is not important here
     def startInit(self):
         # default
@@ -220,8 +255,13 @@ class AntiGame(ClassicGame):
             return self._generateGameOverMessage(msg, result, winner)
         return None
         
-# http://en.wikipedia.org/wiki/Marseillais_chess
-class MarseillaisGame(ClassicGame):   
+
+class MarseillaisGame(ClassicGame): 
+    meta = {'title': 'Marseillais Chess',
+        'desc': "",
+        'link': 'http://en.wikipedia.org/wiki/Marseillais_chess',
+        'details': "",
+        'players': 2}   
     def move(self, move, board):
         moveList = super(MarseillaisGame, self).move(move, board)
 
@@ -250,7 +290,12 @@ class MarseillaisGame(ClassicGame):
         return moveList
 
 
-class AndernachGame(ClassicGame):   
+class AndernachGame(ClassicGame):  
+    meta = {'title': 'Andernach Chess',
+        'desc': "",
+        'link': 'http://en.wikipedia.org/wiki/Andernach_chess',
+        'details': "",
+        'players': 2}  
     def move(self, move, board):
         moveList = super(AndernachGame, self).move(move, board, preGeneratePossibleMoves = False)
         # flip color

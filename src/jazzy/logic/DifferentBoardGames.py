@@ -19,14 +19,26 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 from jazzy.logic.ClassicGame import ClassicGame
 
-class CylindricGame(ClassicGame):    
+class CylinderGame(ClassicGame):    
+    meta = {'title': 'Cylinder Chess',
+            'desc': 'Playing on a cylindrical board',
+            'link': 'http://en.wikipedia.org/wiki/Cylinder_chess',
+            'details': 'The cylindrical board enables you to move pieces through the right border to the left side and vice versa.',
+            'players': 2}
+   
     def endInit(self):
         # do the normal things
-        super(CylindricGame, self).endInit()
+        super(CylinderGame, self).endInit()
         # change something
         self.board.LIMIT_LEFT_RIGHT = False
 
-class HoleGame(ClassicGame):    
+class HoleGame(ClassicGame): 
+    meta = {'title': 'Hole Chess',
+            'desc': 'Playing on a board without center fields',
+            'link': '#own_idea',
+            'details': 'No piece can be placed on the fields e4, d4, e5, or d5. Giving check "through" those fields is possible though.',
+            'players': 2}
+       
     def startInit(self):
         # do the normal things
         super(HoleGame, self).startInit()

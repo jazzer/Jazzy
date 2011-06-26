@@ -21,26 +21,45 @@ from jazzy.logic.ClassicGame import ClassicGame
 from jazzy.logic.Pieces import *
 
 
-# http://en.wikipedia.org/wiki/Modern_chess
 class ModernGame(ClassicGame):    
+    meta = {'title': 'Modern Chess',
+            'desc': "",
+            'link': 'http://en.wikipedia.org/wiki/Modern_chess',
+            'details': "",
+            'players': 2}
     def startInit(self):
         super(ModernGame, self).startInit('rnbqkibnr/ppppppppp/9/9/9/9/PPPPPPPPP/RNBIKQBNR')
         self.pieceMap['i'] = PrimeMinister
 
-# http://en.wikipedia.org/wiki/Capablanca_chess
-class CapablancaGame(ClassicGame):    
+
+class CapablancaGame(ClassicGame):
+    meta = {'title': 'Capablanca Chess',
+           'desc': "",
+           'link': 'http://en.wikipedia.org/wiki/Capablanca_chess',
+           'details': "",
+           'players': 2}       
     def startInit(self):
         super(CapablancaGame, self).startInit('rnibqkbhnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNIBQKBHNR')
         self.pieceMap['i'] = Archbishop
         self.pieceMap['h'] = Chancellor
 
-# http://en.wikipedia.org/wiki/Chess_variant#Chess_with_different_boards
+ 
 class MilleniumGame(ClassicGame):    
+    meta = {'title': 'Millenium Chess',
+            'desc': "",
+            'link': 'http://en.wikipedia.org/wiki/Chess_variant#Chess_with_different_boards',
+            'details': "",
+            'players': 2}  
     def startInit(self):
         super(MilleniumGame, self).startInit('rnbqkbnrnbqkbnr/ppppppppppppppp/15/15/15/15/PPPPPPPPPPPPPPP/RNBQKBNRNBQKBNR')
 
-# http://en.wikipedia.org/wiki/Chess_variant#Chess_with_different_boards
-class DoublewideGame(ClassicGame):    
+
+class DoublewideGame(ClassicGame):  
+    meta = {'title': 'Doublewide Chess',
+            'desc': "",
+            'link': 'http://en.wikipedia.org/wiki/Chess_variant#Chess_with_different_boards',
+            'details': "",
+            'players': 2}    
     def startInit(self):
         super(DoublewideGame, self).startInit('rnbqkbnrrnbqkbnr/pppppppppppppppp/16/16/16/16/PPPPPPPPPPPPPPPP/RNBQKBNRRNBQKBNR')
 

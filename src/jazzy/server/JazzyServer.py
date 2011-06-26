@@ -22,22 +22,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 import time
 import http.server
 import re
+import inspect
 from MessageHandler import MessageQueuePool
 from GamePool import GamePool
-from jazzy.logic.DifferentBoardGames import *
-from jazzy.logic.DifferentPiecesGames import *
-from jazzy.logic.DifferentSetupGames import *
-from jazzy.logic.DifferentRulesGames import *
-from jazzy.logic.SmallerGames import *
-from jazzy.logic.BiggerGames import *
-from jazzy.logic.HandicapGames import *
 from MessageHandler import Message
 from jazzy.logic.Move import Move, NullMove
 from Player import Player, Watcher
 import json
-import os
-from jazzy.logic.DifferentRulesGames import MonochromaticGame
+from pprint import pprint 
+import os, sys, copy, urllib
+from collections import OrderedDict
 import gc
+from jazzy.logic import DifferentSetupGames, DifferentBoardGames, \
+    DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, HandicapGames, ClassicGame
 
 HOST_NAME = '' # public!
 PORT_NUMBER = 8090
@@ -46,40 +43,35 @@ STATIC_SERVE_BASE = "../jsclient"
 # enable garbage collection
 gc.enable()
 
-availible_games = {'Classic': {'class': ClassicGame, 'desc': 'Classic chess'},
-                   'Cylindric': {'class': CylindricGame, 'desc': 'Cylindric chess'},
-                   'Pawn': {'class': PawnGame, 'desc': 'Pawn chess'},
-                   'Los_Alamos': {'class': LosAlamosGame, 'desc': 'Los Alamos chess'},
-                   'Micro': {'class': MicroGame, 'desc': 'Micro chess'},
-                   'Legan': {'class': LeganGame, 'desc': 'Legan chess'},
-                   'Berolina': {'class': BerolinaGame, 'desc': 'Berolina chess'},
-                   'Extinction': {'class': ExtinctionGame, 'desc': 'Extinction chess'},
-                   'Checkless': {'class': ChecklessGame, 'desc': 'Checkless chess'},
-                   'Anti': {'class': AntiGame, 'desc': 'Antichess'},
-                   'Atomic': {'class': AtomicGame, 'desc': 'Atomic chess'},
-                   'Dark': {'class': DarkGame, 'desc': 'Dark chess'},
-                   'Monochromatic': {'class': MonochromaticGame, 'desc': 'Monochromatic chess'},
-                   'Bichromatic': {'class': BichromaticGame, 'desc': 'Bichromatic chess'},
-                   'Marseillais': {'class': MarseillaisGame, 'desc': 'Marseillais chess'},
-                   'Modern': {'class': ModernGame, 'desc': 'Modern chess'},
-                   'Capablanca': {'class': CapablancaGame, 'desc': 'Capablanca chess'},
-                   'Millenium': {'class': MilleniumGame, 'desc': 'Millenium chess'},
-                   'Doublewide': {'class': DoublewideGame, 'desc': 'Doublewide chess'},
-                   'StationaryKing': {'class': StationaryKingGame, 'desc': 'Stationary King chess'},
-                   'StrongKing': {'class': StrongKingGame, 'desc': 'Strong King chess'},
-                   'Fear': {'class': FearGame, 'desc': 'Fear chess'},
-                   'Hole': {'class': HoleGame, 'desc': 'Hole chess'},
-                   'Andernach': {'class': AndernachGame, 'desc': 'Andernach chess'},
-                   'Handicap_Queen': {'class': HandicapQueenGame, 'desc': 'Handicap (White without Queen)'},
-                   'Handicap_Rook': {'class': HandicapRookGame, 'desc': 'Handicap (White without rook a1)'},
-                   'Handicap_Knight': {'class': HandicapKnightGame, 'desc': 'Handicap (White without knight b1)'},
-                   'Handicap_PawnAndMove': {'class': HandicapPawnAndMoveGame, 'desc': 'Handicap (Black without pawn f7)'},
-                   'Coin': {'class': CoinGame, 'desc': 'Coin Chess'}}
-availible_games_json = {}
-for key in availible_games.keys():
-    availible_games_json[key] = availible_games[key]['desc']
-    
+# parse availible games
+games = []
+jsonGames = []
+gameModules = OrderedDict([(ClassicGame, 'Classic Chess'),
+               (DifferentSetupGames, 'Different Setup'),
+               (SmallerGames, 'Smaller Games'),
+               (BiggerGames, 'Bigger Games'),
+               (DifferentRulesGames, 'Different Rules'),
+               (DifferentPiecesGames, 'Different Pieces'),
+               (DifferentBoardGames, 'Different Boards'),
+               (HandicapGames, 'Handicap Games')
+               ])
+for module in gameModules.keys():
+    classes = inspect.getmembers(module, inspect.isclass(module))
+    for name, obj in classes:
+        try:
+            if not(obj is dict) and (obj.__module__ == module.__name__):
+                metaInfo = copy.copy(obj.meta)
+                metaInfo['cat'] = gameModules[module]
+                jsonGames.append(metaInfo)
+                classMetaInfo = copy.copy(metaInfo)
+                classMetaInfo['class'] = obj
+                games.append(classMetaInfo)
+        except AttributeError:
+            pass
+        
+        
 
+# server part
 class MyHandler(http.server.BaseHTTPRequestHandler):
     def output(self, myString):
         self.wfile.write(bytes(repr(myString), 'UTF-8'))
@@ -87,6 +79,9 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
     def output_raw(self, myString):
         if isinstance(myString, str):
             self.wfile.write(bytes(myString, 'UTF-8'))
+    
+    def sanitizeHTML(self, string):
+        return re.sub(r'(<[^>]*>)', '', string)
     
     def sendMQ(self, params):
         mq = mqPool.get(params[1])
@@ -245,7 +240,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                     # post all the moves the particular game created
                     for move in moves:                    
                         if isinstance(move, NullMove):
-                            data = {'from': -1, 'to': -1}
+                            data = {'from':-1, 'to':-1}
                             data['silent'] = True
                         else:
                             # normal move
@@ -279,19 +274,34 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             if mq.watching:
                 return
             
-            self.distributeToAll(mq.game, Message('chat', {'user': mq.subject.name, 'msg': params[3]}), filter_player=mq.subject)
+            # sanitize
+            msg = params[3]
+            msg = self.sanitizeHTML(msg)
+                        
+            self.distributeToAll(mq.game, Message('chat', {'user': mq.subject.name, 'msg': msg}), filter_player=mq.subject)
                 
 
         # starting a new game (e.g. /new/classic)
         elif (params[0] == 'new'):
-            gameClass = availible_games[params[1]]['class'] # create desired game
-            game = gameClass()
-            mq = self.createPlayer(game)
-            # generate answer
-            jsonoutput = json.dumps({'gameId': game.id, 'mqId': mq.id})
-            # nicely say hello (next time)
-            mq.addMsg(Message('srvmsg', {'msg': 'Welcome to the server!'}))
-            mq.addMsg(Message('srvmsg', {'msg': 'We are playing ' + availible_games[params[1]]['desc']}))            
+            # find game
+            input = urllib.parse.unquote(params[1])
+            selectedGame = None
+            print(input)
+            for game in games:
+                if game['title'] == input:
+                    selectedGame = game 
+            if selectedGame == None:
+                jsonoutput = json.dumps([{'msg': 'No valid game: ' + input}])
+            else:
+                # create desired game
+                game = selectedGame['class']()
+                mq = self.createPlayer(game)
+                # generate answer
+                jsonoutput = json.dumps({'gameId': game.id, 'mqId': mq.id})
+                # nicely say hello (next time)
+                mq.addMsg(Message('srvmsg', {'msg': 'Welcome to the server!'}))
+                mq.addMsg(Message('srvmsg', {'msg': 'We are playing ' + selectedGame['title'] + ', see ' + selectedGame['link']}))            
+
 
         elif (params[0] == 'getsit'):
             jsonoutput = json.dumps([mq.game.getSituationMessage(mq).data])
@@ -316,7 +326,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                 self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Watcher joined.'}), mq.subject)
          
         elif (params[0] == 'getgames'):
-            jsonoutput = json.dumps(availible_games_json)
+            jsonoutput = json.dumps(jsonGames)
             
         else:
             jsonoutput = json.dumps([])

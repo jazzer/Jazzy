@@ -21,10 +21,19 @@
 <h1>Jazzy</h1>
 
 <h2>Create New Game</h2>
-<!-- get gameTypes //-->
-<form onsubmit='createGame("games");return false;'>
-<select name="gametype">
-</select>
+<div>
+<!-- categories //-->
+<div id="gameSelection_step1" class="gameSelection">
+</div>
+<!-- games //-->
+<div id="gameSelection_step2" class="gameSelection">
+</div>
+<!-- details //-->
+<div id="gameSelection_step3" class="gameSelection">
+</div>
+</div>
+
+<form onsubmit='createGame();return false;'>
 <input type="submit" value="Create Game!">
 </form>
 

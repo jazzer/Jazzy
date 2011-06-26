@@ -53,6 +53,8 @@ var dnd_clicked = false;
 var currPlayer = undefined;
 var myTurn = false;
 var isWatching = false;
+var availible_games = undefined;
+var currSelectedGame = undefined;
 
 
 
@@ -146,12 +148,69 @@ function joinOrWatchGame(messageType) {
 function load_availible_games() {
 	$(function() {
 		serverCall("getgames", function(data) {
-			list = $('[name="gametype"]');
-			for (i in data) {
-				list.append($("<option>").attr('value', i).html(data[i]));
-			}
+			// save data
+			availible_games = data;
+			// build category list
+			buildCategories();
 		}, false, true);		
 	});
+}
+
+function buildCategories() {
+	if (availible_games == undefined) {
+		return;
+	}
+	target = $('#gameSelection_step1');
+	target.empty();
+	// find categories
+	categories = new Object();
+	for (gameId in availible_games) {
+		game = availible_games[gameId];
+		//alert(game['cat']);
+		categories[game['cat']] = 1; // using it as a set basically
+	}
+	
+	// add them
+	for (cat in categories) {
+		//alert(cat);
+		entry = $('<div>').addClass('entry').html(cat);
+		entry.click(function() {showGames($(this).html());}); // TODO setup function
+		target.append(entry);
+	}
+}
+
+// show games of selected category
+function showGames(cat) {
+	target = $('#gameSelection_step2');
+	target.empty();
+	
+	// loop games
+	for (gameId in availible_games) {
+		game = availible_games[gameId];
+		//alert(game['cat']);
+		if (game['cat'] == cat) {
+			entry = $('<div>').addClass('entry').html(game['title']);
+			entry.click(function() {showDetails($(this).html());}); // TODO setup function
+			target.append(entry);
+		}
+	}
+}
+
+// show game details
+function showDetails(game) {
+	target = $('#gameSelection_step3');
+	target.empty();
+	
+	// loop games
+	for (gameId in availible_games) {
+		loopGame = availible_games[gameId];
+		if (game == loopGame['title']) {
+			target.html(loopGame['title']+'<br/>'+loopGame['desc']+'<br/>'+loopGame['details']+'<br/><a href="'+loopGame['link']+'">More...</a>');
+			break;
+		}
+	}
+
+	currSelectedGame = game;
 }
 
 
@@ -457,9 +516,10 @@ function refresh() {
 
 
 function createGame() {
+	if (currSelectedGame == undefined) { return; }
 	$(function() {
 		$("#created_links").html();
-		type = $('[name="gametype"]').children(":selected").attr('value');
+		type = currSelectedGame;
 		createNewGameIds(type);
 		var your_link = server_url + '/play.html?' + mqId;
 		var their_link = server_url + '/join.html?' + gameId;

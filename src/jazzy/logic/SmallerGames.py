@@ -21,14 +21,22 @@ from jazzy.logic.ClassicGame import ClassicGame
 from jazzy.logic.Pieces import *
 
 
-# http://en.wikipedia.org/wiki/Minichess
-
 class MicroGame(ClassicGame):    
+    meta = {'title': 'Micro Chess',
+            'desc': "",
+            'link': 'http://en.wikipedia.org/wiki/Minichess',
+            'details': "",
+            'players': 2}
     def startInit(self):
         super(MicroGame,self).startInit('knbr/p3/4/3P/RBNK')
         self.pieceMap['p'] = SlowPawn
 
-class LosAlamosGame(ClassicGame):    
+class LosAlamosGame(ClassicGame):  
+    meta = {'title': 'Los Alamos Chess',
+            'desc': "",
+            'link': 'http://en.wikipedia.org/wiki/Los_Alamos_chess',
+            'details': "",
+            'players': 2}  
     def startInit(self):
         super(LosAlamosGame,self).startInit('rnqknr/pppppp/6/6/PPPPPP/RNQKNR')
         self.pieceMap['p'] = SlowPawn

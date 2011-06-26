@@ -26,29 +26,57 @@ from jazzy.logic.Pieces import *
 
 # http://en.wikipedia.org/wiki/Berolina_chess
 class BerolinaGame(ClassicGame):
+    meta = {'title': 'Berolina Chess',
+            'desc': 'Pawns are Berolina Pawns',
+            'link': 'http://en.wikipedia.org/wiki/Berolina_chess',
+            'details': 'All pawns are replaced by pawns that move like normal pawns capture and vice versa.',
+            'players': 2}
+    
     def startInit(self):
         super(BerolinaGame, self).startInit()
         self.pieceMap['p'] = BerolinaPawn
 
 class StationaryKingGame(ClassicGame):
+    meta = {'title': 'Stationary King Chess',
+            'desc': "King can't move",
+            'link': 'http://en.wikipedia.org/wiki/Chess_variant#Chess_with_unusual_rules',
+            'details': 'The king piece cannot move at all.',
+            'players': 2}
+    
     def startInit(self):
         super(StationaryKingGame, self).startInit()
         self.pieceMap['k'] = StationaryKing
         self.CASTLING = False
         
 class StrongKingGame(ClassicGame):
+    meta = {'title': 'Strong King Chess',
+            'desc': 'King can move up to two steps in any direction',
+            'link': '#own_idea',
+            'details': 'The king pieces can move one or two steps in any direction making the king a much stronger piece and mating him a lot harder.',
+            'players': 2}
     def startInit(self):
         super(StrongKingGame, self).startInit()
         self.pieceMap['k'] = StrongKing
     
 
 class FearGame(ClassicGame):
+    meta = {'title': 'Fear Chess',
+            'desc': 'Pawns can move back',
+            'link': '#own_idea',
+            'details': 'All pawns can additionally to their usual moves go one step back at any time. Only on theird first move they may advance two steps.',
+            'players': 2}
+    
     def startInit(self):
         super(FearGame, self).startInit()
         self.pieceMap['p'] = FearPawn
     
 
 class CoinGame(ClassicGame):
+    meta = {'title': 'Coin Chess',
+            'desc': 'A coin must be able to follow your moves',
+            'link': 'http://de.wikipedia.org/wiki/Schachvariante#M.C3.BCnzenschach.2FPfennigschach',
+            'details': "At the beginning of the game, a coin is place on square e3. Whenever a move is executed, the coin must mimic the chosen piece's movement before the piece is moved. The coin cannot capture pieces. If one player has no legal moves, he looses.",
+            'players': 2}
     def startInit(self):
         super(CoinGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/4C3/PPPPPPPP/RNBQKBNR')
         self.pieceMap['c'] = Coin

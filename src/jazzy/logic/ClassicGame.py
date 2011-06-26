@@ -28,7 +28,12 @@ from jazzy.logic.GameOver import GameOver
 from jazzy.logic.Pieces import *
 
 class ClassicGame():
-       
+    meta = {'title': 'Classic Chess',
+            'desc': 'Classic Chess as defined by FIDE',
+            'link': 'http://en.wikipedia.org/wiki/Chess',
+            'details': 'The goal is to checkmate the king.',
+            'players': 2}
+ 
     def __init__(self):
         self.startInit()
         self.endInit()
@@ -130,7 +135,7 @@ class ClassicGame():
         
         return True
        
-    def move(self, move, board, preGeneratePossibleMoves = True):
+    def move(self, move, board, preGeneratePossibleMoves=True):
         # annotate with current player
         if not isinstance(move, NullMove):
             move.player = self.getCurrentPlayer(board)

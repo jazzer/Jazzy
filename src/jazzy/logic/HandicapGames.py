@@ -20,7 +20,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 from jazzy.logic.ClassicGame import ClassicGame
 
 class HandicapPawnAndMoveGame(ClassicGame):
-     def startInit(self):
+    meta = {'title': 'Handicap Pawn and Move',
+            'desc': 'Handicap game where the stronger player plays black and without pawn f7. Otherwise Classic Chess rules as defined by FIDE apply.',
+            'link': 'http://en.wikipedia.org/wiki/Chess_handicap',
+            'details': 'The goal is to checkmate the king.',
+            'players': 2}
+     
+    def startInit(self):
         super(HandicapPawnAndMoveGame, self).startInit('rnbqkbnr/ppppp1pp/8/8/8/8/PPPPPPPP/RNBQKBNR')
 
 class HandicapKnightGame(ClassicGame):    

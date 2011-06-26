@@ -21,13 +21,25 @@ from jazzy.logic.ClassicGame import ClassicGame
 from jazzy.logic.Pieces import *
 
 # http://en.wikipedia.org/wiki/Legan_chess
-class LeganGame(ClassicGame):    
+class LeganGame(ClassicGame):
+    meta = {'title': 'Legan Chess',
+        'desc': 'Playing on a board rotated by 45 degrees',
+        'link': 'http://en.wikipedia.org/wiki/Legan_chess',
+        'details': "The inital position is adapted so that every player starts from one corner. Pawn movements are adjusted, so that they move towards each other. Promotion is possible in the enemy's corner.",
+        'players': 2} 
+           
     def startInit(self):
         super(LeganGame,self).startInit('knbrp3/bqpp4/npp5/rp1p3P/p3P1PR/5PPN/4PPQB/3PRBNK')
         self.pieceMap['p'] = LeganPawn
         self.promotionFields = [[0, 1, 2, 3, 8, 16, 24], [39, 47, 55, 60, 61, 62, 63]]
 
 class PawnGame(ClassicGame):
+    meta = {'title': 'Pawn Chess',
+            'desc': 'Trying to get pawns promoted',
+            'link': '',
+            'details': 'The player who first gets one of his pawns promoted, wins.',
+            'players': 2}
+
     def startInit(self):
         super(PawnGame,self).startInit('8/pppppppp/8/8/8/8/PPPPPPPP/8')
         # TODO game over handling!        

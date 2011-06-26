@@ -166,6 +166,21 @@ h1, h2, h3, h4, h5, h6 {
 	font-weight: bold;
 }
 
+/* Game Selection in new.html */
+.gameSelection {
+	width: 33%;
+	min-height: 200px;
+	overflow: auto;
+	float:left;
+	border: 1px solid black;
+}
+
+.gameSelection .entry {
+	background-color: #fed;
+}
+.gameSelection .entry:hover {
+	background-color: #ddd;
+}
 
 
 
