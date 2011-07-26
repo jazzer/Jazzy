@@ -277,6 +277,10 @@ class ClassicGame():
             player = self.getCurrentPlayer(board)
             
         moveSet = self.findAllPieceMoves(board, player)
+        # materialize
+        for move in moveSet:
+            move.simpleParse(board)
+            move.fullParse(board)        
         # filter
         moveSet = self.filterMovesByRules(moveSet, board, player)
         if checkTest:
@@ -296,7 +300,14 @@ class ClassicGame():
         return moveSet
 
     def parsePromotion(self, moveSet, board, player):
-        return moveSet
+        resultSet = copy.copy(moveSet)
+        for move in moveSet:
+            if self.moveNeedsPromotion(move, board):
+                for toPiece in self.getPromotionOptions(player.color):
+                    promotionMove = copy.copy(move)
+                    promotionMove.toPiece = toPiece
+                    resultSet.add(promotionMove)        
+        return resultSet
 
     def parseEnPassant(self, moveSet, board, player):
         return moveSet
@@ -305,7 +316,7 @@ class ClassicGame():
         # add (!) castling options here
         if self.CASTLING:
             self.parseCastling(moveSet, board, player)
-        # add promotion variants?
+        # add promotion variants
         if self.PROMOTION:
             self.parsePromotion(moveSet, board, player)
         # add en passant moves
@@ -338,11 +349,11 @@ class ClassicGame():
             return True
         
         # check if promotion is okay (check piece type and color)
-        if not(move.toPiece is None):
-            if move.toPiece.color != move.fromPiece.color:
-                return False
-            if not(move.toPiece.shortName in self.getPromotionOptions(move.fromPiece.color)):
-                return False
+        #if not(move.toPiece is None):
+        #    if move.toPiece.color != move.fromPiece.color:
+        #        return False
+        #    if not(move.toPiece.shortName in self.getPromotionOptions(move.fromPiece.color)):
+        #        return False
         
         return False
     
