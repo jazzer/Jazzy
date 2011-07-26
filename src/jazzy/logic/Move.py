@@ -33,6 +33,9 @@ class Move():
         self.isCheck = False
         
     def simpleParse(self, board):
+        if self.fromField is None or self.toField is None:
+            return
+        
         self.fromPiece = copy.deepcopy(board.fields[self.fromField])
         if self.fromPiece is None:
             return

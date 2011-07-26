@@ -94,6 +94,44 @@ class ClassicGame():
             self.possiblePromotionPieces.difference_update(self.kingPieceTypes)
         self.possiblePromotionPieces = list(self.possiblePromotionPieces)    
         
+        # castling information
+        self.castlingPositions = {} # dictionary of lists (keys = color strings)
+        self.castlingTargetPositions = {} # dictionary of lists (keys = color strings)
+        for color in self.COLORS:
+            # king
+            kingsPos = self.board.findPieces(['k'], [color])
+            if kingsPos is None or len(kingsPos) > 1:
+                self.board.shortCastlingPossible = False
+                self.board.longCastlingPossible = False
+                kingPos = None
+            else:
+                kingPos = kingsPos[0]
+            # rook
+            rooksPos = self.board.findPieces(['r'], [color])         
+            kingRookPos = None
+            queenRookPos = None
+            for rookPos in rooksPos:
+                if self.board.splitPos(rookPos)[0] < self.board.width / 2:
+                    kingRookPos = rookPos
+                else:
+                    queenRookPos = rookPos
+            if kingRookPos == None:
+                self.board.shortCastlingPossible = False
+            if queenRookPos == None:
+                self.board.longCastlingPossible = False
+                    
+            self.castlingPositions[color] = [kingPos, kingRookPos, queenRookPos] # [0]: king, [1] king side rook, [2] queen side rook
+            self.castlingPositions[color] = [None if x is None else self.board.fields[x] for x in self.castlingPositions[color]]
+    
+            kingShort = self.board.addPos(self.board.splitPos(kingPos), [2, 0])
+            rookShort = self.board.addPos(kingShort, [-1, 0])
+            kingLong = self.board.addPos(self.board.splitPos(kingPos), [-2, 0])
+            rookLong = self.board.addPos(kingLong, [1, 0])
+            self.castlingTargetPositions[color] = [self.board.mergePos(kingShort[0], kingShort[1]),
+                                                   self.board.mergePos(rookShort[0], rookShort[1]),
+                                                   self.board.mergePos(kingLong[0], kingLong[1]),
+                                                   self.board.mergePos(rookLong[0], rookLong[1])] # [0]: king for short, [1] rook for short, [2]: king for long, [3] rook for long
+        
     def inferBoardSize(self):
         # get board's height
         self.board_height = self.fenPos.count('/') + 1
@@ -123,6 +161,9 @@ class ClassicGame():
         return pieceClass(color, board)
     
     def moveNeedsPromotion(self, move, board):
+        # castling move or anything else really special?
+        if move.fromField is None:
+            return False
         # already defined promotion type?
         if not(move.toPiece is None):
             return False
@@ -297,6 +338,39 @@ class ClassicGame():
         return moveSet
     
     def parseCastling(self, moveSet, board, player):
+        if board.shortCastlingPossible or board.longCastlingPossible:
+            # has the king moved already?
+            if self.castlingPositions[player.color][0].moveCount > 0:
+                # destroys both castling possibilities!
+                board.shortCastlingPossible = False
+                board.longCastlingPossible = False
+                return moveSet       
+                        
+            # short
+            if board.shortCastlingPossible:
+                good = True
+                # has the rook moved already?
+                if self.castlingPositions[player.color][1].moveCount > 0:
+                    # destroys this castling possibility!
+                    board.shortCastlingPossible = False
+                    good = False
+                # fields for king non-empty?
+                if good and True:
+                    pass
+                # fields for king checked?          
+                if good and True:
+                    pass
+                
+                # good!
+                if good:
+                    move = Move(None, None)
+                    move.annotation = 'CASTLING_KINGSIDE'
+                    moveSet.add(move)
+                
+            # long
+            if board.longCastlingPossible:
+                pass
+        
         return moveSet
 
     def parsePromotion(self, moveSet, board, player):
@@ -347,13 +421,6 @@ class ClassicGame():
             return False
         if move in self.possibleMoves:
             return True
-        
-        # check if promotion is okay (check piece type and color)
-        #if not(move.toPiece is None):
-        #    if move.toPiece.color != move.fromPiece.color:
-        #        return False
-        #    if not(move.toPiece.shortName in self.getPromotionOptions(move.fromPiece.color)):
-        #        return False
         
         return False
     

@@ -32,6 +32,10 @@ class Board(object):
         self.clear() # self.fields is created here
         self.moveHistory = []
         
+        # do not change
+        self.shortCastlingPossible = True
+        self.longCastlingPossible = True
+        
         # settings
         self.LIMIT_TOP_BOTTOM = True
         self.LIMIT_LEFT_RIGHT = True
@@ -134,6 +138,15 @@ class Board(object):
         if isinstance(move, NullMove):
             return
         
+        # castling moves first
+        if move.annotation == 'CASTLING_KINGSIDE':
+            pass
+            return
+        elif move.annotation == 'CASTLING_QUUENSIDE':
+            pass  
+            return      
+        
+        # "normal" move
         fromPiece = self.fields[move.fromField]
         self.fields[move.toField] = fromPiece
         self.fields[move.fromField] = None
@@ -174,7 +187,7 @@ class Board(object):
         return selfInCheck
    
     def findPieces(self, pTypes, pColors):
-        ''' returns list of requested pieces '''
+        ''' returns list of requested pieces' positions '''
         result = []
         for i in range(len(self.fields)):
             piece = self.fields[i]
@@ -214,6 +227,8 @@ class Board(object):
                     copiedPiece = copy.copy(self.fields[i])
                     copiedPiece.board = result
                     result.fields[i] = copiedPiece
-            # restore the game
+            # restore fields
             result.game = self.game;
+            result.shortCastlingPossible = self.shortCastlingPossible;
+            result.longCastlingPossible = self.longCastlingPossible;
             return result
