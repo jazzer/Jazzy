@@ -63,7 +63,7 @@ class FearGame(ClassicGame):
     meta = {'title': 'Fear Chess',
             'desc': 'Pawns can move back',
             'link': '#own_idea',
-            'details': 'All pawns can additionally to their usual moves go one step back at any time. Only on theird first move they may advance two steps.',
+            'details': 'All pawns can additionally to their usual moves go one step back at any time. Only on their first move they may advance two steps.',
             'players': 2}
     
     def startInit(self):

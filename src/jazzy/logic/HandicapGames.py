@@ -30,13 +30,31 @@ class HandicapPawnAndMoveGame(ClassicGame):
         super(HandicapPawnAndMoveGame, self).startInit('rnbqkbnr/ppppp1pp/8/8/8/8/PPPPPPPP/RNBQKBNR')
 
 class HandicapKnightGame(ClassicGame):    
+    meta = {'title': 'Handicap Knight',
+            'desc': 'Handicap game where the stronger player plays white without knight b1. Otherwise Classic Chess rules as defined by FIDE apply.',
+            'link': 'http://en.wikipedia.org/wiki/Chess_handicap',
+            'details': 'The goal is to checkmate the king.',
+            'players': 2}
+    
     def startInit(self):
         super(HandicapKnightGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R1BQKBNR')
         
 class HandicapRookGame(ClassicGame):    
+    meta = {'title': 'Handicap Rook',
+            'desc': 'Handicap game where the stronger player plays white without rook a1. Otherwise Classic Chess rules as defined by FIDE apply.',
+            'link': 'http://en.wikipedia.org/wiki/Chess_handicap',
+            'details': 'The goal is to checkmate the king.',
+            'players': 2}
+
     def startInit(self):
         super(HandicapRookGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1NBQKBNR')
         
 class HandicapQueenGame(ClassicGame):    
+    meta = {'title': 'Handicap Queen',
+            'desc': 'Handicap game where the stronger player plays white without his queen. Otherwise Classic Chess rules as defined by FIDE apply.',
+            'link': 'http://en.wikipedia.org/wiki/Chess_handicap',
+            'details': 'The goal is to checkmate the king.',
+            'players': 2}
+ 
     def startInit(self):
         super(HandicapQueenGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR')
