@@ -33,8 +33,7 @@ class Board(object):
         self.moveHistory = []
         
         # do not change
-        self.shortCastlingPossible = True
-        self.longCastlingPossible = True
+        self.castlingsPossible = [True, True]
         
         # settings
         self.LIMIT_TOP_BOTTOM = True
@@ -138,15 +137,8 @@ class Board(object):
         if isinstance(move, NullMove):
             return
         
-        # castling moves first
-        if move.annotation == 'CASTLING_KINGSIDE':
-            pass
-            return
-        elif move.annotation == 'CASTLING_QUUENSIDE':
-            pass  
-            return      
         
-        # "normal" move
+        # standard move
         fromPiece = self.fields[move.fromField]
         self.fields[move.toField] = fromPiece
         self.fields[move.fromField] = None
@@ -229,6 +221,5 @@ class Board(object):
                     result.fields[i] = copiedPiece
             # restore fields
             result.game = self.game;
-            result.shortCastlingPossible = self.shortCastlingPossible;
-            result.longCastlingPossible = self.longCastlingPossible;
+            result.castlingsPossible = copy.copy(self.castlingsPossible);
             return result

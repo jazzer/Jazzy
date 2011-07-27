@@ -96,13 +96,13 @@ class ClassicGame():
         
         # castling information
         self.castlingPositions = {} # dictionary of lists (keys = color strings)
+        self.castlingPieces = {} # dictionary of lists (keys = color strings)
         self.castlingTargetPositions = {} # dictionary of lists (keys = color strings)
         for color in self.COLORS:
             # king
             kingsPos = self.board.findPieces(['k'], [color])
             if kingsPos is None or len(kingsPos) > 1:
-                self.board.shortCastlingPossible = False
-                self.board.longCastlingPossible = False
+                self.board.castlingsPossible = [False, False]
                 kingPos = None
             else:
                 kingPos = kingsPos[0]
@@ -116,12 +116,12 @@ class ClassicGame():
                 else:
                     queenRookPos = rookPos
             if kingRookPos == None:
-                self.board.shortCastlingPossible = False
+                self.board.castlingsPossible[0] = False
             if queenRookPos == None:
-                self.board.longCastlingPossible = False
+                self.board.castlingsPossible[1] = False
                     
             self.castlingPositions[color] = [kingPos, kingRookPos, queenRookPos] # [0]: king, [1] king side rook, [2] queen side rook
-            self.castlingPositions[color] = [None if x is None else self.board.fields[x] for x in self.castlingPositions[color]]
+            self.castlingPieces[color] = [None if x is None else self.board.fields[x] for x in self.castlingPositions[color]]
     
             kingShort = self.board.addPos(self.board.splitPos(kingPos), [2, 0])
             rookShort = self.board.addPos(kingShort, [-1, 0])
@@ -177,24 +177,46 @@ class ClassicGame():
         return True
        
     def move(self, move, board, preGeneratePossibleMoves=True):
-        # annotate with current player
-        if not isinstance(move, NullMove):
-            move.player = self.getCurrentPlayer(board)
-            move.simpleParse(board)
+        moves = [move]
+
+        # castling moves first
+        cType = -1
+        if move.annotation == 'CASTLING_KINGSIDE':
+            cType = 0
+        elif move.annotation == 'CASTLING_QUEENSIDE':
+            cType = 1
+        if cType != -1:
+            # TODO fix to work with Chess960 
+            # (move might hide one of the pieces, use setPiece feature)
+            # save both pieces
+            #kingPiece = self.game.castlingPieces[color][0]
+            #rookPiece = self.game.castlingPieces[color][1 + cType]
+            # clean fields
+            color = self.getCurrentPlayer(board).color
+            kingMove = Move(self.fields[self.game.castlingPositions[color][0]], self.fields[self.game.castlingTargetPositions[color][cType * 2]])
+            rookMove = Move(self.fields[self.game.castlingPieces[color][1 + cType]], self.fields[self.game.castlingTargetPieces[color][cType * 2 + 1]])
+            moves = [kingMove, rookMove]
 
         # delegate the actual moving to the board we are operating on
         board.moveHistory.append(move)
-        board.move(move)
+        for xMove in moves:
+            # annotate with current player
+            if not isinstance(xMove, NullMove):
+                xMove.player = self.getCurrentPlayer(board)
+                xMove.simpleParse(board)
+                xMove.fullParse(board)
+        
+            board.move(xMove)
         # TODO parse check here?
         
         if isinstance(move, NullMove):
-            return [move]
+            return moves
         
         if board == self.board and preGeneratePossibleMoves:
-            # calc possible moves for the next round
+            # generate possible moves for the next round
             self.possibleMoves = None
             self.parsePossibleMoves()
-        return [move]
+        return moves
         
         
     def addPlayer(self, player):
@@ -338,38 +360,64 @@ class ClassicGame():
         return moveSet
     
     def parseCastling(self, moveSet, board, player):
-        if board.shortCastlingPossible or board.longCastlingPossible:
+        if True in board.castlingsPossible:
             # has the king moved already?
-            if self.castlingPositions[player.color][0].moveCount > 0:
+            if self.castlingPieces[player.color][0].moveCount > 0:
                 # destroys both castling possibilities!
-                board.shortCastlingPossible = False
-                board.longCastlingPossible = False
+                board.castlingsPossible = [False, False]
                 return moveSet       
                         
-            # short
-            if board.shortCastlingPossible:
-                good = True
-                # has the rook moved already?
-                if self.castlingPositions[player.color][1].moveCount > 0:
-                    # destroys this castling possibility!
-                    board.shortCastlingPossible = False
-                    good = False
-                # fields for king non-empty?
-                if good and True:
-                    pass
-                # fields for king checked?          
-                if good and True:
-                    pass
-                
-                # good!
-                if good:
-                    move = Move(None, None)
-                    move.annotation = 'CASTLING_KINGSIDE'
-                    moveSet.add(move)
-                
-            # long
-            if board.longCastlingPossible:
-                pass
+            # short / long
+            for cType in [0, 1]:
+                if board.castlingsPossible[cType]:
+                    good = True
+                    # has the rook moved already?
+                    if self.castlingPieces[player.color][1 + cType].moveCount > 0:
+                        # destroys this castling possibility!
+                        board.castlingsPossible[cType] = False
+                        good = False
+                    # any relevant field non-empty?
+                    if good:
+                        # relevant fields are any between rook's and king's start and target fields
+                        leftPos = min(self.castlingPositions[player.color][0],
+                                      self.castlingPositions[player.color][1 + cType],
+                                      self.castlingTargetPositions[player.color][2 * cType],
+                                      self.castlingTargetPositions[player.color][2 * cType + 1])
+                        rightPos = max(self.castlingPositions[player.color][0],
+                                      self.castlingPositions[player.color][1 + cType],
+                                      self.castlingTargetPositions[player.color][2 * cType],
+                                      self.castlingTargetPositions[player.color][2 * cType + 1])
+                        # check them for emptiness (moving rook being there is okay [Chess960!])
+                        for pos in range(leftPos, rightPos + 1):
+                            if board.fields[pos] is None or board.fields[pos] == self.castlingPieces[player.color][1 + cType]:
+                                good = False
+                                break
+
+                    # fields for king checked?          
+                    if good and True:
+                        # get all attacked fields
+                        opponentMoves = self.getPossibleMoves(self, board, checkTest=False, player=self.getNextPlayer(board, player))
+                        opponentAttackedFields = {}
+                        for oMove in opponentMoves:
+                            opponentAttackedFields.add(oMove.toField)
+                        
+                        # get fields king will cross (including start and end)
+                        leftPos = min(self.castlingPositions[player.color][0],
+                                      self.castlingTargetPositions[player.color][2 * cType])
+                        rightPos = max(self.castlingPositions[player.color][0],
+                                      self.castlingTargetPositions[player.color][2 * cType])
+                        
+                        # compare
+                        for pos in range(leftPos, rightPos + 1):
+                            if pos in opponentAttackedFields:
+                                good = False
+                                break
+                    
+                    # good!
+                    if good:
+                        move = Move(None, None)
+                        move.annotation = 'CASTLING_KINGSIDE' if cType == 0 else 'CASTLING_QUEENSIDE'
+                        moveSet.add(move)
         
         return moveSet
 
