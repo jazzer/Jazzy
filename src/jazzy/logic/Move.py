@@ -52,7 +52,7 @@ class Move():
             moveOrCapture = '-' if self.takenPiece is None else 'x'
             annotation = '' if self.annotation is None else ' (' + self.annotation + ')' 
             self.str = pieceName + board.fieldToString(self.fromField) + moveOrCapture + board.fieldToString(self.toField) + annotation
-        
+                        
     def __eq__(self, move2):
         return move2.fromField == self.fromField and move2.toField == self.toField and move2.annotation == self.annotation
 

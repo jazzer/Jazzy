@@ -212,7 +212,7 @@ class Pawn(Piece):
         self.moveType = [
               {'dirX': 1, 'dirY': dirY, 'max': 1},
               {'dirX':-1, 'dirY': dirY, 'max': 1},
-              {'dirX': 0, 'dirY': dirY, 'max': self.START_BOOST if self.moveCount == 0 else self.NORMAL_SPEED}
+              {'dirX': 0, 'dirY': dirY, 'max': self.START_BOOST}
         ]
         # add types
         if not(self.DIAGONAL is None):
@@ -227,7 +227,7 @@ class Pawn(Piece):
         
     def getPossibleMoves(self, currPos):
         # move type can only change after first move in this standard configuration
-        if (self.moveCount == 1 and not self.changedSpeed):
+        if (self.moveCount > 0 and not self.changedSpeed):
             for moveType in self.moveType:
                 if not('hit_only' in moveType):
                     moveType['max'] = self.NORMAL_SPEED

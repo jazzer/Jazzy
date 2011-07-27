@@ -206,6 +206,11 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             # filter watchers attempting to post stuff
             if mq.watching or mq.game.finished == True:
                 return
+            # only allow current player to post his move
+            if mq.game.getCurrentPlayer().mq != mq:
+                msg = Message('alert', {'msg': 'Not your turn.'})
+                mq.addMsg(msg)
+                return
             
             game = mq.game
             # create move

@@ -289,7 +289,9 @@ class ClassicGame():
     def sortPieceList(self, pieceList):
         return sorted(pieceList, key=lambda piece: self.pieceMap[piece](None, self.board).value, reverse=True)
         
-    def getCurrentPlayer(self, board):
+    def getCurrentPlayer(self, board=None):
+        if board == None:
+            board = self.board        
         return self.players[len(board.moveHistory) % self.NUM_PLAYERS]
 
     def getNextCurrentPlayer(self, board):
