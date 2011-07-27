@@ -188,13 +188,14 @@ class ClassicGame():
         if cType != -1:
             # TODO fix to work with Chess960 
             # (move might hide one of the pieces, use setPiece feature)
-            # save both pieces
             
             # generate moves
             color = self.getCurrentPlayer(board).color
             kingMove = Move(self.castlingPositions[color][0], self.castlingTargetPositions[color][cType * 2])
             rookMove = Move(self.castlingPositions[color][1 + cType], self.castlingTargetPositions[color][cType * 2 + 1])
             moves = [kingMove, rookMove]
+            # mark done
+            board.castlingsPossible[color] = [False, False]
 
         # delegate the actual moving to the board we are operating on
         board.moveHistory.append(move)
@@ -203,8 +204,7 @@ class ClassicGame():
             if not isinstance(xMove, NullMove):
                 xMove.player = self.getCurrentPlayer(board)
                 xMove.simpleParse(board)
-                #xMove.fullParse(board)
-        
+                xMove.fullParse(board)        
             board.move(xMove)
         # TODO parse check here?
         
@@ -326,10 +326,10 @@ class ClassicGame():
         moveSet = self.getPossibleMoves(self.board, checkTest=self.CHECK_FOR_CHECK)
         
         # debug
-        #for move in moveSet:
-        #    move.simpleParse(self.board)
-        #    move.fullParse(self.board)
-        #print("I think current player could move like this: " + str(moveSet))
+        for move in moveSet:
+            move.simpleParse(self.board)
+            move.fullParse(self.board)
+        print("I think current player could move like this: " + str(moveSet))
         
         self.possibleMoves = moveSet
         
@@ -453,6 +453,10 @@ class ClassicGame():
 
     def filterMovesToCheck(self, moveSet, board, player):
         for move in set(moveSet): # work on a copy to be able to remove inside
+            # no more tests for castling (it has already been filtered for moving into check!)
+            if not(move.annotation is None) and 'CASTLING' in move.annotation:
+                continue
+            
             move.simpleParse(self.board)
             #print('filtering ' + str(move))
             # create a board copy for analysis purposes

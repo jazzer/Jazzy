@@ -54,10 +54,10 @@ class Move():
             self.str = pieceName + board.fieldToString(self.fromField) + moveOrCapture + board.fieldToString(self.toField) + annotation
         
     def __eq__(self, move2):
-        return move2.fromField == self.fromField and move2.toField == self.toField
+        return move2.fromField == self.fromField and move2.toField == self.toField and move2.annotation == self.annotation
 
     def __hash__(self):
-        return hash(str(self.fromField) + ":" + str(self.toField))
+        return hash(str(self.fromField) + ":" + str(self.toField) + ">" + str(self.annotation))
     
     def __str__(self):
         return self.__unicode__()
