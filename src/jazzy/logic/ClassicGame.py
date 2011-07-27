@@ -96,13 +96,13 @@ class ClassicGame():
         
         # castling information
         self.castlingPositions = {} # dictionary of lists (keys = color strings)
-        self.castlingPieces = {} # dictionary of lists (keys = color strings)
+        #self.castlingPieces = {} # dictionary of lists (keys = color strings)
         self.castlingTargetPositions = {} # dictionary of lists (keys = color strings)
         for color in self.COLORS:
             # king
             kingsPos = self.board.findPieces(['k'], [color])
             if kingsPos is None or len(kingsPos) > 1:
-                self.board.castlingsPossible = [False, False]
+                self.board.castlingsPossible[color] = [False, False]
                 kingPos = None
             else:
                 kingPos = kingsPos[0]
@@ -111,17 +111,17 @@ class ClassicGame():
             kingRookPos = None
             queenRookPos = None
             for rookPos in rooksPos:
-                if self.board.splitPos(rookPos)[0] < self.board.width / 2:
+                if self.board.splitPos(rookPos)[0] > self.board.width / 2:
                     kingRookPos = rookPos
                 else:
                     queenRookPos = rookPos
             if kingRookPos == None:
-                self.board.castlingsPossible[0] = False
+                self.board.castlingsPossible[color][0] = False
             if queenRookPos == None:
-                self.board.castlingsPossible[1] = False
+                self.board.castlingsPossible[color][1] = False
                     
             self.castlingPositions[color] = [kingPos, kingRookPos, queenRookPos] # [0]: king, [1] king side rook, [2] queen side rook
-            self.castlingPieces[color] = [None if x is None else self.board.fields[x] for x in self.castlingPositions[color]]
+            #self.castlingPieces[color] = [None if x is None else self.board.fields[x] for x in self.castlingPositions[color]]
     
             kingShort = self.board.addPos(self.board.splitPos(kingPos), [2, 0])
             rookShort = self.board.addPos(kingShort, [-1, 0])
@@ -181,20 +181,19 @@ class ClassicGame():
 
         # castling moves first
         cType = -1
-        if move.annotation == 'CASTLING_KINGSIDE':
+        if move.annotation == 'SHORT_CASTLING':
             cType = 0
-        elif move.annotation == 'CASTLING_QUEENSIDE':
+        elif move.annotation == 'LONG_CASTLING':
             cType = 1
         if cType != -1:
             # TODO fix to work with Chess960 
             # (move might hide one of the pieces, use setPiece feature)
             # save both pieces
-            #kingPiece = self.game.castlingPieces[color][0]
-            #rookPiece = self.game.castlingPieces[color][1 + cType]
-            # clean fields
+            
+            # generate moves
             color = self.getCurrentPlayer(board).color
-            kingMove = Move(self.fields[self.game.castlingPositions[color][0]], self.fields[self.game.castlingTargetPositions[color][cType * 2]])
-            rookMove = Move(self.fields[self.game.castlingPieces[color][1 + cType]], self.fields[self.game.castlingTargetPieces[color][cType * 2 + 1]])
+            kingMove = Move(self.castlingPositions[color][0], self.castlingTargetPositions[color][cType * 2])
+            rookMove = Move(self.castlingPositions[color][1 + cType], self.castlingTargetPositions[color][cType * 2 + 1])
             moves = [kingMove, rookMove]
 
         # delegate the actual moving to the board we are operating on
@@ -204,7 +203,7 @@ class ClassicGame():
             if not isinstance(xMove, NullMove):
                 xMove.player = self.getCurrentPlayer(board)
                 xMove.simpleParse(board)
-                xMove.fullParse(board)
+                #xMove.fullParse(board)
         
             board.move(xMove)
         # TODO parse check here?
@@ -334,7 +333,7 @@ class ClassicGame():
         
         self.possibleMoves = moveSet
         
-    def getPossibleMoves(self, board, checkTest=True, player=None):
+    def getPossibleMoves(self, board, checkTest=True, player=None, noCastlingMoves = False):
         # default
         if player is None:
             player = self.getCurrentPlayer(board)
@@ -345,7 +344,7 @@ class ClassicGame():
             move.simpleParse(board)
             move.fullParse(board)        
         # filter
-        moveSet = self.filterMovesByRules(moveSet, board, player)
+        moveSet = self.filterMovesByRules(moveSet, board, player, noCastlingMoves)
         if checkTest:
             moveSet = self.filterMovesToCheck(moveSet, board, player)
         return moveSet
@@ -360,21 +359,23 @@ class ClassicGame():
         return moveSet
     
     def parseCastling(self, moveSet, board, player):
-        if True in board.castlingsPossible:
+        if True in board.castlingsPossible[player.color]:
             # has the king moved already?
-            if self.castlingPieces[player.color][0].moveCount > 0:
+            kingPiece = board.fields[self.castlingPositions[player.color][0]]
+            if not(kingPiece is None) and kingPiece.moveCount > 0:
                 # destroys both castling possibilities!
-                board.castlingsPossible = [False, False]
+                board.castlingsPossible[player.color] = [False, False]
                 return moveSet       
                         
             # short / long
             for cType in [0, 1]:
-                if board.castlingsPossible[cType]:
+                if board.castlingsPossible[player.color][cType]:
                     good = True
                     # has the rook moved already?
-                    if self.castlingPieces[player.color][1 + cType].moveCount > 0:
+                    rookPiece = board.fields[self.castlingPositions[player.color][1 + cType]]
+                    if not(rookPiece is None) and rookPiece.moveCount > 0:
                         # destroys this castling possibility!
-                        board.castlingsPossible[cType] = False
+                        board.castlingsPossible[player.color][cType] = False
                         good = False
                     # any relevant field non-empty?
                     if good:
@@ -389,15 +390,15 @@ class ClassicGame():
                                       self.castlingTargetPositions[player.color][2 * cType + 1])
                         # check them for emptiness (moving rook being there is okay [Chess960!])
                         for pos in range(leftPos, rightPos + 1):
-                            if board.fields[pos] is None or board.fields[pos] == self.castlingPieces[player.color][1 + cType]:
+                            if not (board.fields[pos] is None) and pos != self.castlingPositions[player.color][0] and pos != self.castlingPositions[player.color][1 + cType]: # empty, king, rook
                                 good = False
                                 break
 
                     # fields for king checked?          
                     if good and True:
                         # get all attacked fields
-                        opponentMoves = self.getPossibleMoves(self, board, checkTest=False, player=self.getNextPlayer(board, player))
-                        opponentAttackedFields = {}
+                        opponentMoves = self.getPossibleMoves(board, False, self.getNextPlayer(board, player), noCastlingMoves = True)
+                        opponentAttackedFields = set()
                         for oMove in opponentMoves:
                             opponentAttackedFields.add(oMove.toField)
                         
@@ -416,7 +417,7 @@ class ClassicGame():
                     # good!
                     if good:
                         move = Move(None, None)
-                        move.annotation = 'CASTLING_KINGSIDE' if cType == 0 else 'CASTLING_QUEENSIDE'
+                        move.annotation = 'SHORT_CASTLING' if cType == 0 else 'LONG_CASTLING'
                         moveSet.add(move)
         
         return moveSet
@@ -434,9 +435,9 @@ class ClassicGame():
     def parseEnPassant(self, moveSet, board, player):
         return moveSet
         
-    def filterMovesByRules(self, moveSet, board, player):
+    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves = False):
         # add (!) castling options here
-        if self.CASTLING:
+        if self.CASTLING and not noCastlingMoves:
             self.parseCastling(moveSet, board, player)
         # add promotion variants
         if self.PROMOTION:

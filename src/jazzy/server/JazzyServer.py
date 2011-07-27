@@ -34,7 +34,8 @@ import os, sys, copy, urllib
 from collections import OrderedDict
 import gc
 from jazzy.logic import DifferentSetupGames, DifferentBoardGames, \
-    DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, HandicapGames, ClassicGame
+    DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, \
+    HandicapGames, ClassicGame, TestGames
 
 HOST_NAME = '' # public!
 PORT_NUMBER = 8090
@@ -53,7 +54,8 @@ gameModules = OrderedDict([(ClassicGame, 'Classic Chess'),
                (DifferentRulesGames, 'Different Rules'),
                (DifferentPiecesGames, 'Different Pieces'),
                (DifferentBoardGames, 'Different Boards'),
-               (HandicapGames, 'Handicap Games')
+               (HandicapGames, 'Handicap Games'),
+               (TestGames, 'Test Games') # for debugging
                ])
 for module in gameModules.keys():
     classes = inspect.getmembers(module, inspect.isclass(module))
@@ -207,12 +209,18 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             
             game = mq.game
             # create move
-            fromField = int(params[3])
-            toField = int(params[4])
-            postedMove = Move(fromField, toField)
-            # do we have a promotion option set?
-            if len(params) > 5 and params[5] != 'ack':
-                postedMove.toPiece = game.getPieceByString(params[5], game.board) 
+            if params[3] == 'SHORT_CASTLING' or  params[3] == 'LONG_CASTLING':
+                # castling
+                postedMove = Move(None, None)
+                postedMove.annotation = params[3]
+            else:
+                # standard move
+                fromField = int(params[3])
+                toField = int(params[4])
+                postedMove = Move(fromField, toField)
+                # do we have a promotion option set?
+                if len(params) > 5 and params[5] != 'ack':
+                    postedMove.toPiece = game.getPieceByString(params[5], game.board) 
 
             
             # check move for correctness

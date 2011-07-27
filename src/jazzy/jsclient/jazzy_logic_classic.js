@@ -323,6 +323,13 @@ function loadFen(fenString) {
 	}
 }
 
+function _shortCastling() {
+	postMove("SHORT_CASTLING", "")
+}
+function _longCastling() {
+	postMove("LONG_CASTLING", "")
+}
+
 function getPieceDiv(pieceType) {
 	if (pieceType == '') {
 		return '';

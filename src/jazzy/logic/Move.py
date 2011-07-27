@@ -43,9 +43,9 @@ class Move():
             
     def fullParse(self, board):
         # generate text representation
-        if self.annotation == 'CASTLING_KINGSIDE':
+        if self.annotation == 'SHORT_CASTLING':
             self.str = 'O-O'
-        elif self.annotation == 'CASTLING_QUEENSIDE':
+        elif self.annotation == 'LONG_CASTLING':
             self.str = 'O-O-O'
         else:
             pieceName = '' if self.fromPiece.shortName == 'p' else self.fromPiece.shortName.upper()

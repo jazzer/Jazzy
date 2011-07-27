@@ -33,7 +33,9 @@ class Board(object):
         self.moveHistory = []
         
         # do not change
-        self.castlingsPossible = [True, True]
+        self.castlingsPossible = {} # dictionary of lists, keys = colors
+        for color in game.COLORS:
+            self.castlingsPossible[color] = [True, True]
         
         # settings
         self.LIMIT_TOP_BOTTOM = True
@@ -135,8 +137,7 @@ class Board(object):
     def move(self, move):
         
         if isinstance(move, NullMove):
-            return
-        
+            return        
         
         # standard move
         fromPiece = self.fields[move.fromField]
