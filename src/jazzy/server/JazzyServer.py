@@ -275,6 +275,11 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                         self.distributeToAll(game, result)
                     
                     jsonoutput = self.sendMQ(params)
+            else: 
+                # not legal move
+                msg = Message('alert', {'msg': 'Illegal move.'})
+                jsonoutput = json.dumps([msg.data])
+                
             
         # transfer chat message     
         elif (params[0] == 'post' and params[2] == 'chat'):            

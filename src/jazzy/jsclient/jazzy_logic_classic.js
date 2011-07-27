@@ -706,6 +706,9 @@ function parseMQ(data) {
 			case "srvmsg":
 				addServerMessage(data[i]['msg']);
 				break; 
+			case "alert":
+				alert(data[i]['msg']);
+				break; 
 			}		
 
 		lastParsedMsg = data[i]['mid'];
