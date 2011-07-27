@@ -141,6 +141,7 @@ class Board(object):
         
         # standard move
         fromPiece = self.fields[move.fromField]
+        fromPiece.moveCount = fromPiece.moveCount + 1
         self.fields[move.toField] = fromPiece
         self.fields[move.fromField] = None
         if not(move.toPiece is None):
