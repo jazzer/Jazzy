@@ -44,11 +44,19 @@ class ClassicGame():
         self.COLORS = ['white', 'black']
         self.CHECK_FOR_CHECK = True
         self.PROMOTION = True
-        self.CASTLING = True
         self.EN_PASSANT = True
         self.NO_WATCHERS = False
         self.SHOW_LAST_MOVE = True
         self.CAN_PROMOTE_TO_KING = False
+
+        self.CASTLING = True
+        self.CASTLING_FROM_CHECK = False
+        self.CASTLING_THROUGH_CHECK = False
+        self.CASTLING_TO_CHECK = False
+        self.CASTLING_MULTIPLE_TIMES = False
+        self.CASTLING_IF_KING_HAS_MOVED = False
+        self.CASTLING_IF_ROOK_HAS_MOVED = False
+        
         
         # global board settings
         self.BLOCKED_FIELDS = []
@@ -195,7 +203,8 @@ class ClassicGame():
             rookMove = Move(self.castlingPositions[color][1 + cType], self.castlingTargetPositions[color][cType * 2 + 1])
             moves = [kingMove, rookMove]
             # mark done
-            board.castlingsPossible[color] = [False, False]
+            if not self.CASTLING_MULTIPLE_TIMES:
+                board.castlingsPossible[color] = [False, False]
 
         # delegate the actual moving to the board we are operating on
         board.moveHistory.append(move)
@@ -335,7 +344,7 @@ class ClassicGame():
         
         self.possibleMoves = moveSet
         
-    def getPossibleMoves(self, board, checkTest=True, player=None, noCastlingMoves = False):
+    def getPossibleMoves(self, board, checkTest=True, player=None, noCastlingMoves=False):
         # default
         if player is None:
             player = self.getCurrentPlayer(board)
@@ -364,7 +373,7 @@ class ClassicGame():
         if True in board.castlingsPossible[player.color]:
             # has the king moved already?
             kingPiece = board.fields[self.castlingPositions[player.color][0]]
-            if not(kingPiece is None) and kingPiece.moveCount > 0:
+            if not(kingPiece is None) and kingPiece.moveCount > 0 and not self.CASTLING_IF_KING_HAS_MOVED:
                 # destroys both castling possibilities!
                 board.castlingsPossible[player.color] = [False, False]
                 return moveSet       
@@ -375,7 +384,7 @@ class ClassicGame():
                     good = True
                     # has the rook moved already?
                     rookPiece = board.fields[self.castlingPositions[player.color][1 + cType]]
-                    if not(rookPiece is None) and rookPiece.moveCount > 0:
+                    if not(rookPiece is None) and rookPiece.moveCount > 0 and not self.CASTLING_IF_ROOK_HAS_MOVED:
                         # destroys this castling possibility!
                         board.castlingsPossible[player.color][cType] = False
                         good = False
@@ -399,22 +408,30 @@ class ClassicGame():
                     # fields for king checked?          
                     if good and True:
                         # get all attacked fields
-                        opponentMoves = self.getPossibleMoves(board, False, self.getNextPlayer(board, player), noCastlingMoves = True)
+                        opponentMoves = self.getPossibleMoves(board, False, self.getNextPlayer(board, player), noCastlingMoves=True)
                         opponentAttackedFields = set()
                         for oMove in opponentMoves:
                             opponentAttackedFields.add(oMove.toField)
                         
                         # get fields king will cross (including start and end)
-                        leftPos = min(self.castlingPositions[player.color][0],
-                                      self.castlingTargetPositions[player.color][2 * cType])
-                        rightPos = max(self.castlingPositions[player.color][0],
-                                      self.castlingTargetPositions[player.color][2 * cType])
+                        kingPos = self.castlingPositions[player.color][0]
+                        kingTargetPos = self.castlingTargetPositions[player.color][2 * cType]
+                        leftPos = min(kingPos, kingTargetPos)
+                        rightPos = max(kingPos, kingTargetPos)
                         
                         # compare
                         for pos in range(leftPos, rightPos + 1):
                             if pos in opponentAttackedFields:
-                                good = False
-                                break
+                                # test which type of check has happened and obey settings
+                                if pos == kingPos and not self.CASTLING_FROM_CHECK:
+                                    good = False
+                                    break
+                                elif pos == kingTargetPos and not self.CASTLING_TO_CHECK:
+                                    good = False
+                                    break
+                                elif not self.CASTLING_THROUGH_CHECK:
+                                    good = False
+                                    break
                     
                     # good!
                     if good:
@@ -437,7 +454,7 @@ class ClassicGame():
     def parseEnPassant(self, moveSet, board, player):
         return moveSet
         
-    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves = False):
+    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves=False):
         # add (!) castling options here
         if self.CASTLING and not noCastlingMoves:
             self.parseCastling(moveSet, board, player)

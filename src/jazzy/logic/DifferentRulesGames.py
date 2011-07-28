@@ -28,7 +28,8 @@ class ExtinctionGame(ClassicGame):
             'desc': "",
             'link': 'http://en.wikipedia.org/wiki/Extinction_chess',
             'details': "",
-            'players': 2}  
+            'players': 2}
+    
     def getGameOverMessage(self):
         # player extincted?
         player = self.getNextCurrentPlayer(self.board)
@@ -190,7 +191,7 @@ class BichromaticGame(MonochromaticGame):
         'details': "",
         'players': 2}
         
-    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves = False):
+    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves=False):
         return self.colorCheck(moveSet, board, player, noCastlingMoves, 0)
         
         
@@ -229,12 +230,15 @@ class AntiGame(ClassicGame):
         super(AntiGame, self).startInit()
         # change
         self.CHECK_FOR_CHECK = False
+        self.CASTLING_FROM_CHECK = True
+        self.CASTLING_THROUGH_CHECK = True
+        self.CASTLING_TO_CHECK = True
         self.CAN_PROMOTE_TO_KING = True
         
     # force capturing if possible
-    def filterMovesByRules(self, moveSet, board, player):
+    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves = False):
         # default
-        moveSet = super(AntiGame, self).filterMovesByRules(moveSet, board, player)
+        moveSet = super(AntiGame, self).filterMovesByRules(moveSet, board, player, noCastlingMoves)
         # change
         captureMoves = []
         for move in moveSet:
