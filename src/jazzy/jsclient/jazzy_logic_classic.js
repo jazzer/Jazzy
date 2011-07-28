@@ -568,7 +568,9 @@ function ackString() {
 	if (lastParsedMsg == undefined) {
 		return '';
 	}
-	return "/ack/" + lastParsedMsg;
+	var result = "/ack/" + lastParsedMsg;
+	lastParsedMsg = undefined;
+	return result;
 
 }
 
