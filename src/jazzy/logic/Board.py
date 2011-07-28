@@ -218,7 +218,7 @@ class Board(object):
                 if self.fields[i] is None:
                     result.fields[i] = None
                 else:
-                    copiedPiece = copy.copy(self.fields[i])
+                    copiedPiece = copy.deepcopy(self.fields[i])
                     copiedPiece.board = result
                     result.fields[i] = copiedPiece
             # restore fields
