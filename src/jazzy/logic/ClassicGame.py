@@ -328,10 +328,10 @@ class ClassicGame():
         moveSet = self.getPossibleMoves(self.board, checkTest=self.CHECK_FOR_CHECK)
         
         # debug
-        for move in moveSet:
-            move.simpleParse(self.board)
-            move.fullParse(self.board)
-        print("I think current player could move like this: " + str(moveSet))
+        #for move in moveSet:
+        #    move.simpleParse(self.board)
+        #    move.fullParse(self.board)
+        #print("I think current player could move like this: " + str(moveSet))
         
         self.possibleMoves = moveSet
         

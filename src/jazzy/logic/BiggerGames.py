@@ -52,6 +52,7 @@ class MilleniumGame(ClassicGame):
             'players': 2}  
     def startInit(self):
         super(MilleniumGame, self).startInit('rnbqkbnrnbqkbnr/ppppppppppppppp/15/15/15/15/PPPPPPPPPPPPPPP/RNBQKBNRNBQKBNR')
+        self.CASTLING = False
 
 
 class DoublewideGame(ClassicGame):  
@@ -62,4 +63,5 @@ class DoublewideGame(ClassicGame):
             'players': 2}    
     def startInit(self):
         super(DoublewideGame, self).startInit('rnbqkbnrrnbqkbnr/pppppppppppppppp/16/16/16/16/PPPPPPPPPPPPPPPP/RNBQKBNRRNBQKBNR')
+        self.CASTLING = False
 

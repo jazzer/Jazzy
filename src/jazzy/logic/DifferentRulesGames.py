@@ -98,7 +98,7 @@ class AtomicGame(ClassicGame):
             'link': 'http://en.wikipedia.org/wiki/Atomic_chess',
             'details': "",
             'players': 2}
-    def startInit(self, fenPos='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'):
+    def startInit(self):
         super(AtomicGame, self).startInit()
         # settings
         self.CHECK_FOR_CHECK = False
@@ -153,12 +153,17 @@ class MonochromaticGame(ClassicGame):
         'link': 'http://en.wikipedia.org/wiki/Monochromatic_chess',
         'details': "",
         'players': 2}
-    def filterMovesByRules(self, moveSet, board, player):
-        self.colorCheck(self, moveSet, board, player, 1)
+    
+    def startInit(self):
+        super(MonochromaticGame, self).startInit()
+        self.CASTLING = False
+    
+    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves=False):
+        return self.colorCheck(moveSet, board, player, noCastlingMoves, 1)
         
-    def colorCheck(self, moveSet, board, player, modulo):
+    def colorCheck(self, moveSet, board, player, noCastlingMoves, modulo):
         # keep what's in basic game
-        moveSet = super(MonochromaticGame, self).filterMovesByRules(moveSet, board, player)
+        moveSet = super(MonochromaticGame, self).filterMovesByRules(moveSet, board, player, noCastlingMoves)
         # filter our moves
         for move in set(moveSet):
             fromSplit = self.board.splitPos(move.fromField);
@@ -184,8 +189,9 @@ class BichromaticGame(MonochromaticGame):
         'link': 'http://en.wikipedia.org/wiki/Monochromatic_chess',
         'details': "",
         'players': 2}
-    def filterMovesByRules(self, moveSet, board, player):
-        self.colorCheck(self, moveSet, board, player, 0)
+        
+    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves = False):
+        return self.colorCheck(moveSet, board, player, noCastlingMoves, 0)
         
         
  
@@ -297,7 +303,7 @@ class AndernachGame(ClassicGame):
         'details': "",
         'players': 2}  
     def move(self, move, board):
-        moveList = super(AndernachGame, self).move(move, board, preGeneratePossibleMoves = False)
+        moveList = super(AndernachGame, self).move(move, board, preGeneratePossibleMoves=False)
         # flip color
         if not(move.takenPiece is None):
             board.fields[move.toField].setColor(self.getNextColor(board.fields[move.toField].color))

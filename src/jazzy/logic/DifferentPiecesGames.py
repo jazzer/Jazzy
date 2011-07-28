@@ -80,7 +80,8 @@ class CoinGame(ClassicGame):
     def startInit(self):
         super(CoinGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/4C3/PPPPPPPP/RNBQKBNR')
         self.pieceMap['c'] = Coin
-            
+        self.CASTLING = False
+          
     def getGameOverMessage(self):
         player = self.getCurrentPlayer(self.board)
         msg = None
@@ -102,8 +103,8 @@ class CoinGame(ClassicGame):
         # normal stuff
         return [coin_move] + super(CoinGame, self).move(move, board)
     
-    def filterMovesByRules(self, moveSet, board, player):
-        moveSet = super(CoinGame, self).filterMovesByRules(moveSet, board, player)
+    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves = False):
+        moveSet = super(CoinGame, self).filterMovesByRules(moveSet, board, player, noCastlingMoves)
         
         for move in set(moveSet):
             # check if the coin can move the same way

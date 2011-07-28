@@ -30,6 +30,7 @@ class MicroGame(ClassicGame):
     def startInit(self):
         super(MicroGame,self).startInit('knbr/p3/4/3P/RBNK')
         self.pieceMap['p'] = SlowPawn
+        self.CASTLING = False
 
 class LosAlamosGame(ClassicGame):  
     meta = {'title': 'Los Alamos Chess',
@@ -40,3 +41,4 @@ class LosAlamosGame(ClassicGame):
     def startInit(self):
         super(LosAlamosGame,self).startInit('rnqknr/pppppp/6/6/PPPPPP/RNQKNR')
         self.pieceMap['p'] = SlowPawn
+        self.CASTLING = False
