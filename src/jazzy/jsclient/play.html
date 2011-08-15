@@ -4,7 +4,7 @@
 <head>
 <title>Jazzy</title>
 <!-- Google webfonts //-->
-<link href='http://fonts.googleapis.com/css?family=Cabin+Sketch:bold' rel='stylesheet' type='text/css'>
+<!--<link href='http://fonts.googleapis.com/css?family=Cabin+Sketch:bold' rel='stylesheet' type='text/css'>//-->
 <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
 <!-- stylesheet //-->
 <link rel="stylesheet" type="text/css" href="mobile_style.css" />
@@ -20,31 +20,34 @@
 
 
 <body>
-<h1>Jazzy</h1>
-
-<!-- chessboard //-->
-<div id="board">
-
+<div class="menu">
+<div class="menu_item head_logo"><img height="50px" src="img/logo.png" alt="Jazzy logo"/></div>
+<div class="menu_item">New Game</div>
+<div class="menu_item">Settings</div>
+<div class="menu_item">Info</div>
 </div>
 
-<form onsubmit="_playInit();return false;">
-<input type="submit" value="Refresh" style="width: 12%">
-</form>
-<form onsubmit="return false;">Debug-Level: 
-<select name="debugLevel" size="1" onChange="_changeDebugLevel();">
-<option>1</option>
-<option>2</option>
-<option>3</option>
-<option>4</option>
-<option>5</option>
-</select>
-</form>
+
+<!-- chessboard //-->
+<div class="centered">
+<div id="boards">
+<div id="board">
+</div>
+</div>
+
+
 <form onsubmit="return false;">
 <input type="submit" value="O-O" onclick="_shortCastling();" style="width: 12%">
 <input type="submit" value="O-O-O" onclick="_longCastling();" style="width: 12%">
+<br />
+<br />
+<input type="submit" value="Offer draw" onclick="_offerDraw();" style="width: 12%">
+<input type="submit" value="Resign" onclick="_resign();" style="width: 12%">
 </form>
+</div>
 
 <!-- data display //-->
+<h2>Details</h2>
 <div id="data">
 <div id="data__game_type">
 <div class="data_header"><span class="data_header_title">Game Type</span> <span class="inline_content"></span></div>
@@ -84,6 +87,23 @@
 </form>
 </div>
 </div>
+
+<!-- server connection //-->
+<h2>Server</h2>
+Current connection status: <div id="conn_status" class="conn_bad">not connected</div>
+<form onsubmit="return false;" class="refreshForm">
+<input type="submit" value="Refresh" onclick="_playInit()" style="width: 12%">
+<input type="submit" value="Disconnect" onclick="_playInit()" style="width: 12%">
+</form>
+<form onsubmit="return false;">Debug level: 
+<select name="debugLevel" size="1" onChange="_changeDebugLevel();">
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+<option>5</option>
+</select>
+</form>
 
 </body>
 

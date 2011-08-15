@@ -55,6 +55,7 @@ var myTurn = false;
 var isWatching = false;
 var availible_games = undefined;
 var currSelectedGame = undefined;
+var unsuccessfulServerCallCounter = -1;
 
 
 
@@ -79,7 +80,7 @@ function _playInit() {
 		mqId = window.location.href.match(/[\dA-Fa-f]+$/);
 
 		// show debug level in UI
-		$('[name="debugLevel"]').attr('value', debugLevel);				
+		$('[name="debugLevel"]').attr('value', debugLevel);		
 
 		// request current situation (enables returning after problems)
 		serverCall("getsit/" + mqId, function(data) {parseMQ(data);}, false, true);	
@@ -111,7 +112,7 @@ function _dataInit() {
 			$(this).find('[class^="inline_content"]').html(short_data);
 			// hide long
 			$(this).find('[class^="data_content"]').slideUp(500, function() { $(this).toggleClass('data_content_empty').toggleClass('data_content'); });
-		});
+		}).click().click();
 	});
 }
 

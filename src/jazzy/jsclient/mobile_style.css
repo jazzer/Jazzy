@@ -22,18 +22,82 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 /* general */
 body {
 	font-family: 'Ubuntu', arial, serif;
+	padding-top: 75px;
+	background: #337F4F;
+	color: white;
 }
 h1, h2, h3, h4, h5, h6 {
-	font-family: 'Cabin Sketch', arial, serif;
+	font-family: 'Ubuntu', arial, serif;
+	color: white;
+	text-shadow: 0px 2px 3px #555;
 }
+.centered {
+	text-align: center;
+}
+
+/* menu styles */
+.menu_item {
+	float: left;
+	min-width: 160px;
+	padding: 14px 5px;
+	text-align: center;
+	font-size: 130%;
+	font-weight: bolder;
+	text-shadow: 0px 2px 3px #555;
+	color: white;
+}
+.menu_item:hover {
+	background: #51CC7E;
+}
+.menu {
+	background: #193F27;
+	width: 100%;
+	position: fixed;
+	left: 0px;
+	top: 0px;
+}
+/* logo */
+.head_logo {
+	padding: 0px 0px;
+}
+.head_logo:hover {
+}
+
+
+/* text */
+.hl_text {
+	text-shadow: 0px 2px 3px #555;
+}
+
+/* form elements */
+input[type=submit] {
+	background: #327F4E;
+	color: #51CC7E;
+	border: 0.1px solid #51CC7E;
+	padding: 3px;
+	font-weight: bold;
+	border-radius: 5px 5px 5px 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+input[type=submit]:hover {
+	background: #4BBF75;
+	color: #193F27;
+}
+
+select {
+	background: #4BBF75;
+	color: #193F27;
+}
+
 
 
 /* board specific */
 #board {
 	min-height: 100px;
-	-moz-box-shadow: 0 0 5px 5px #888;
-	-webkit-box-shadow: 0 0 5px 5px#888;
-	box-shadow: 0 0 5px 5px #888;
+	-moz-box-shadow: 0 0 5px 5px #fff;
+	-webkit-box-shadow: 0 0 5px 5px #fff;
+	box-shadow: 0 0 5px 5px #fff;
+	margin-bottom: 15px;
 }
 
 #board .field {
@@ -87,8 +151,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* data styles */
 
+#data {
+	color: white;
+}
+
 #data .data_header {
-	background-color: #FFDD00;
+	background-color: #193F27;
 	padding: 0.45em;
 	padding-left: 18px;
 	text-align: left;
@@ -99,6 +167,7 @@ h1, h2, h3, h4, h5, h6 {
 	font-size: 110%;
 	min-width: 25%;
 	float: left;
+	text-shadow: 0px 2px 3px #555;
 }
 
 #data .data_header .inline_content {
@@ -107,11 +176,12 @@ h1, h2, h3, h4, h5, h6 {
 	padding-left: 3em;
 }
 #data .data_content {
-	background-color: #FFDDAA;
+	background-color: #51CC7E;
 	padding: 0.45em 1.45em;
 	padding-left: 18px;
 	text-align: left;
 	font-size: 90%;
+	color: black;
 }
 #data .data_content_empty {
 	padding: 0em;
@@ -132,7 +202,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .message {
-	color: blue;
+	color: white;
 }
 
 .time {
@@ -159,10 +229,10 @@ h1, h2, h3, h4, h5, h6 {
 	padding-right: 10px;
 }
 .chat_self {
-	color: green;
+	color: white;
 }
 .chat_other {
-	color: red;
+	color: black;
 	font-weight: bold;
 }
 
@@ -182,6 +252,29 @@ h1, h2, h3, h4, h5, h6 {
 	background-color: #ff7;
 }
 
+.refreshForm {
+	display: inline;
+}
+
+/* connection status */
+#conn_status {	
+	padding: 3px;
+	border-radius: 5px 5px 5px 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+	display: inline;
+}
+
+.conn_bad {
+	background: #FF643D;
+}
+
+.conn_unknown {
+	background: #FFFF5C;
+}
+
+.conn_good {
+	background: #3DFF64;
+}
 
 
 
