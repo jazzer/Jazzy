@@ -97,11 +97,11 @@ select {
 
 
 /* board specific */
-#board {
+.board {
 	width: 100%;
 	margin: 0 auto;
 }
-#board {
+.board {
 	min-height: 100px;
 	-moz-box-shadow: 0 0 5px 5px #fff;
 	-webkit-box-shadow: 0 0 5px 5px #fff;
@@ -109,35 +109,35 @@ select {
 	margin-bottom: 15px;
 }
 
-#board .field {
+.board .field {
 	width: 48px;
 	height: 48px;
 	float: left;
 }
 
-#board .dark {
+.board .dark {
 	transition-property: background-color;
 	transition-duration: 1s;
 	background-color: #00994D;
 }
 
-#board .dark:hover {
+.board .dark:hover {
 	transition-property: background-color;
 	transition-duration: 1s;
 	background-color: #007000;
 }
 
-#board .light {
+.board .light {
 	background-color: #1FFF8F;
 }
-#board .light:hover {
+.board .light:hover {
 	transition-property: background-color;
 	transition-duration: 1s;
 	background-color: #fff;
 }
 
 
-#board .clear_row {
+.board .clear_row {
 	clear: left;
 }
 

@@ -353,7 +353,6 @@ function getPieceDiv(pieceType) {
 	return pieceDiv
 }
 
-
 function _lengthenFen(fenString) {
 	var replacement = "__";
 	for (var i=2; i <= board_cols; i++) {
