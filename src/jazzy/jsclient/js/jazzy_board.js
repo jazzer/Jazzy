@@ -719,12 +719,3 @@ function parseMQ(data) {
 		_debug("parsed message with id " + lastParsedMsg, 4);
 	}	
 }
-
-
-
-
-
-
-
-
-
