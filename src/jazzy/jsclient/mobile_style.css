@@ -34,6 +34,9 @@ h1, h2, h3, h4, h5, h6 {
 .centered {
 	text-align: center;
 }
+a, a:hover, a:visited {
+	color: white;
+}
 
 /* menu styles */
 .menu_item {
@@ -93,6 +96,10 @@ select {
 
 /* board specific */
 #board {
+	width: 100%;
+	margin: 0 auto;
+}
+#board {
 	min-height: 100px;
 	-moz-box-shadow: 0 0 5px 5px #fff;
 	-webkit-box-shadow: 0 0 5px 5px #fff;
@@ -109,22 +116,22 @@ select {
 #board .dark {
 	transition-property: background-color;
 	transition-duration: 1s;
-	background-color: #3D11B8;
+	background-color: #00994D;
 }
 
 #board .dark:hover {
 	transition-property: background-color;
 	transition-duration: 1s;
-	background-color: #351980;
+	background-color: #007000;
 }
 
 #board .light {
-	background-color: #508EAD;
+	background-color: #1FFF8F;
 }
 #board .light:hover {
 	transition-property: background-color;
 	transition-duration: 1s;
-	background-color: #CAEAFA;
+	background-color: #fff;
 }
 
 
@@ -242,14 +249,27 @@ select {
 	min-height: 200px;
 	overflow: auto;
 	float:left;
-	border: 1px dotted black;
 }
 
 .gameSelection .entry {
-	background-color: #f73;
+	background-color: #327F4E;
+	margin: 2px 0px;
+	padding: 0px 3px;
+
 }
 .gameSelection .entry:hover {
-	background-color: #ff7;
+	background-color: #41A566;
+}
+
+#created_links {
+	border-radius: 5px 5px 5px 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+	border: 1px solid white;
+	margin: 20px 0px;
+	padding: 5px 5px 30px 5px;
+}
+#created_links a {
+	color: #50CC7E;
 }
 
 .refreshForm {

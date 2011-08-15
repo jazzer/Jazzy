@@ -532,7 +532,7 @@ function createGame() {
 		var your_link = server_url + '/play.html?' + mqId;
 		var their_link = server_url + '/join.html?' + gameId;
 		var watch_link = server_url + '/watch.html?' + gameId;
-		$("#created_links").html('<b>Your link: <a href="'+your_link+'">'+your_link+'</a></b><br/>Link for other players: <a href="'+their_link+'">'+their_link+'</a><br/>Watch: <a href="'+watch_link+'">'+watch_link+'</a>');
+		$("#created_links").html('<b><h3>Your link:</h3> <a href="'+your_link+'">'+your_link+'</a></b><h3>Link for other players:</h3><a href="'+their_link+'">'+their_link+'</a><h3>Watch Game:</h3><a href="'+watch_link+'">'+watch_link+'</a>');
 	});
 }
 
