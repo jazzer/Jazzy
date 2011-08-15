@@ -41,7 +41,7 @@ var interval_factor = 1.4;
 	DO NOT CHANGE ANYTHING BELOW HERE 
 	UNLESS YOU KNOW WHAT YOU DO! */
 var dragSource = undefined;
-var debugLevel = 3;
+var debugLevel = 1;
 var refreshInterval = 2;
 var sinceLastRefresh = 0;
 var fields = board_cols*board_rows;
@@ -478,10 +478,11 @@ function addChatMessage(user, msg) {
 
 function sendChat() {
 	var msg = $('input[name="chatmsg"]').attr('value');
+	if (msg === '') return; 
 	$('input[name="chatmsg"]').attr('value', '');
 	addChatMessage("_", msg);
 	// send the message to the server for distribution
-	serverCall('post/' + mqId + '/chat/' + msg, function(data) {parseMQ(data);}, true, true);
+	serverCall('post/' + mqId + '/chat/' + encodeURIComponent(msg), function(data) {parseMQ(data);}, true, true);
 }
 
 function _getTime(doShort) {
@@ -683,7 +684,7 @@ function parseMQ(data) {
 				selectionDiv.modal();				
 				break;
 			case "chat":
-				addChatMessage(decodeURIComponent(data[i]['user']), decodeURIComponent(data[i]['msg'])); 
+				addChatMessage(data[i]['user'], decodeURIComponent(data[i]['msg'])); 
 				break;
 			case "gameover":
 				goMsg = "Game finished. Result: " + data[i]['result'] + " (" + data[i]['msg'] + ")"

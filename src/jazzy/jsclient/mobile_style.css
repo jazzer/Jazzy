@@ -39,6 +39,14 @@ a, a:hover, a:visited {
 }
 
 /* menu styles */
+.menu {
+	background: #193F27;
+	width: 100%;
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	z-index: 100;
+}
 .menu_item {
 	float: left;
 	min-width: 160px;
@@ -52,13 +60,7 @@ a, a:hover, a:visited {
 .menu_item:hover {
 	background: #51CC7E;
 }
-.menu {
-	background: #193F27;
-	width: 100%;
-	position: fixed;
-	left: 0px;
-	top: 0px;
-}
+
 /* logo */
 .head_logo {
 	padding: 0px 0px;
@@ -232,7 +234,7 @@ select {
 	padding: 0px 2px 2px 2px;
 }
 .chat_username {
-	color: black;
+	color: #50CC7E;
 	padding-right: 10px;
 }
 .chat_self {

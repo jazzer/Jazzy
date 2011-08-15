@@ -83,6 +83,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(bytes(myString, 'UTF-8'))
     
     def sanitizeHTML(self, string):
+        # TODO handle urlencoding here! possibly de- and reencode or filter 'bad' escape sequences? 
         return re.sub(r'(<[^>]*>)', '', string)
     
     def sendMQ(self, params):
@@ -98,7 +99,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         
             
     def serveStaticText(self, file):
-        #print("serving " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
+        print("serving " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
         real_file = re.sub("\?.*", '', file)
         a_file = open(STATIC_SERVE_BASE + real_file, encoding='utf-8')
         a_string = a_file.read()
