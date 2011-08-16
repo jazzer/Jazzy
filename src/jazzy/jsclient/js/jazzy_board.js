@@ -58,8 +58,6 @@ function Board(id, width, height, flipped) {
 	this.locked = false;
 	this.myTurn = true;	
 
-	//alert(this.width + " x " + this.height);
-
 	this.build();
 }
 
@@ -82,6 +80,7 @@ Board.prototype.build = function() {
 	var counter = 0;
 	var rows = this.height;
 	var cols = this.width;
+	var fields = cols*rows;
 	for (var row = 1; row <= rows; row++) {
 		for (var col = 1; col <= cols; col++) {
 			var field = $("<div>");
@@ -98,9 +97,9 @@ Board.prototype.build = function() {
 			}
 			// id
 			if (!this.flipped) {
-				field.attr('id', boardId + '_field'+counter);
+				field.attr('id', boardId + '_field' + counter);
 			} else {
-				field.attr('id', boardId + '_field'+(fields-counter-1));
+				field.attr('id', boardId + '_field' + (fields-counter-1));
 			}
 			// set events for drag and drop
 			if (!this.isWatching) {
@@ -172,7 +171,7 @@ Board.prototype.getPieceDiv = function(pieceType) {
 
 
 Board.prototype.move = function(from, to, toPiece, silent) {
-	console.debug("moving\n" + from + "\n" + to);
+	//console.debug("moving\n" + from + "\n" + to);
 	// sanitize input?
 	// without animation: $("#field" + from).children().detach().appendTo($("#field" + to).children().remove().end());
 	if (from == -1) {

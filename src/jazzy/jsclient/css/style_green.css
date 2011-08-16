@@ -50,18 +50,21 @@ a, a:hover, a:visited {
 .menu_item {
 	float: left;
 	min-width: 160px;
-	padding: 14px 5px;
+	line-height: 50px;
+	vertical-align: middle;
 	text-align: center;
 	font-size: 130%;
 	font-weight: bolder;
 	text-shadow: 0px 2px 3px #555;
 	-moz-transition-property: background-color;
 	-moz-transition-duration: 1000ms;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 1000ms;
+	transition-property: background-color;
+	transition-duration: 1000ms;
 	color: white;
 }
 .menu_item:hover {
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 1000ms;
 	background: #51CC7E;
 }
 
@@ -70,6 +73,7 @@ a, a:hover, a:visited {
 	padding: 0px 0px;
 }
 .head_logo:hover {
+	background: black;
 }
 
 
@@ -119,26 +123,27 @@ select {
 	float: left;
 }
 
-.board .dark {
+.board .dark, .board .dark:hover, .board .light, .board .light:hover {
 	-moz-transition-property: background-color;
 	-moz-transition-duration: 300ms;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 300ms;
+	transition-property: background-color;
+	transition-duration: 300ms;
+}
+
+.board .dark {
 	background-color: #00994D;
 }
 
 .board .dark:hover {
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 300ms;
 	background-color: #007000;
 }
 
 .board .light {
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 300ms;
 	background-color: #1FFF8F;
 }
 .board .light:hover {
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 300ms;
 	background-color: #fff;
 }
 

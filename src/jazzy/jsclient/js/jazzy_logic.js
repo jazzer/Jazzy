@@ -25,6 +25,7 @@ var server_url = self.location.protocol + "//" + self.location.host + "/";
 var base_interval = 1000;
 var max_interval = 15000;
 var interval_factor = 1.4;
+var myTurn = true;
 
 if (typeof BoardStorage == 'function') {
 	var boardStorage = new BoardStorage();
@@ -485,7 +486,6 @@ function parseMQ(data) {
 				silent = data[i]['silent'] == true?true:false;				
 				boardId = data[i]['from'].replace(/_.*/, '');
 				board = boardStorage.getBoard(boardId);	
-				console.debug(board);		
 				board.move(lengthenFieldString(data[i]['from']), lengthenFieldString(data[i]['to']), data[i]['toPiece'], silent); 
 				parseCurrPlayer(data[i]['currP']);
 				// TODO add ['check'] in server and client -> play sound (don't set when game is finished)
@@ -530,7 +530,7 @@ function parseMQ(data) {
 				// fix highlight
 				board.highlight_clear();
 				if (data[i]['lmove_from'] != undefined && data[i]['lmove_to'] != undefined) {
-					highlight_move(lengthenFieldString(data[i]['lmove_from']), lengthenFieldString(data[i]['lmove_to']));
+					board.highlight_move(lengthenFieldString(data[i]['lmove_from']), lengthenFieldString(data[i]['lmove_to']));
 				}
 				// check if it's my turn
 				parseCurrPlayer(data[i]['currP']);
