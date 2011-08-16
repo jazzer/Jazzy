@@ -26,6 +26,7 @@ from jazzy.logic.Move import Move, NullMove
 class Board(object):
 
     def __init__(self, game, width=8, height=8):
+        self.id = '1'
         self.game = game
         self.width = width
         self.height = height

@@ -250,7 +250,8 @@ class ClassicGame():
             flipped = True if mq.subject.color == 'black' else False
             
         data = {'fen': self.getFenPos(self.board, mq.subject),
-                'board_size': str(self.board.width) + 'x' + str(self.board.height),
+                'board_id': self.board.id,
+                'board_size':  str(self.board.width) + 'x' + str(self.board.height),
                 'flipped': flipped}
         # add last move if applicable    
         if len(self.board.moveHistory) > 0 and self.SHOW_LAST_MOVE:

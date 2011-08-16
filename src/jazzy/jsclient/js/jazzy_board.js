@@ -29,6 +29,27 @@ var dnd_clicked = false;
 var dragSource = undefined;
 
 
+/* BoardStorage class */
+function BoardStorage() {
+	var boards = new Object();
+}
+
+BoardStorage.prototype.newBoard = function(id, width, height) {
+	newBoard = new Board(id, width, height);
+	alert(newBoard);
+	boards[id] = newBoard;
+	return newBoard;
+}
+
+BoardStorage.prototype.getBoard = function(id) {
+	if (boards[id] !== undefined) {
+		return boards[id];
+	}
+	return undefined;
+}
+
+
+/* Board class */
 function Board(id, width, height) {
 	this.id = id;
 	this.width = width;
@@ -202,9 +223,16 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 
 Board.prototype.highlight_move = function(from, to) {
 	console.debug("highlighting move");
-	highlight_clear();	
+	this.highlight_clear();	
 	highlight(from, 'move_from');
 	highlight(to, 'move_to');
+}
+
+Board.prototype.highlight_clear = function() {
+	var boardId = "board_" + this.id;
+	$("#" + boardId).find('div[id*="field"]').each(function() {
+		$(this)[0].className = $(this)[0].className.replace(/highlight_[^ ]*/, "");
+	});
 }
 
 
@@ -283,11 +311,7 @@ function playSound(url) {
 }
 
 
-function highlight_clear() {
-	$("#boards").find('div[id*="field"]').each(function() {
-		$(this)[0].className = $(this)[0].className.replace(/highlight_[^ ]*/, ""); 
-	});
-}
+
 
 function highlight(fieldId, descr) {
 	$("#" + fieldId).addClass("highlight_" + descr);
@@ -315,15 +339,15 @@ $(document).ready(function() {
 
 
 // Test
-$(function() {
-	myBoard = new Board("b1", 8, 8);
-	myBoard2 = new Board("b2", 5, 5);
-	myBoard.loadFEN('K_______/________/qrppk___/________/________/________/________/________');
-	myBoard.loadFEN('K__Q____/___Q____/qrppk___/________/________/________/________/_______Q');
-	myBoard2.loadFEN('KQ3/5/Qrppk/5/RNn1r');
-	myBoard.move("board_b1_field0", "board_b1_field2");
-	myBoard2.move("board_b2_field20", "board_b2_field4");
-	myBoard.move("board_b1_field18", "board_b2_field3");
-});
+//$(function() {
+//	myBoard = new Board("b1", 8, 8);
+//	myBoard2 = new Board("b2", 5, 5);
+//	myBoard.loadFEN('K_______/________/qrppk___/________/________/________/________/________');
+//	myBoard.loadFEN('K__Q____/___Q____/qrppk___/________/________/________/________/_______Q');
+//	myBoard2.loadFEN('KQ3/5/Qrppk/5/RNn1r');
+//	myBoard.move("board_b1_field0", "board_b1_field2");
+//	myBoard2.move("board_b2_field20", "board_b2_field4");
+//	myBoard.move("board_b1_field18", "board_b2_field3");
+//});
 
 

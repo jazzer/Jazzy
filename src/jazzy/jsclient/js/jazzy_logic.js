@@ -26,6 +26,10 @@ var base_interval = 1000;
 var max_interval = 15000;
 var interval_factor = 1.4;
 
+if (BoardStorage !== undefined) {
+	var boardStorage = new BoardStorage();
+}
+
 
 /* global variables
 
@@ -451,6 +455,14 @@ function makeWatching() {
 }
 
 
+function shortenFieldString(fString) {
+	return fString.replace(/^board/, "").replace(/_field/, "_");
+}
+function lengthenFieldString(fString) {
+	return fString.replace(/^/, "board").replace(/_/, "_field");
+}
+
+
 
 function parseMQ(data) {
 	// did we receive messages? if so, keep checking frequently
@@ -508,16 +520,19 @@ function parseMQ(data) {
 				break;
 			case "gamesit":
 				// build the board
-				boardSize = data[i]['board_size'].split('x');
-				buildClassicBoard(boardSize[0], boardSize[1], data[i]['flipped']);
+				boardId = data[i]['board_id'];		
+				boardSize = data[i]['board_size'].split('x');		
+				board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1]);
+				console.debug(board);
+				board.flipped = data[i]['flipped'];
 				// fix highlight
-				highlight_clear();
+				board.highlight_clear();
 				if (data[i]['lmove_from'] != undefined && data[i]['lmove_to'] != undefined) {
-					highlight_move(data[i]['lmove_from'], data[i]['lmove_to']);
+					highlight_move(lengthenFieldString(data[i]['lmove_from']), lengthenFieldString(data[i]['lmove_to']));
 				}
 				
 				// load the position
-				loadFen(data[i]['fen']);
+				board.loadFen(data[i]['fen']);
 				// check if it's my turn
 				parseCurrPlayer(data[i]['currP']);
 				break;
