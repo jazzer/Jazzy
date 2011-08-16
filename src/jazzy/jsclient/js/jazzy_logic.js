@@ -26,7 +26,7 @@ var base_interval = 1000;
 var max_interval = 15000;
 var interval_factor = 1.4;
 
-if (BoardStorage !== undefined) {
+if (typeof BoardStorage == 'function') {
 	var boardStorage = new BoardStorage();
 }
 
@@ -256,9 +256,8 @@ function buildClassicBoard(cols, rows, flippedParam) {
 
 
 function postMove(from, to, promotion) {
-	console.debug(from + "\n" + to);	
 	// post move to server and move only upon response (means move was okay)!
-	var url = 'post/' + mqId + '/move/' + from + '/' + to;
+	var url = 'post/' + mqId + '/move/' + shortenFieldString(from) + '/' + shortenFieldString(to);
 	if (promotion != undefined) {
 		url += '/' + promotion
 	}
@@ -521,18 +520,15 @@ function parseMQ(data) {
 			case "gamesit":
 				// build the board
 				boardId = data[i]['board_id'];		
-				boardSize = data[i]['board_size'].split('x');		
-				board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1]);
-				console.debug(board);
-				board.flipped = data[i]['flipped'];
+				boardSize = data[i]['board_size'].split('x');
+				board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[i]['flipped']);	
+				// load the position
+				board.loadFEN(data[i]['fen']);
 				// fix highlight
 				board.highlight_clear();
 				if (data[i]['lmove_from'] != undefined && data[i]['lmove_to'] != undefined) {
 					highlight_move(lengthenFieldString(data[i]['lmove_from']), lengthenFieldString(data[i]['lmove_to']));
 				}
-				
-				// load the position
-				board.loadFen(data[i]['fen']);
 				// check if it's my turn
 				parseCurrPlayer(data[i]['currP']);
 				break;

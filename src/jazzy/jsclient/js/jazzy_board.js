@@ -31,30 +31,29 @@ var dragSource = undefined;
 
 /* BoardStorage class */
 function BoardStorage() {
-	var boards = new Object();
+	this.boards = new Object();
 }
 
-BoardStorage.prototype.newBoard = function(id, width, height) {
-	newBoard = new Board(id, width, height);
-	alert(newBoard);
-	boards[id] = newBoard;
-	return newBoard;
+BoardStorage.prototype.newBoard = function(id, width, height, flipped) {
+	myboard = new Board(id, width, height, flipped);
+	this.boards[id] = myboard;
+	return myboard;
 }
 
 BoardStorage.prototype.getBoard = function(id) {
-	if (boards[id] !== undefined) {
-		return boards[id];
+	if (this.boards[id] !== undefined) {
+		return this.boards[id];
 	}
 	return undefined;
 }
 
 
 /* Board class */
-function Board(id, width, height) {
+function Board(id, width, height, flipped) {
 	this.id = id;
 	this.width = width;
 	this.height = height;
-	this.flipped = false;
+	this.flipped = flipped;
 	this.isWatching = false;
 	this.locked = false;
 	this.myTurn = true;	
@@ -222,7 +221,6 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 }
 
 Board.prototype.highlight_move = function(from, to) {
-	console.debug("highlighting move");
 	this.highlight_clear();	
 	highlight(from, 'move_from');
 	highlight(to, 'move_to');
@@ -243,7 +241,7 @@ function _dnd_down(thisElement, board) {
 	//console.debug(board.myTurn);
 	//console.debug(thisElement.children().length > 0);
 	//console.debug(!dnd_clicked);
-	console.debug("down at " + thisElement.attr('id'));
+	//console.debug("down at " + thisElement.attr('id'));
 	if (!board.locked && board.myTurn && thisElement.children().length > 0 && !dnd_clicked) {	
 		dragSource = thisElement.attr('id');
 		thisElement.addClass('highlight_input_move_from');
@@ -251,14 +249,13 @@ function _dnd_down(thisElement, board) {
 }
 
 function _dnd_up(thisElement) {
-	console.debug("up at " + thisElement.attr('id'));
-	console.debug(dragSource);
+	//console.debug("up at " + thisElement.attr('id'));
+	//console.debug(dragSource);
 	if (dragSource == undefined || dnd_clicked) {
-		console.debug("returning");
 		return;
 	}
 	dropTarget = thisElement.attr('id');
-	console.debug(dropTarget);
+	//console.debug(dropTarget);
 	if (dropTarget !== undefined && dragSource != dropTarget) {
 		postMove(dragSource, dropTarget);
 	} 

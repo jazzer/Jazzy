@@ -55,9 +55,13 @@ a, a:hover, a:visited {
 	font-size: 130%;
 	font-weight: bolder;
 	text-shadow: 0px 2px 3px #555;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 1000ms;
 	color: white;
 }
 .menu_item:hover {
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 1000ms;
 	background: #51CC7E;
 }
 
@@ -116,23 +120,25 @@ select {
 }
 
 .board .dark {
-	transition-property: background-color;
-	transition-duration: 1s;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 300ms;
 	background-color: #00994D;
 }
 
 .board .dark:hover {
-	transition-property: background-color;
-	transition-duration: 1s;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 300ms;
 	background-color: #007000;
 }
 
 .board .light {
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 300ms;
 	background-color: #1FFF8F;
 }
 .board .light:hover {
-	transition-property: background-color;
-	transition-duration: 1s;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 300ms;
 	background-color: #fff;
 }
 
