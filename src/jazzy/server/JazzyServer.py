@@ -214,15 +214,22 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                 return
             
             game = mq.game
+            
+            # find board
+            p3 = params[3].replace('board_', '').replace('_field', '_');
+            p4 = params[4].replace('board_', '').replace('_field', '_');
+            boardId = p3.split('_')[0]
+            targetBoard = game.getBoard(boardId)
+            
             # create move
-            if params[3] == 'SHORT_CASTLING' or  params[3] == 'LONG_CASTLING':
+            if params[3] == 'SHORTCASTLING' or  params[3] == 'LONGCASTLING':
                 # castling
                 postedMove = Move(None, None)
-                postedMove.annotation = params[3]
+                postedMove.annotation = p3.split('_')[1]
             else:
                 # standard move
-                fromField = int(params[3])
-                toField = int(params[4])
+                fromField = int(p3.split('_')[1])
+                toField = int(p4.split('_')[1])
                 postedMove = Move(fromField, toField)
                 # do we have a promotion option set?
                 if len(params) > 5 and params[5] != 'ack':
@@ -230,21 +237,21 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 
             
             # check move for correctness
-            isLegalMove = game.isLegalMove(postedMove)
+            isLegalMove = game.isLegalMove(postedMove, targetBoard)
             # parse move
-            postedMove.simpleParse(game.board)
-            postedMove.fullParse(game.board)    
+            postedMove.simpleParse(targetBoard)
+            postedMove.fullParse(targetBoard)    
                             
             # put the message to all players
             if isLegalMove:
                 # do we have to ask for promotion piece?
-                if game.moveNeedsPromotion(postedMove, game.board):
+                if game.moveNeedsPromotion(postedMove, targetBoard):
                     msg = Message('promote', {'from': postedMove.fromField, 'to': postedMove.toField})
                     # add options
                     msg.data['options'] = game.getPromotionOptions(postedMove.fromPiece.color)
                     jsonoutput = json.dumps([msg.data])
                 else:
-                    moves = game.move(postedMove, game.board)
+                    moves = game.move(postedMove, targetBoard)
                     
                     # analyze if game is over
                     result = game.getGameOverMessage()
@@ -259,7 +266,11 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                         else:
                             # normal move
                             move.simpleParse(mq.game.board)
-                            data = {'from': move.fromField, 'to': move.toField}
+                            if move.board is None:
+                                data = {'from': move.fromField, 'to': move.toField}
+                            else:
+                                data = {'from': str(move.board.id) + '_' + str(move.fromField), 'to': str(move.board.id) + '_' + str(move.toField)}
+                                
                             if move.silent:
                                 data['silent'] = True
                             if not(move.toPiece is None):

@@ -77,7 +77,7 @@ Board.prototype.build = function() {
 	var board = this;
 	//console.debug(board);
 
-	$("#" + boardId).remove();
+	$("#" + boardId).parent().remove();
 	boardDiv = $('<div>').attr('id', boardId).addClass('board');
 	var counter = 0;
 	var rows = this.height;
@@ -109,13 +109,17 @@ Board.prototype.build = function() {
 				field.click(function() {_dnd_click($(this), board)});
 			}
 			
-			// append it to the board	
+			// append it to the board
 			boardDiv.append(field);
-			$("#boards").append(boardDiv);
 
 			counter++;
 		}
 	}
+
+	// buttons for castling
+	innerDiv = $('<div>').append(boardDiv).append('<form onsubmit="return false;"><input type="submit" value="O-O" onclick="_shortCastling(' + boardId + ');" style="width: 12%"> <input type="submit" value="O-O-O" onclick="_longCastling(' + boardId + ');" style="width: 12%"></form><br />');
+			
+	$("#boards").append(innerDiv);
 
 	// correct the board div's size
 	var field_width = $("#" + boardId + "_field0").width();
@@ -168,6 +172,7 @@ Board.prototype.getPieceDiv = function(pieceType) {
 
 
 Board.prototype.move = function(from, to, toPiece, silent) {
+	console.debug("moving\n" + from + "\n" + to);
 	// sanitize input?
 	// without animation: $("#field" + from).children().detach().appendTo($("#field" + to).children().remove().end());
 	if (from == -1) {

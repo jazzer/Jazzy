@@ -224,6 +224,11 @@ class ClassicGame():
             # generate possible moves for the next round
             self.possibleMoves = None
             self.parsePossibleMoves()
+        
+        # bind to board
+        for move in moves:
+            move.board = self.board
+            
         return moves
         
         
@@ -258,8 +263,13 @@ class ClassicGame():
             # TODO select last non-NullMove
             lastMove = self.board.moveHistory[-1];
             if not isinstance(lastMove, NullMove):
-                data['lmove_from'] = lastMove.fromField
-                data['lmove_to'] = lastMove.toField
+                if lastMove.board is None:
+                    data['lmove_from'] = lastMove.fromField
+                    data['lmove_to'] = lastMove.toField
+                else:                    
+                    data['lmove_from'] = str(lastMove.board.id) + '_' + str(lastMove.fromField)
+                    data['lmove_to'] = str(lastMove.board.id) + '_' + str(lastMove.toField)
+        
         # add current player if applicable    
         if not(self.getCurrentPlayer(self.board) is None):
             data['currP'] = self.getCurrentPlayer(self.board).mq.shortenedId
@@ -488,7 +498,12 @@ class ClassicGame():
                 moveSet.remove(move)                
         return moveSet
             
-    def isLegalMove(self, move):
+    def getBoard(self, boardId):
+        if self.board.id == boardId:
+            return self.board
+        return None 
+    
+    def isLegalMove(self, move, boardId = None):
         self.parsePossibleMoves()
         if self.possibleMoves is None:
             return False

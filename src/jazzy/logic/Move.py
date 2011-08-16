@@ -31,6 +31,7 @@ class Move():
         self.silent = False
         self.player = None
         self.isCheck = False
+        self.board = None
         
     def simpleParse(self, board):
         if self.fromField is None or self.toField is None:

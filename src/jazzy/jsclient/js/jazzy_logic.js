@@ -265,10 +265,10 @@ function postMove(from, to, promotion) {
 }
 
 function _shortCastling() {
-	postMove("SHORT_CASTLING", "")
+	postMove("SHORTCASTLING", "")
 }
 function _longCastling() {
-	postMove("LONG_CASTLING", "")
+	postMove("LONGCASTLING", "")
 }
 
 
@@ -455,10 +455,10 @@ function makeWatching() {
 
 
 function shortenFieldString(fString) {
-	return fString.replace(/^board/, "").replace(/_field/, "_");
+	return fString.replace(/^board_/, "").replace(/_field/, "_");
 }
 function lengthenFieldString(fString) {
-	return fString.replace(/^/, "board").replace(/_/, "_field");
+	return fString.replace(/_/, "_field").replace(/^/, "board_");
 }
 
 
@@ -483,7 +483,10 @@ function parseMQ(data) {
 		switch (mtype) {
 			case "move":
 				silent = data[i]['silent'] == true?true:false;				
-				move(data[i]['from'], data[i]['to'], data[i]['toPiece'], silent); 
+				boardId = data[i]['from'].replace(/_.*/, '');
+				board = boardStorage.getBoard(boardId);	
+				console.debug(board);		
+				board.move(lengthenFieldString(data[i]['from']), lengthenFieldString(data[i]['to']), data[i]['toPiece'], silent); 
 				parseCurrPlayer(data[i]['currP']);
 				// TODO add ['check'] in server and client -> play sound (don't set when game is finished)
 				break;
