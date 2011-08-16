@@ -55,6 +55,7 @@ Board.prototype.build = function() {
 	// create a new board
 	var boardId = "board_" + this.id;
 	var board = this;
+	//console.debug(board);
 
 	$("#" + boardId).remove();
 	boardDiv = $('<div>').attr('id', boardId).addClass('board');
@@ -146,20 +147,91 @@ Board.prototype.getPieceDiv = function(pieceType) {
 }
 
 
+Board.prototype.move = function(from, to, toPiece, silent) {
+	// sanitize input?
+	// without animation: $("#field" + from).children().detach().appendTo($("#field" + to).children().remove().end());
+	if (from == -1) {
+		return;
+	}
+	if (silent === undefined) { silent = false; }
+
+	// animate the move
+	fromField = $("#" + from);
+	toField = $("#" + to);	
+	isCapture = (toField.children().length > 0);
+	isPiece = (fromField.children().length > 0);
+
+	if (!isPiece) {
+		return;
+	}
+	
+	toField.children().css({'z-index': '2', 'position': 'absolute'}).fadeOut(400, function() {
+		$(this).remove();
+	});
+		
+	fromField.children().css({position: 'absolute',
+				'z-index': 1,
+				left: fromField.offset().left,
+				top: fromField.offset().top})
+		.animate({ 
+				left: toField.offset().left,
+				top: toField.offset().top
+	    	}, 400, "swing", function() {
+			// finished the move action, now do the promotion if requested
+			if (toPiece != undefined) {
+				$(this).fadeOut(400).parent().append(getPieceDiv(toPiece)).fadeIn(400);
+			}
+		});
+	fromField.children().detach().prependTo(toField);
+
+	if (!silent) {
+		// highlight
+		this.highlight_move(from, to);
+		// sound
+		if (isCapture) {
+			playSound('media/capture');
+		} else {
+			playSound('media/move');
+		}
+	}
+
+	// reset click event memory
+	dragSource = undefined;
+	dnd_clicked = false;
+}
+
+Board.prototype.highlight_move = function(from, to) {
+	console.debug("highlighting move");
+	highlight_clear();	
+	highlight(from, 'move_from');
+	highlight(to, 'move_to');
+}
+
+
 
 function _dnd_down(thisElement, board) {
-	if (board.myTurn && thisElement.children().length > 0 && !dnd_clicked) {	
+	//console.debug(board);
+	//console.debug(!board.locked);
+	//console.debug(board.myTurn);
+	//console.debug(thisElement.children().length > 0);
+	//console.debug(!dnd_clicked);
+	console.debug("down at " + thisElement.attr('id'));
+	if (!board.locked && board.myTurn && thisElement.children().length > 0 && !dnd_clicked) {	
 		dragSource = thisElement.attr('id');
 		thisElement.addClass('highlight_input_move_from');
 	}	
 }
+
 function _dnd_up(thisElement) {
+	console.debug("up at " + thisElement.attr('id'));
 	console.debug(dragSource);
 	if (dragSource == undefined || dnd_clicked) {
+		console.debug("returning");
 		return;
 	}
 	dropTarget = thisElement.attr('id');
-	if (!isNaN(dragSource) && !isNaN(dropTarget) && dragSource != dropTarget) {
+	console.debug(dropTarget);
+	if (dropTarget !== undefined && dragSource != dropTarget) {
 		postMove(dragSource, dropTarget);
 	} 
 
@@ -170,7 +242,7 @@ function _dnd_up(thisElement) {
 
 function _dnd_click(thisElement, board) {
 	if (dragSource == undefined) {
-		_dnd_down(thisElement, board.myTurn);
+		_dnd_down(thisElement, board);
 		dnd_clicked = true;
 	} else {
 		dnd_clicked = false;
@@ -204,58 +276,6 @@ function _shortenFen(fenString, maxVal) {
 }
 
 
-function move(from, to, toPiece, silent) {
-	// sanitize input?
-	// without animation: $("#field" + from).children().detach().appendTo($("#field" + to).children().remove().end());
-	if (from == -1) {
-		return;
-	}
-
-	// animate the move
-	fromField = $("#field" + from);
-	toField = $("#field" + to);	
-	isCapture = (toField.children().length > 0);
-	isPiece = (fromField.children().length > 0);
-
-	if (!isPiece) {
-		return;
-	}
-	
-	toField.children().css({'z-index': '2', 'position': 'absolute'}).fadeOut(400, function() {
-		$(this).remove();
-	});
-		
-	fromField.children().css({position: 'absolute',
-				'z-index': 1,
-				left: fromField.offset().left,
-				top: fromField.offset().top})
-		.animate({ 
-				left: toField.offset().left,
-				top: toField.offset().top
-	    	}, 400, "swing", function() {
-			// finished the move action, now do the promotion if requested
-			if (toPiece != undefined) {
-				$(this).fadeOut(400).parent().append(getPieceDiv(toPiece)).fadeIn(400);
-			}
-		});
-	fromField.children().detach().prependTo(toField);
-
-	if (!silent) {
-		// highlight
-		highlight_move(from, to);
-		// sound
-		if (isCapture) {
-			playSound('media/capture');
-		} else {
-			playSound('media/move');
-		}
-	}
-
-	// reset click event memory
-	dragSource = undefined;
-	dnd_clicked = false;
-}
-
 function playSound(url) {
 	var audio = new Audio();
 	audio.src = url+".ogg";
@@ -264,21 +284,16 @@ function playSound(url) {
 
 
 function highlight_clear() {
-	//var re = new RegExp("highlight_
-	$("#board").children('div[id^="field"]').each(function() {
+	$("#boards").find('div[id*="field"]').each(function() {
 		$(this)[0].className = $(this)[0].className.replace(/highlight_[^ ]*/, ""); 
 	});
 }
 
-function highlight(fieldNo, descr) {
-	$("#field" + fieldNo).addClass("highlight_" + descr);
+function highlight(fieldId, descr) {
+	$("#" + fieldId).addClass("highlight_" + descr);
 }
 
-function highlight_move(from, to) {
-	highlight_clear();	
-	highlight(from, 'move_from');
-	highlight(to, 'move_to');
-}
+
 
 
 
@@ -306,6 +321,9 @@ $(function() {
 	myBoard.loadFEN('K_______/________/qrppk___/________/________/________/________/________');
 	myBoard.loadFEN('K__Q____/___Q____/qrppk___/________/________/________/________/_______Q');
 	myBoard2.loadFEN('KQ3/5/Qrppk/5/RNn1r');
+	myBoard.move("board_b1_field0", "board_b1_field2");
+	myBoard2.move("board_b2_field20", "board_b2_field4");
+	myBoard.move("board_b1_field18", "board_b2_field3");
 });
 
 

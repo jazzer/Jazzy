@@ -117,7 +117,7 @@ function joinOrWatchGame(messageType) {
 		serverCall(messageType + "/" + gameId, function(data) {
 			mqId = data['mqId'];
 			if (mqId != undefined) {
-				location.href = server_url + '/play.html?' + mqId;
+				location.href = server_url + 'play.html?' + mqId;
 			} else {
 				$('#messages').append($('<span>').addClass('message').html(data['msg']));
 			}		
@@ -252,26 +252,13 @@ function buildClassicBoard(cols, rows, flippedParam) {
 
 
 function postMove(from, to, promotion) {
+	console.debug(from + "\n" + to);	
 	// post move to server and move only upon response (means move was okay)!
 	var url = 'post/' + mqId + '/move/' + from + '/' + to;
 	if (promotion != undefined) {
 		url += '/' + promotion
 	}
 	serverCall(url, function(data) {parseMQ(data);}, true, true);
-}
-
-function loadFen(fenString) {
-	// clear board
-	$("#board").children('div[id^="field"]').children().remove();
-
-	// create new pieces
-	_debug("Loading FEN position: " + fenString, 3);
-	cleanFen = _lengthenFen(fenString).replace(/\//g, "");
-	chars = cleanFen.split("");
-
-	for (var i = 0; i < chars.length; i++) {
-		$("#field"+i).append(getPieceDiv(chars[i]));
-	}
 }
 
 function _shortCastling() {
@@ -357,9 +344,9 @@ function createGame() {
 		$("#created_links").html();
 		type = currSelectedGame;
 		createNewGameIds(type);
-		var your_link = server_url + '/play.html?' + mqId;
-		var their_link = server_url + '/join.html?' + gameId;
-		var watch_link = server_url + '/watch.html?' + gameId;
+		var your_link = server_url + 'play.html?' + mqId;
+		var their_link = server_url + 'join.html?' + gameId;
+		var watch_link = server_url + 'watch.html?' + gameId;
 		$("#created_links").html('<b><h3>Your link:</h3> <a href="'+your_link+'">'+your_link+'</a></b><h3>Link for other players:</h3><a href="'+their_link+'">'+their_link+'</a><h3>Watch Game:</h3><a href="'+watch_link+'">'+watch_link+'</a>');
 	});
 }
@@ -367,7 +354,7 @@ function createGame() {
 function createNewGameIds(type) {
 	// sanitize!?
 	$.ajax({
-		url: server_url + "/new/" + type + "/" + new Date().getTime(),
+		url: server_url + "new/" + type + "/" + new Date().getTime(),
 		async: false,
 		dataType: 'json',
 		success: function(data){
@@ -384,7 +371,7 @@ function serverCall(relUrl, successFunc, asnycValue, preventCaching) {
 		callUrl = callUrl + "/" + new Date().getTime();
 	}
 	$.ajax({
-		url: server_url + "/" + callUrl,
+		url: server_url + callUrl,
 		async: asnycValue,
 		dataType: 'json',
 		success: function(input) {
@@ -411,7 +398,7 @@ function getMQ() {
 	activeJSONCall = true;
 
 	// don't forget to acknowledge!
-	var jsonUrl = server_url + "/getmq/" + mqId + ackString() + "/" + new Date().getTime();
+	var jsonUrl = server_url + "getmq/" + mqId + ackString() + "/" + new Date().getTime();
 	// retrieve (plus possibly acknowledge last)
 	_debug("now checking url " + jsonUrl, 5);
 			
