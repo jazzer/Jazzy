@@ -189,9 +189,9 @@ class ClassicGame():
 
         # castling moves first
         cType = -1
-        if move.annotation == 'SHORT_CASTLING':
+        if move.annotation == 'SHORTCASTLING':
             cType = 0
-        elif move.annotation == 'LONG_CASTLING':
+        elif move.annotation == 'LONGCASTLING':
             cType = 1
         if cType != -1:
             # TODO fix to work with Chess960 
@@ -447,7 +447,7 @@ class ClassicGame():
                     # good!
                     if good:
                         move = Move(None, None)
-                        move.annotation = 'SHORT_CASTLING' if cType == 0 else 'LONG_CASTLING'
+                        move.annotation = 'SHORTCASTLING' if cType == 0 else 'LONGCASTLING'
                         moveSet.add(move)
         
         return moveSet

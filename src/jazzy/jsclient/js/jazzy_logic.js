@@ -265,11 +265,11 @@ function postMove(from, to, promotion) {
 	serverCall(url, function(data) {parseMQ(data);}, true, true);
 }
 
-function _shortCastling() {
-	postMove("SHORTCASTLING", "")
+function _shortCastling(boardId) {
+	postMove(boardId + "_SHORTCASTLING", "")
 }
-function _longCastling() {
-	postMove("LONGCASTLING", "")
+function _longCastling(boardId) {
+	postMove(boardId + "_LONGCASTLING", "")
 }
 
 
@@ -456,9 +456,11 @@ function makeWatching() {
 
 
 function shortenFieldString(fString) {
+	if (fString === undefined) { return undefined; }
 	return fString.replace(/^board_/, "").replace(/_field/, "_");
 }
 function lengthenFieldString(fString) {
+	if (fString === undefined) { return undefined; }
 	return fString.replace(/_/, "_field").replace(/^/, "board_");
 }
 

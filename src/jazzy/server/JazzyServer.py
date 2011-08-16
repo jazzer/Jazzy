@@ -222,7 +222,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             targetBoard = game.getBoard(boardId)
             
             # create move
-            if params[3] == 'SHORTCASTLING' or  params[3] == 'LONGCASTLING':
+            if  p3.split('_')[1] == 'SHORTCASTLING' or  p3.split('_')[1] == 'LONGCASTLING':
                 # castling
                 postedMove = Move(None, None)
                 postedMove.annotation = p3.split('_')[1]

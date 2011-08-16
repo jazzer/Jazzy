@@ -116,7 +116,7 @@ Board.prototype.build = function() {
 	}
 
 	// buttons for castling
-	innerDiv = $('<div>').append(boardDiv).append('<form onsubmit="return false;"><input type="submit" value="O-O" onclick="_shortCastling(' + boardId + ');" style="width: 12%"> <input type="submit" value="O-O-O" onclick="_longCastling(' + boardId + ');" style="width: 12%"></form><br />');
+	innerDiv = $('<div>').append(boardDiv).append('<form onsubmit="return false;"><input type="submit" value="O-O" onclick="_shortCastling(\'' + boardId + '\');" style="width: 12%"> <input type="submit" value="O-O-O" onclick="_longCastling(\'' + boardId + '\');" style="width: 12%"></form><br />');
 			
 	$("#boards").append(innerDiv);
 
