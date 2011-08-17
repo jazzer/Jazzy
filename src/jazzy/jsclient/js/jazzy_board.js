@@ -116,7 +116,7 @@ Board.prototype.build = function() {
 	}
 
 	// buttons for castling
-	innerDiv = $('<div>').append(boardDiv).append('<form onsubmit="return false;"><input type="submit" class="roundbutton" value="O-O" onclick="_shortCastling(\'' + boardId + '\');"> <input type="submit" class="roundbutton" value="O-O-O" onclick="_longCastling(\'' + boardId + '\');"></form><br />');
+	innerDiv = $('<div>').append(boardDiv).append('<div class="roundbutton" onclick="_shortCastling(\'' + boardId + '\');">O-O</div> <div class="roundbutton" onclick="_longCastling(\'' + boardId + '\');">O-O-O</div><br /><br />');
 			
 	$("#boards").append(innerDiv);
 
@@ -190,7 +190,7 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 	}
 	
 	// clear target field
-	toField.children().css({'z-index': '2', 'position': 'absolute'}).fadeOut(400, function() {
+	toField.children().css({'z-index': '2'}).fadeOut(400, function() {
 		$(this).remove();
 	});
 	

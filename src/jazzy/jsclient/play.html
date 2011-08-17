@@ -36,10 +36,8 @@
 <div id="boards">
 </div>
 
-<form onsubmit="return false;">
-<input type="submit" class="roundbutton" value="Offer draw" onclick="_offerDraw();">
-<input type="submit" class="roundbutton" value="Resign" onclick="_resign();">
-</form>
+<div class="roundbutton" onclick="_offerDraw();">Offer draw</div>
+<div class="roundbutton" onclick="_resign();">Resign</div>
 </div>
 
 <!-- data display //-->
@@ -86,11 +84,10 @@
 
 <!-- server connection //-->
 <h2>Server</h2>
-Current connection status: <div id="conn_status" class="conn_bad">not connected</div>
-<form onsubmit="return false;" class="refreshForm">
-<input type="submit" class="roundbutton" value="Refresh" onclick="_playInit()">
-<input type="submit" class="roundbutton" value="Disconnect" onclick="_playInit()">
-</form>
+Current connection status: <div id="conn_status" class="roundbutton conn_bad">not connected</div>
+<div class="roundbutton" onclick="_playInit();">Refresh</div>
+<div id="btnDisconnect" class="roundbutton" onclick="_disconnect();">Disconnect</div>
+
 <form onsubmit="return false;">Debug level: 
 <select name="debugLevel" size="1" onChange="_changeDebugLevel();">
 <option>1</option>

@@ -68,7 +68,8 @@ h1, h2, h3, h4, h5, h6 {
 	font-weight: bold;
 }
 .roundbutton {
-	min-width: 100px;
+	display: inline-block;
+	width: 100px;
 }
 
 
@@ -220,8 +221,6 @@ h1, h2, h3, h4, h5, h6 {
 
 /* connection status */
 #conn_status {	
-	padding: 3px;
-	display: inline;
 }
 
 
