@@ -1,0 +1,206 @@
+/*
+Copyright (c) 2011 Johannes Mitlmeier
+
+This file is part of Jazzy.
+
+Jazzy is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
+*/
+
+
+
+/* LESS variables */
+@base: #4cbf76;
+@base: #777;
+
+@dark: darken(@base, 10%);
+@darker: darken(@dark, 15%);
+@light: lighten(@base, 30%);
+@lighter: lighten(@light, 15%);
+
+
+/* general */
+body {
+	background: @dark;
+	color: white;
+}
+h1, h2, h3, h4, h5, h6 {
+	color: white;
+	text-shadow: 0px 2px 3px #555;
+}
+a, a:hover, a:visited {
+	color: white;
+}
+
+
+/* menu styles */
+.menu {
+	background: @darker;
+}
+.menu_item {
+	text-shadow: 0px 2px 3px #555;
+	color: white;
+}
+.menu_item:hover {
+	background: @light;
+}
+
+/* logo */
+.head_logo:hover {
+	background: black;
+}
+
+
+/* text */
+.hl_text {
+	text-shadow: 0px 2px 3px #555;
+}
+
+/* form elements */
+.roundbutton, input[type=submit] {
+	background: @dark;
+	color: @light;
+	border: 0.1px solid @light;
+	border-radius: 5px 5px 5px 5px;
+    	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.roundbutton:hover, input[type=submit]:hover {
+	background: @light;
+	color: @darker;
+}
+select {
+	background: @light;
+	color: @darker;
+}
+
+/* data styles */
+
+#data {
+	color: white;
+}
+
+#data .data_header {
+	background-color: @darker;
+	text-align: left;
+	border-top: 1px dashed black;
+}
+#data .data_header .data_header_title {
+	text-shadow: 0px 2px 3px #555;
+}
+
+#data .data_content {
+	background-color: @lighter;
+	color: black;
+}
+
+
+
+/* common styles for message and chat box */
+
+
+/* message box */
+#messages {
+	border: 1px solid black;
+}
+
+.message {
+	color: white;
+}
+
+.time {
+	color: black;
+}
+
+
+
+/* chat box */
+#chat {
+	border: 1px solid black;
+}
+#chat_history {
+	padding: 2px 2px;
+}
+.chat_username {
+	color: #darker;
+}
+.chat_self {
+	color: white;
+}
+.chat_other {
+	color: black;
+}
+
+/* Game Selection in new.html */
+.gameSelection .entry {
+	background-color: @base;
+}
+.gameSelection .entry:hover {
+	background-color: @light;
+}
+
+#created_links {
+	border-radius: 5px 5px 5px 5px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+	border: 1px solid white;
+}
+#created_links a {
+	color: #50CC7E;
+}
+
+
+/* connection status */
+#conn_status {	
+	border-radius: 5px 5px 5px 5px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+	display: inline;
+}
+
+.conn_bad {
+	background: #FF643D;
+}
+
+.conn_unknown {
+	background: #FFFF5C;
+}
+
+.conn_good {
+	background: #3DFF64;
+}
+
+
+
+/*
+ * SimpleModal Basic Modal Dialog
+ * http://www.ericmmartin.com/projects/simplemodal/
+ * http://code.google.com/p/simplemodal/
+ *
+ * Copyright (c) 2010 Eric Martin - http://ericmmartin.com
+ *
+ * Licensed under the MIT license:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *
+ * Revision: $Id: basic.css 257 2010-07-27 23:06:56Z emartin24 $
+ */
+
+#basic-modal-content {display:none;}
+
+/* Overlay */
+#simplemodal-overlay {background-color:#000; cursor:wait;}
+
+/* Container */
+#simplemodal-container {min-height: 110px; min-width: 300px; color:#bbb; background-color:#333; border:4px solid #444; padding:12px;}
+#simplemodal-container .simplemodal-data {padding:8px;}
+#simplemodal-container code {background:#141414; border-left:3px solid #65B43D; color:#bbb; display:block; font-size:12px; margin-bottom:12px; padding:4px 6px 6px;}
+#simplemodal-container a {color:#ddd;}
+#simplemodal-container a.modalCloseImg {background:url(../img/basic/x.png) no-repeat; width:25px; height:29px; display:inline; z-index:3200; position:absolute; top:-15px; right:-16px; cursor:pointer;}
+#simplemodal-container h3 {color:#84b8d9;}
