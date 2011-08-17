@@ -34,8 +34,8 @@
 </div>
 
 <form onsubmit="return false;">
-<input type="submit" value="Offer draw" onclick="_offerDraw();" style="width: 12%">
-<input type="submit" value="Resign" onclick="_resign();" style="width: 12%">
+<input type="submit" class="roundbutton" value="Offer draw" onclick="_offerDraw();">
+<input type="submit" class="roundbutton" value="Resign" onclick="_resign();">
 </form>
 </div>
 
@@ -85,8 +85,8 @@
 <h2>Server</h2>
 Current connection status: <div id="conn_status" class="conn_bad">not connected</div>
 <form onsubmit="return false;" class="refreshForm">
-<input type="submit" value="Refresh" onclick="_playInit()" style="width: 12%">
-<input type="submit" value="Disconnect" onclick="_playInit()" style="width: 12%">
+<input type="submit" class="roundbutton" value="Refresh" onclick="_playInit()">
+<input type="submit" class="roundbutton" value="Disconnect" onclick="_playInit()">
 </form>
 <form onsubmit="return false;">Debug level: 
 <select name="debugLevel" size="1" onChange="_changeDebugLevel();">

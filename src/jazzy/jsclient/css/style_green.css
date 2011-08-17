@@ -38,6 +38,7 @@ a, a:hover, a:visited {
 	color: white;
 }
 
+
 /* menu styles */
 .menu {
 	background: #193F27;
@@ -83,16 +84,19 @@ a, a:hover, a:visited {
 }
 
 /* form elements */
-input[type=submit] {
+.roundbutton, input[type=submit] {
 	background: #327F4E;
 	color: #51CC7E;
 	border: 0.1px solid #51CC7E;
 	padding: 3px;
 	font-weight: bold;
 	border-radius: 5px 5px 5px 5px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
-input[type=submit]:hover {
+.roundbutton {
+	min-width: 100px;
+}
+.roundbutton:hover, input[type=submit]:hover {
 	background: #4BBF75;
 	color: #193F27;
 }
@@ -105,9 +109,23 @@ select {
 
 
 /* board specific */
-.board {
+#boards {
 	width: 100%;
 	margin: 0 auto;
+}
+
+#boards > div {
+	display:-moz-inline-stack;
+	display:inline-block;
+	zoom:1;
+	*display:inline;
+}
+
+.board {
+	position: relative;
+	top: 0;
+	left: 0;
+	text-align: center;
 }
 .board {
 	min-height: 100px;

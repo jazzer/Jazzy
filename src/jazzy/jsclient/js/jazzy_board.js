@@ -116,7 +116,7 @@ Board.prototype.build = function() {
 	}
 
 	// buttons for castling
-	innerDiv = $('<div>').append(boardDiv).append('<form onsubmit="return false;"><input type="submit" value="O-O" onclick="_shortCastling(\'' + boardId + '\');" style="width: 12%"> <input type="submit" value="O-O-O" onclick="_longCastling(\'' + boardId + '\');" style="width: 12%"></form><br />');
+	innerDiv = $('<div>').append(boardDiv).append('<form onsubmit="return false;"><input type="submit" class="roundbutton" value="O-O" onclick="_shortCastling(\'' + boardId + '\');"> <input type="submit" class="roundbutton" value="O-O-O" onclick="_longCastling(\'' + boardId + '\');"></form><br />');
 			
 	$("#boards").append(innerDiv);
 
@@ -189,24 +189,27 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 		return;
 	}
 	
+	// clear target field
 	toField.children().css({'z-index': '2', 'position': 'absolute'}).fadeOut(400, function() {
 		$(this).remove();
 	});
-		
-	fromField.children().css({position: 'absolute',
+	
+	// move animation
+	fromField.children().css({position: 'relative',
 				'z-index': 1,
-				left: fromField.offset().left,
-				top: fromField.offset().top})
+				left: 0,
+				top: 0})
 		.animate({ 
-				left: toField.offset().left,
-				top: toField.offset().top
+				left: toField.offset().left-fromField.offset().left,
+				top: toField.offset().top-fromField.offset().top
 	    	}, 400, "swing", function() {
 			// finished the move action, now do the promotion if requested
 			if (toPiece != undefined) {
 				$(this).fadeOut(400).parent().append(getPieceDiv(toPiece)).fadeIn(400);
 			}
+			// eventually set the piece to new field
+			fromField.children().css({top: 0, left: 0}).detach().prependTo(toField);
 		});
-	fromField.children().detach().prependTo(toField);
 
 	if (!silent) {
 		// highlight
