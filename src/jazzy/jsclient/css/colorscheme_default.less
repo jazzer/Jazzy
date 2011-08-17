@@ -61,6 +61,9 @@ a, a:hover, a:visited {
 /* menu styles */
 .menu {
 	background: @darker;
+	a {
+		text-decoration: none;
+	}
 }
 .menu_item {
 	.text-shadow;
@@ -89,10 +92,12 @@ a, a:hover, a:visited {
 	.border-radius(5px);
     	.box-shadow(0, 1px, 3px, rgba(0, 0, 0, 0.5));
 	text-align: center;
+	min-width: 100px;
 }
 .roundbutton:hover, input[type=submit]:hover {
 	background: @light;
 	color: @darker;
+	cursor: pointer;
 }
 select {
 	background: @light;
@@ -147,7 +152,7 @@ select {
 	padding: 2px 2px;
 }
 .chat_username {
-	color: #darker;
+	color: @lighter;
 }
 .chat_self {
 	color: white;

@@ -33,6 +33,7 @@ from pprint import pprint
 import os, sys, copy, urllib
 from collections import OrderedDict
 import gc
+from jazzy.test.Test import Test
 from jazzy.logic import DifferentSetupGames, DifferentBoardGames, \
     DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, \
     HandicapGames, ClassicGame, TestGames
@@ -180,7 +181,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         if len(params) > 1:
             mq = mqPool.get(params[1])
             # can't answer if mq is unknown
-            if mq is None and not(params[0] in {'new', 'join', 'watch', 'getgames'}):
+            if mq is None and not(params[0] in {'new', 'join', 'watch', 'getgames', 'admin'}):
                 return
 
         # check if there is an acknowledgement included starting at an arbitrary index
@@ -199,7 +200,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
                     mq.msgs = list(mq.msgs[j + 1:])
                 
         
-        # retrieve the MessageQueue (/getmq/191 
+        # retrieve the MessageQueue (/getmq/191 ...)
         if (params[0] == 'getmq'):
             jsonoutput = self.sendMQ(params)
             
@@ -357,6 +358,13 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
          
         elif (params[0] == 'getgames'):
             jsonoutput = json.dumps(jsonGames)
+        
+        # admin panel functions
+        # TODO check permissions (via some token output on server startup?)
+        elif params[0] == 'admin':
+            if params[1] == 'runtests':
+                test = Test();
+                jsonoutput = json.dumps({'log': test.runTestGames()})          
             
         else:
             jsonoutput = json.dumps([])
