@@ -26,6 +26,7 @@ var base_interval = 1000;
 var max_interval = 15000;
 var interval_factor = 1.4;
 var myTurn = true;
+var noCalls = false;
 
 if (typeof BoardStorage == 'function') {
 	var boardStorage = new BoardStorage();
@@ -87,6 +88,20 @@ function _playInit() {
 
 		// make sure to keep up to date
 		setTimeout("refresh()", base_interval);
+
+		// set button
+		$("#btnDisconnect").toggle(
+			function() {
+				$(this).html('Connect');
+				noCalls = true;
+				showConnectionState(0);
+			},function() {
+				$(this).html('Disconnect');
+				noCalls = false;
+				showConnectionState(100);
+				refresh();
+			});
+
 	});	
 }
 
@@ -169,13 +184,17 @@ function connChange(value) {
 
 	// display
 	var percentage = qualitySum / QUALITY_BUFFER_SIZE * 100;
+	showConnectionState(percentage);
+}
+
+function showConnectionState(value) {
 	var text = 'Connected';
 	var clazz = 'conn_good';
-	if (percentage <= 80) {
+	if (value <= 80) {
 		text = 'Unknown';
 		clazz = 'conn_unknown';
 	}
-	if (percentage <= 20) {
+	if (value <= 20) {
 		text = 'Not Connected';
 		clazz = 'conn_bad';
 	}
@@ -370,16 +389,18 @@ function _getTime(doShort) {
 
 // jQuery communication
 function refresh() {
-	sinceLastRefresh++;
-	if (refreshInterval > sinceLastRefresh) {
-		//return;
+	if (!noCalls) {
+		sinceLastRefresh++;
+		if (refreshInterval > sinceLastRefresh) {
+			//return;
+		}
+		_debug("Refreshed state.", 5);
+	
+		// do the call here and set changed approprietly
+		getMQ();
+	
+		//sinceLastRefresh = 0;	
 	}
-	_debug("Refreshed state.", 5);
-	
-	// do the call here and set changed approprietly
-	getMQ();
-	
-	//sinceLastRefresh = 0;	
 }
 
 
