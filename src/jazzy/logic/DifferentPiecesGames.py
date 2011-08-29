@@ -34,7 +34,7 @@ class BerolinaGame(ClassicGame):
     
     def startInit(self):
         super(BerolinaGame, self).startInit()
-        self.pieceMap['p'] = BerolinaPawn
+        self.PIECE_MAP['p'] = BerolinaPawn
 
 class StationaryKingGame(ClassicGame):
     meta = {'title': 'Stationary King Chess',
@@ -45,7 +45,7 @@ class StationaryKingGame(ClassicGame):
     
     def startInit(self):
         super(StationaryKingGame, self).startInit()
-        self.pieceMap['k'] = StationaryKing
+        self.PIECE_MAP['k'] = StationaryKing
         self.CASTLING = False
         
 class StrongKingGame(ClassicGame):
@@ -56,7 +56,7 @@ class StrongKingGame(ClassicGame):
             'players': 2}
     def startInit(self):
         super(StrongKingGame, self).startInit()
-        self.pieceMap['k'] = StrongKing
+        self.PIECE_MAP['k'] = StrongKing
     
 
 class FearGame(ClassicGame):
@@ -68,7 +68,7 @@ class FearGame(ClassicGame):
     
     def startInit(self):
         super(FearGame, self).startInit()
-        self.pieceMap['p'] = FearPawn
+        self.PIECE_MAP['p'] = FearPawn
     
 
 class CoinGame(ClassicGame):
@@ -79,7 +79,7 @@ class CoinGame(ClassicGame):
             'players': 2}
     def startInit(self):
         super(CoinGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/4C3/PPPPPPPP/RNBQKBNR')
-        self.pieceMap['c'] = Coin
+        self.PIECE_MAP['c'] = Coin
         self.CASTLING = False
           
     def getGameOverMessage(self):

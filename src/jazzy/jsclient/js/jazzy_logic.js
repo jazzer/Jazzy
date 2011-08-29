@@ -386,11 +386,11 @@ function serverCall(relUrl, successFunc, asnycValue, preventCaching) {
 
 function _repetition() {
 	// claim threefold repetition
-	serverCall("/claim/repetition", undefined, true, true);
+	serverCall("claim/" + mqId + "/repetition", function(data) { parseMQ(data); }, true, true);
 }
 function _xMoveRule() {
 	// claim threefold repetition
-	serverCall("/claim/xmoverule", undefined, true, true);
+	serverCall("claim/" + mqId + "/xmoverule", function(data) { parseMQ(data); }, true, true);
 }
 
 function ackString() {

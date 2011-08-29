@@ -30,7 +30,7 @@ class LeganGame(ClassicGame):
            
     def startInit(self):
         super(LeganGame,self).startInit('knbrp3/bqpp4/npp5/rp1p3P/p3P1PR/5PPN/4PPQB/3PRBNK')
-        self.pieceMap['p'] = LeganPawn
+        self.PIECE_MAP['p'] = LeganPawn
         self.promotionFields = [[0, 1, 2, 3, 8, 16, 24], [39, 47, 55, 60, 61, 62, 63]]
         self.CASTLING = False
 

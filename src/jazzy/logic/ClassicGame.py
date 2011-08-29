@@ -40,8 +40,12 @@ class ClassicGame():
     
     def startInit(self, fenPos='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'):
         # settings
+        
+        # players
         self.NUM_PLAYERS = 2
         self.COLORS = ['white', 'black']
+
+        # general settings
         self.CHECK_FOR_CHECK = True
         self.PROMOTION = True
         self.EN_PASSANT = True
@@ -49,6 +53,7 @@ class ClassicGame():
         self.SHOW_LAST_MOVE = True
         self.CAN_PROMOTE_TO_KING = False
 
+        # castling options
         self.CASTLING = True
         self.CASTLING_FROM_CHECK = False
         self.CASTLING_THROUGH_CHECK = False
@@ -57,15 +62,22 @@ class ClassicGame():
         self.CASTLING_IF_KING_HAS_MOVED = False
         self.CASTLING_IF_ROOK_HAS_MOVED = False
         
-        
+        # draw options
+        self.DRAW_X_MOVES = True
+        self.DRAW_X_MOVES_VALUE = 50
+        self.DRAW_REPETITION = True
+        self.DRAW_REPETITION_VALUE = 3
+                
         # global board settings
         self.BLOCKED_FIELDS = []
         
         # piece settings
-        self.pawnPieceTypes = {'p'}
-        self.kingPieceTypes = {'k'}
-        self.pieceMap = {'k': King, 'q': Queen, 'r': Rook, 'b': Bishop, 'n': Knight, 'p': Pawn}
-        self.usedPieces = self.pieceMap.keys()
+        self.PAWN_PIECE_TYPES = {'p'}
+        self.KING_PIECE_TYPES = {'k'}
+        self.PIECE_MAP = {'k': King, 'q': Queen, 'r': Rook, 'b': Bishop, 'n': Knight, 'p': Pawn}
+        self.USED_PIECES = self.PIECE_MAP.keys()
+        # end of settings
+        
         
         # handle fen
         self.fenPos = fenPos
@@ -97,9 +109,9 @@ class ClassicGame():
 
         # promotion settings
         self.promotionFields = {'white': self.board.getRankFields(0), 'black': self.board.getRankFields(self.board_height - 1)}
-        self.possiblePromotionPieces = self.usedPieces.difference(self.pawnPieceTypes)
+        self.possiblePromotionPieces = self.USED_PIECES.difference(self.PAWN_PIECE_TYPES)
         if not self.CAN_PROMOTE_TO_KING:
-            self.possiblePromotionPieces.difference_update(self.kingPieceTypes)
+            self.possiblePromotionPieces.difference_update(self.KING_PIECE_TYPES)
         self.possiblePromotionPieces = list(self.possiblePromotionPieces)    
         
         # castling information
@@ -157,10 +169,10 @@ class ClassicGame():
         self.board_width = width - 1
         
     def getPieceByString(self, string, board):
-        if not(string.lower() in self.pieceMap):
+        if not(string.lower() in self.PIECE_MAP):
             return None
         
-        pieceClass = self.pieceMap[string.lower()]
+        pieceClass = self.PIECE_MAP[string.lower()]
         if string == string.lower(): # meaning: if string is lowercase
             color = 'black'
         else:
@@ -176,7 +188,7 @@ class ClassicGame():
         if not(move.toPiece is None):
             return False
         # not even a pawn?
-        if not(move.fromPiece.shortName.lower() in self.pawnPieceTypes):
+        if not(move.fromPiece.shortName.lower() in self.PAWN_PIECE_TYPES):
             return False
         # isn't target a promotion field?
         if not(move.toField in self.promotionFields[move.fromPiece.color]):
@@ -274,6 +286,16 @@ class ClassicGame():
         if not(self.getCurrentPlayer(self.board) is None):
             data['currP'] = self.getCurrentPlayer(self.board).mq.shortenedId
         return Message("gamesit", data)
+    
+    def isRepetitionDraw(self):
+        if not self.DRAW_REPETITION:
+            return
+        return True
+    
+    def isXMoveDraw(self):
+        if not self.DRAW_REPETITION:
+            return
+        return True
         
     def getGameOverMessage(self):
         player = self.getNextCurrentPlayer(self.board)
@@ -307,7 +329,7 @@ class ClassicGame():
             return Message('gameover', {'winner': winner, 'msg': msg, 'result': result})
        
     def sortPieceList(self, pieceList):
-        return sorted(pieceList, key=lambda piece: self.pieceMap[piece](None, self.board).value, reverse=True)
+        return sorted(pieceList, key=lambda piece: self.PIECE_MAP[piece](None, self.board).value, reverse=True)
         
     def getCurrentPlayer(self, board=None):
         if board == None:

@@ -29,7 +29,7 @@ class MicroGame(ClassicGame):
             'players': 2}
     def startInit(self):
         super(MicroGame,self).startInit('knbr/p3/4/3P/RBNK')
-        self.pieceMap['p'] = SlowPawn
+        self.PIECE_MAP['p'] = SlowPawn
         self.CASTLING = False
 
 class LosAlamosGame(ClassicGame):  
@@ -40,5 +40,5 @@ class LosAlamosGame(ClassicGame):
             'players': 2}  
     def startInit(self):
         super(LosAlamosGame,self).startInit('rnqknr/pppppp/6/6/PPPPPP/RNQKNR')
-        self.pieceMap['p'] = SlowPawn
+        self.PIECE_MAP['p'] = SlowPawn
         self.CASTLING = False

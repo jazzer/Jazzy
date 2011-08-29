@@ -34,7 +34,7 @@ class ExtinctionGame(ClassicGame):
         # player extincted?
         player = self.getNextCurrentPlayer(self.board)
         go = GameOver(self.board)
-        if go.notRequiredPiecesLeft(self.usedPieces):
+        if go.notRequiredPiecesLeft(self.USED_PIECES):
             return self._valueResult(player, 'Extincted')
         # default stuff
         return super(ExtinctionGame, self).getGameOverMessage()
@@ -87,7 +87,7 @@ class DarkGame(ClassicGame):
         # king killed
         player = self.getNextCurrentPlayer(self.board)
         go = GameOver(self.board)
-        if go.notRequiredPiecesLeft(self.kingPieceTypes):
+        if go.notRequiredPiecesLeft(self.KING_PIECE_TYPES):
             return self._valueResult(player, 'Extincted')
         # default stuff
         return super(DarkGame, self).getGameOverMessage()
@@ -108,7 +108,7 @@ class AtomicGame(ClassicGame):
         # king killed
         player = self.getNextCurrentPlayer(self.board)
         go = GameOver(self.board)
-        if go.notRequiredPiecesLeft(self.kingPieceTypes):
+        if go.notRequiredPiecesLeft(self.KING_PIECE_TYPES):
             return self._valueResult(player, 'Extincted')
         # default stuff
         return super(AtomicGame, self).getGameOverMessage()
@@ -136,7 +136,7 @@ class AtomicGame(ClassicGame):
                     continue
                 if board.fields[explosionTarget] is None:
                     continue 
-                if board.fields[explosionTarget].shortName in self.pawnPieceTypes:
+                if board.fields[explosionTarget].shortName in self.PAWN_PIECE_TYPES:
                     continue 
                 move = Move(explosionTarget, explosionTarget)
                 move.toPiece = '' # indicates that field will be cleared

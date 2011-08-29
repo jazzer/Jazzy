@@ -308,9 +308,16 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                 return
                 
             if params[2] == 'repetition':                    
-                mq.addMsg(Message('alert', {'msg': 'Requested repetition draw'}))  
-            if params[2] == 'xmoverule':    
-                mq.addMsg(Message('alert', {'msg': 'Requested x move draw'})) 
+                if mq.game.isRepetitionDraw():
+                    mq.addMsg(mq.game._generateGameOverMessage('Draw by repetition upon player\'s request', '0.5-0.5', None))
+                else:
+                    mq.addMsg(Message('alert', {'msg': 'No draw by repetition.'})) 
+                    
+            if params[2] == 'xmoverule':
+                if mq.game.isXMoveDraw():
+                    mq.addMsg(mq.game._generateGameOverMessage('Draw by {0} move rule upon player\'s request'.format(mq.game.DRAW_X_MOVES_VALUE), '0.5-0.5', None))
+                else:
+                    mq.addMsg(Message('alert', {'msg': 'No draw by move rule.'}))
             
             jsonoutput = self.sendMQ(params)
             

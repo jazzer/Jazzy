@@ -29,7 +29,7 @@ class ModernGame(ClassicGame):
             'players': 2}
     def startInit(self):
         super(ModernGame, self).startInit('rnbqkibnr/ppppppppp/9/9/9/9/PPPPPPPPP/RNBIKQBNR')
-        self.pieceMap['i'] = PrimeMinister
+        self.PIECE_MAP['i'] = PrimeMinister
 
 
 class CapablancaGame(ClassicGame):
@@ -40,8 +40,8 @@ class CapablancaGame(ClassicGame):
            'players': 2}       
     def startInit(self):
         super(CapablancaGame, self).startInit('rnibqkbhnr/pppppppppp/10/10/10/10/PPPPPPPPPP/RNIBQKBHNR')
-        self.pieceMap['i'] = Archbishop
-        self.pieceMap['h'] = Chancellor
+        self.PIECE_MAP['i'] = Archbishop
+        self.PIECE_MAP['h'] = Chancellor
 
  
 class MilleniumGame(ClassicGame):    

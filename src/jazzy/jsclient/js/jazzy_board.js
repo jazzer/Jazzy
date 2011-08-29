@@ -125,8 +125,6 @@ Board.prototype.build = function() {
 	boardDiv.css("width", field_width*cols);
 	var field_height = $("#" + boardId + "_field0").height();
 	boardDiv.css("height", field_height*rows);
-	
-	//_debug("Created board of size " + board_cols + "x" + board_rows, 3);
 }
 
 
@@ -137,7 +135,6 @@ Board.prototype.loadFEN = function(fenString) {
 	$("div[id^='" + boardId + "_field']").children().remove();
 
 	// create new pieces
-	//_debug("Loading FEN position: " + fenString, 3);
 	cleanFen = _lengthenFen(fenString, this.width).replace(/\//g, "");
 	chars = cleanFen.split("");
 
@@ -171,7 +168,6 @@ Board.prototype.getPieceDiv = function(pieceType) {
 
 
 Board.prototype.move = function(from, to, toPiece, silent) {
-	//console.debug("moving\n" + from + "\n" + to);
 	// sanitize input?
 	// without animation: $("#field" + from).children().detach().appendTo($("#field" + to).children().remove().end());
 	if (from == -1) {
@@ -244,12 +240,6 @@ Board.prototype.highlight_clear = function() {
 
 
 function _dnd_down(thisElement, board) {
-	//console.debug(board);
-	//console.debug(!board.locked);
-	//console.debug(board.myTurn);
-	//console.debug(thisElement.children().length > 0);
-	//console.debug(!dnd_clicked);
-	//console.debug("down at " + thisElement.attr('id'));
 	if (!board.locked && board.myTurn && thisElement.children().length > 0 && !dnd_clicked) {	
 		dragSource = thisElement.attr('id');
 		thisElement.addClass('highlight_input_move_from');
@@ -342,17 +332,5 @@ $(document).ready(function() {
 		});
 });
 
-
-// Test
-//$(function() {
-//	myBoard = new Board("b1", 8, 8);
-//	myBoard2 = new Board("b2", 5, 5);
-//	myBoard.loadFEN('K_______/________/qrppk___/________/________/________/________/________');
-//	myBoard.loadFEN('K__Q____/___Q____/qrppk___/________/________/________/________/_______Q');
-//	myBoard2.loadFEN('KQ3/5/Qrppk/5/RNn1r');
-//	myBoard.move("board_b1_field0", "board_b1_field2");
-//	myBoard2.move("board_b2_field20", "board_b2_field4");
-//	myBoard.move("board_b1_field18", "board_b2_field3");
-//});
 
 

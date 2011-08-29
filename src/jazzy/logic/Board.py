@@ -107,7 +107,7 @@ class Board(object):
     def loadFenPos(self, fenString):
         # clear fields
         self.clear()
-        self.game.usedPieces = set()
+        self.game.USED_PIECES = set()
         
         # create new pieces        
         chars = list(fenString)
@@ -126,8 +126,8 @@ class Board(object):
                     posCounter = posCounter + addValue
                     addValue = 0
                 # piece of some kind
-                pieceClass = self.game.pieceMap[char.lower()]
-                self.game.usedPieces.add(char.lower());
+                pieceClass = self.game.PIECE_MAP[char.lower()]
+                self.game.USED_PIECES.add(char.lower());
                 color = 'white' if char.isupper() else 'black'
                 piece = pieceClass(color, self)
                 #print("setting " + piece.__unicode__() + " to " + str(posCounter))
@@ -169,7 +169,7 @@ class Board(object):
         return range(self.mergePos(0, index), self.mergePos(self.width - 1, index) + 1)
     
     def isInCheck(self, player):
-        kingPositions = self.findPieces(self.game.kingPieceTypes, player.color)
+        kingPositions = self.findPieces(self.game.KING_PIECE_TYPES, player.color)
         if (len(kingPositions) != 1):
             return False
             
