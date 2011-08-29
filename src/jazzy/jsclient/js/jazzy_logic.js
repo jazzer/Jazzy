@@ -384,6 +384,15 @@ function serverCall(relUrl, successFunc, asnycValue, preventCaching) {
 	});
 }
 
+function _repetition() {
+	// claim threefold repetition
+	serverCall("/claim/repetition", undefined, true, true);
+}
+function _xMoveRule() {
+	// claim threefold repetition
+	serverCall("/claim/xmoverule", undefined, true, true);
+}
+
 function ackString() {
 	if (lastParsedMsg == undefined) {
 		return '';
@@ -496,7 +505,6 @@ function parseMQ(data) {
 				addServerMessage(data[i]['user'] + " played <b>" + data[i]['str'] + "</b>"); 
 				break;
 			case "promote":
-				console.debug("promoting");
 				// get options, offer, get decision and resend move
 				var selectionDiv = $('<div>').html('Select which piece to promote to:<br/><br/>');
 				for (elem in data[i]['options']) {

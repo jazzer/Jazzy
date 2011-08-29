@@ -298,8 +298,21 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             else: 
                 # not legal move
                 msg = Message('alert', {'msg': 'Illegal move.'})
-                jsonoutput = json.dumps([msg.data])
+                mq.addMsg(msg)
+                jsonoutput = self.sendMQ(params)
+        
+        # draw claims
+        elif params[0] == 'claim':
+            # filter watchers attempting to post stuff
+            if mq.watching:
+                return
                 
+            if params[2] == 'repetition':                    
+                mq.addMsg(Message('alert', {'msg': 'Requested repetition draw'}))  
+            if params[2] == 'xmoverule':    
+                mq.addMsg(Message('alert', {'msg': 'Requested x move draw'})) 
+            
+            jsonoutput = self.sendMQ(params)
             
         # transfer chat message     
         elif (params[0] == 'post' and params[2] == 'chat'):            
@@ -312,7 +325,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             msg = self.sanitizeHTML(msg)
                         
             self.distributeToAll(mq.game, Message('chat', {'user': mq.subject.name, 'msg': msg}), filter_player=mq.subject)
-                
+            jsonoutput = self.sendMQ(params)    
 
         # starting a new game (e.g. /new/classic)
         elif (params[0] == 'new'):
