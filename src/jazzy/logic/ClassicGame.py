@@ -153,6 +153,11 @@ class ClassicGame():
                                                    self.board.mergePos(kingLong[0], kingLong[1]),
                                                    self.board.mergePos(rookLong[0], rookLong[1])] # [0]: king for short, [1] rook for short, [2]: king for long, [3] rook for long
         
+        # draw preparations
+        if self.DRAW_REPETITION:
+            self.board.drawCountRepetition()
+        
+        
     def inferBoardSize(self):
         # get board's height
         self.board_height = self.fenPos.count('/') + 1
@@ -238,6 +243,8 @@ class ClassicGame():
                 board.drawXMoveCounter = 0
             
         # repetition
+        if self.DRAW_REPETITION:
+            board.drawCountRepetition()
         
         
         if isinstance(move, NullMove):
@@ -301,7 +308,18 @@ class ClassicGame():
     def isRepetitionDraw(self):
         if not self.DRAW_REPETITION:
             return
-        return True
+        return self.getRepetitionCount() >= self.DRAW_REPETITION_VALUE
+
+    def getRepetitionCount(self):
+        currPos = self.getPositionHash()
+        try:
+            return self.board.positions[currPos]
+        except KeyError:
+            return 0
+    
+    def getPositionHash(self):
+        # TODO include player's turn, castling options, en passant options in the dict's key
+        return self.getFenPos(self.board, self.players[0])
     
     def isXMoveDraw(self):
         if not self.DRAW_REPETITION:

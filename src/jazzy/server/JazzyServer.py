@@ -311,7 +311,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                 if mq.game.isRepetitionDraw():
                     self.distributeToAll(mq.game, mq.game._generateGameOverMessage('Draw by repetition upon player\'s request', '0.5-0.5', None))
                 else:
-                    mq.addMsg(Message('alert', {'msg': 'No draw by repetition.'})) 
+                    mq.addMsg(Message('alert', {'msg': 'No draw by repetition. This position has been on board {0} times.'.format(mq.game.getRepetitionCount())})) 
                     
             if params[2] == 'xmoverule':
                 if mq.game.isXMoveDraw():

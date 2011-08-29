@@ -37,7 +37,10 @@ class Board(object):
         self.castlingsPossible = {} # dictionary of lists, keys = colors
         for color in game.COLORS:
             self.castlingsPossible[color] = [True, True]
+        # draw related stuff
         self.drawXMoveCounter = 0
+        if game.DRAW_REPETITION:
+            self.positions = dict()
         
         # settings
         self.LIMIT_TOP_BOTTOM = True
@@ -169,6 +172,13 @@ class Board(object):
     def getRankFields(self, index):
         return range(self.mergePos(0, index), self.mergePos(self.width - 1, index) + 1)
     
+    def drawCountRepetition(self):
+        currPos = self.game.getPositionHash()
+        try:
+            self.positions[currPos] += 1            
+        except KeyError:
+            self.positions[currPos] = 1
+        
     def isInCheck(self, player):
         kingPositions = self.findPieces(self.game.KING_PIECE_TYPES, player.color)
         if (len(kingPositions) != 1):
