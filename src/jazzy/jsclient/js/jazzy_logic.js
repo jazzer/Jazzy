@@ -48,6 +48,19 @@ var availible_games = undefined;
 var currSelectedGame = undefined;
 var unsuccessfulServerCallCounter = -1;
 
+// quality data
+var QUALITY_BUFFER_SIZE = 5;
+var qualityBuffer = new Array(QUALITY_BUFFER_SIZE);
+// initialize it
+var qualitySum = QUALITY_BUFFER_SIZE;
+for (var i=0; i<QUALITY_BUFFER_SIZE; i++) {
+	qualityBuffer[i] = 1;
+}
+var qualityBufferIndex = 0;
+$.ajaxSetup({
+  "error": connFailed
+});
+
 
 
 function _debug(msg, level) {
@@ -139,6 +152,34 @@ function load_availible_games() {
 			buildCategories();
 		}, false, true);		
 	});
+}
+
+function connFailed() {
+	connChange(0);
+}
+function connSucceeded() {
+	connChange(1);
+}
+function connChange(value) {
+	// calculate
+	var old = qualityBuffer[qualityBufferIndex];
+	qualitySum = qualitySum - old + value;
+	qualityBuffer[qualityBufferIndex] = value;
+	qualityBufferIndex = (qualityBufferIndex + 1) % QUALITY_BUFFER_SIZE;
+
+	// display
+	var percentage = qualitySum / QUALITY_BUFFER_SIZE * 100;
+	var text = 'Connected';
+	var clazz = 'conn_good';
+	if (percentage <= 80) {
+		text = 'Unknown';
+		clazz = 'conn_unknown';
+	}
+	if (percentage <= 20) {
+		text = 'Not Connected';
+		clazz = 'conn_bad';
+	}
+	$("#conn_status").html(text).removeClass("conn_bad conn_unknown conn_good").addClass(clazz);
 }
 
 function buildCategories() {
@@ -380,6 +421,7 @@ function serverCall(relUrl, successFunc, asnycValue, preventCaching) {
 		dataType: 'json',
 		success: function(input) {
 			successFunc(input);
+			connSucceeded();
 		}
 	});
 }
