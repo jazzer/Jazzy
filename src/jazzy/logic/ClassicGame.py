@@ -88,6 +88,7 @@ class ClassicGame():
         self.players = []
         self.watchers = []
         self.possibleMoves = None
+        self.xMoveDrawCounter = 0
         
         # internal stuff
         self.joinedPlayers = 0
@@ -229,6 +230,16 @@ class ClassicGame():
             board.move(xMove)
         # TODO parse check here?
         
+        # parse additional draw conditions
+        # x moves rule
+        if self.DRAW_X_MOVES:
+            board.drawXMoveCounter += 1
+            if (move.fromPiece.getShortName().lower() in self.PAWN_PIECE_TYPES) or not(move.takenPiece is None):
+                board.drawXMoveCounter = 0
+            
+        # repetition
+        
+        
         if isinstance(move, NullMove):
             return moves
         
@@ -295,7 +306,7 @@ class ClassicGame():
     def isXMoveDraw(self):
         if not self.DRAW_REPETITION:
             return
-        return True
+        return self.board.drawXMoveCounter >= self.DRAW_X_MOVES_VALUE
         
     def getGameOverMessage(self):
         player = self.getNextCurrentPlayer(self.board)

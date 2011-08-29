@@ -37,6 +37,7 @@ class Board(object):
         self.castlingsPossible = {} # dictionary of lists, keys = colors
         for color in game.COLORS:
             self.castlingsPossible[color] = [True, True]
+        self.drawXMoveCounter = 0
         
         # settings
         self.LIMIT_TOP_BOTTOM = True
