@@ -496,11 +496,13 @@ function parseMQ(data) {
 				addServerMessage(data[i]['user'] + " played <b>" + data[i]['str'] + "</b>"); 
 				break;
 			case "promote":
+				console.debug("promoting");
 				// get options, offer, get decision and resend move
 				var selectionDiv = $('<div>').html('Select which piece to promote to:<br/><br/>');
 				for (elem in data[i]['options']) {
 					piece = data[i]['options'][elem];					
-					pieceDiv = getPieceDiv(piece).addClass('promotion_piece');
+					board = boardStorage.getBoard(boardId);	
+					pieceDiv = board.getPieceDiv(piece).addClass('promotion_piece');
 					// add events
 					pieceDiv.bind("click", { Param1: data[i]['from'], Param2: data[i]['to'], Param3: piece }, function(event){
 						postMove(event.data.Param1, event.data.Param2, event.data.Param3);

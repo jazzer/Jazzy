@@ -75,7 +75,7 @@ for module in gameModules.keys():
         
 
 # server part
-class MyHandler(http.server.BaseHTTPRequestHandler):
+class JazzyHandler(http.server.BaseHTTPRequestHandler):
     def output(self, myString):
         self.wfile.write(bytes(repr(myString), 'UTF-8'))
 
@@ -217,20 +217,22 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             game = mq.game
             
             # find board
-            p3 = params[3].replace('board_', '').replace('_field', '_');
-            p4 = params[4].replace('board_', '').replace('_field', '_');
-            boardId = p3.split('_')[0]
+            originalFrom = params[3]
+            originalTo = params[4]
+            shortFrom = originalFrom.replace('board_', '').replace('_field', '_');
+            shortTo = originalTo.replace('board_', '').replace('_field', '_');
+            boardId = shortFrom.split('_')[0]
             targetBoard = game.getBoard(boardId)
             
             # create move
-            if  p3.split('_')[1] == 'SHORTCASTLING' or  p3.split('_')[1] == 'LONGCASTLING':
+            if  shortFrom.split('_')[1] == 'SHORTCASTLING' or  shortFrom.split('_')[1] == 'LONGCASTLING':
                 # castling
                 postedMove = Move(None, None)
-                postedMove.annotation = p3.split('_')[1]
+                postedMove.annotation = shortFrom.split('_')[1]
             else:
                 # standard move
-                fromField = int(p3.split('_')[1])
-                toField = int(p4.split('_')[1])
+                fromField = int(shortFrom.split('_')[1])
+                toField = int(shortTo.split('_')[1])
                 postedMove = Move(fromField, toField)
                 # do we have a promotion option set?
                 if len(params) > 5 and params[5] != 'ack':
@@ -247,7 +249,7 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
             if isLegalMove:
                 # do we have to ask for promotion piece?
                 if game.moveNeedsPromotion(postedMove, targetBoard):
-                    msg = Message('promote', {'from': postedMove.fromField, 'to': postedMove.toField})
+                    msg = Message('promote', {'from': originalFrom, 'to': originalTo})
                     # add options
                     msg.data['options'] = game.getPromotionOptions(postedMove.fromPiece.color)
                     jsonoutput = json.dumps([msg.data])
@@ -374,11 +376,11 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
         
 if __name__ == '__main__':
     # prepare for the first games to be started 
-    gamePool = GamePool();
-    mqPool = MessageQueuePool();
+    gamePool = GamePool()
+    mqPool = MessageQueuePool()
 
     # start serving    
-    httpd = http.server.HTTPServer((HOST_NAME, PORT_NUMBER), MyHandler)
+    httpd = http.server.HTTPServer((HOST_NAME, PORT_NUMBER), JazzyHandler)
     print(time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER))
     
     try:

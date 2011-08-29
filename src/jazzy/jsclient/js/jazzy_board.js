@@ -194,6 +194,7 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 		$(this).remove();
 	});
 	
+	outerThis = this;
 	// move animation
 	fromField.children().css({position: 'relative',
 				'z-index': 1,
@@ -205,7 +206,7 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 	    	}, 400, "swing", function() {
 			// finished the move action, now do the promotion if requested
 			if (toPiece != undefined) {
-				$(this).fadeOut(400).parent().append(getPieceDiv(toPiece)).fadeIn(400);
+				$(this).fadeOut(400).parent().append(outerThis.getPieceDiv(toPiece)).fadeIn(400);
 			}
 			// eventually set the piece to new field
 			fromField.children().css({top: 0, left: 0}).detach().prependTo(toField);
