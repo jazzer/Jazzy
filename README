@@ -13,3 +13,17 @@ You can start experimenting with localhost as yoururl and use services like dynd
 =============================
 cd to the folder src/jazzy/server, then run
 export PYTHONPATH=../../../src:$PYTHONPATH; python3 JazzyServer.py
+
+
+=============================
+  Developing
+=============================
+
+We use LESS (http://less-css.org) for a convenient CSS extension.
+
+Installation instructions for Ubuntu Linux 11.04:
+sudo apt-get install ruby rubygems1.8
+sudo gem install rubygems-update
+sudo gem update rubygems 
+sudo gem install less
+sudo ln -s /var/lib/gems/1.8/bin/lessc /usr/bin/
