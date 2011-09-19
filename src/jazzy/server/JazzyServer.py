@@ -339,7 +339,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                             agreeingPlayers.append(player)
                     
                     # rule: you may not offer a draw when you are on the move!
-                    if len(agreeingPlayers) > 0 or mq.subject != mq.game.getCurrentPlayer():
+                    if not(mq.subject.offeringDraw) and (len(agreeingPlayers) > 0 or mq.subject != mq.game.getCurrentPlayer()):
                         # keep the player's decision
                         mq.subject.offeringDraw = True
                         

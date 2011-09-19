@@ -259,6 +259,10 @@ class ClassicGame():
         for move in moves:
             move.board = self.board
             
+        # reject all non-used draw offers (kinda auto-decline)
+        for player in self.players:
+            player.offeringDraw = False
+            
         return moves
         
         
