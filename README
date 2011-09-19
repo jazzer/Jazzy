@@ -27,3 +27,11 @@ sudo gem install rubygems-update
 sudo gem update rubygems 
 sudo gem install less
 sudo ln -s /var/lib/gems/1.8/bin/lessc /usr/bin/
+
+
+
+=============================
+  Credits
+=============================
+
+The awesome wood textures are made by "Ransie3" (http://ransie3.deviantart.com/), specifically downloaded from here: http://ransie3.deviantart.com/art/Patterns-21-187627358

@@ -27,6 +27,7 @@ var max_interval = 15000;
 var interval_factor = 1.4;
 var myTurn = true;
 var noCalls = false;
+var styleNames = 'gray,light-wood,dark-wood,mono';
 
 if (typeof BoardStorage == 'function') {
 	var boardStorage = new BoardStorage();
@@ -48,6 +49,7 @@ var currPlayer = undefined;
 var availible_games = undefined;
 var currSelectedGame = undefined;
 var unsuccessfulServerCallCounter = -1;
+var styleNameArray = styleNames.split(",");
 
 // quality data
 var QUALITY_BUFFER_SIZE = 5;
@@ -102,6 +104,13 @@ function _playInit() {
 				refresh();
 			});
 
+		// setup style chooser
+		var targets = $('[name^="style-chooser-"]');
+		for (styleIndex in styleNameArray) {
+			targets.append($('<option>').text(styleNameArray[styleIndex]));
+		}
+		$('select[name="style-chooser-main"]').change(function() {_changeStyle('main');});
+		$('select[name="style-chooser-board"]').change(function() {_changeStyle('board');});
 	});	
 }
 
@@ -127,6 +136,39 @@ function _dataInit() {
 		}).click().click();
 	});
 }
+
+
+function _changeStyle(type, value) {
+	var target;
+	if (type == 'main') {
+		target = $('[name^="style-chooser-main"]');
+	} else {
+		target = $('[name^="style-chooser-board"]')
+	}
+	// unload old and reload new css file
+	if (value != undefined) {
+		newStyleFile = target.val(value);
+	}
+	value = target.val();
+	var newStyleFile = 'css/' + target.val() + '-' + type + '.css';
+
+	// already loaded?
+	if ($('link[href="css/' + newStyleFile + '"]').size() > 0) return;
+
+	// actually change the css file parsed
+	for (styleIndex in styleNameArray) {
+		// remove
+		$('link[href="css/' + styleNameArray[styleIndex] + '-' + type + '.css"]').remove();
+	}
+	// set new style
+	$('head').append($('<link>').attr({'type': 'text/css', 'rel': 'stylesheet', 'href': newStyleFile}));
+	
+	// changing main changes to according board
+	if (type == 'main') {
+		_changeStyle('board', value);
+	}
+}
+
 
 function getLongData(type) {
 	return "THESE ARE THE LONG DATA FOR " + type;

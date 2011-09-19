@@ -1,0 +1,8 @@
+.board{box-shadow:0 0 2px 2px #d66b00;-moz-box-shadow:0 0 2px 2px #d66b00;-webkit-box-shadow:0 0 2px 2px #d66b00;margin:0px auto 20px auto;}
+.board .dark{background-color:#a35200;}
+.board .dark:hover{background-color:#562b00;}
+.board .light{background-color:#ffb870;}
+.board .light:hover{background-color:#ffdebd;}
+.highlight_move_to{background:none !important;background-color:#732626 !important;}
+.highlight_move_from{background:none !important;background-color:#ac3939 !important;}
+.highlight_input_move_from{background:none !important;background-color:#339933 !important;}

@@ -19,142 +19,110 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 
 
+/* LESS variables */
+@base: #663300;
+
+@dark: lighten(@base, 10%);
+@darker: lighten(@dark, 15%);
+@light: darken(@base, 30%);
+@lighter: darken(@light, 15%);
+
+/* mixins */
+.border-radius (@radius) {
+	border-radius: @radius;
+	-moz-border-radius: @radius;
+	-webkit-border-radius: @radius;
+}
+.box-shadow (@x: 0, @y: 0, @blur: 1px, @color: #000) {
+	box-shadow: @arguments;
+	-moz-box-shadow: @arguments;
+	-webkit-box-shadow: @arguments;
+}
+.text-shadow (@a: 0px, @b: 0px, @c: 3px, @d: #555) {
+	text-shadow: @arguments;
+}
+
+
 /* general */
 body {
-	font-family: 'Ubuntu', arial, serif;
-	padding-top: 75px;
+	color: @darker;
+	background-image: url(../img/styles/dark-wood.jpg);
+	background-repeat:repeat;
 }
 h1, h2, h3, h4, h5, h6 {
-	font-family: 'Ubuntu', arial, serif;
+	color: white;
+	.text-shadow;
 }
-.centered {
-	text-align: center;
+a, a:hover, a:visited {
+	color: white;
 }
 
 
 /* menu styles */
 .menu {
-	width: 100%;
-	position: fixed;
-	left: 0px;
-	top: 0px;
-	z-index: 100;
+	background: @darker;
+	a {
+		text-decoration: none;
+	}
 }
 .menu_item {
-	float: left;
-	min-width: 160px;
-	line-height: 50px;
-	vertical-align: middle;
-	text-align: center;
-	font-size: 130%;
-	font-weight: bolder;
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 1000ms;
-	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 1000ms;
-	transition-property: background-color;
-	transition-duration: 1000ms;
+	.text-shadow;
+	color: white;
 }
-
-/* style box */
-#style-box {
+.menu_item:hover {
+	background: @light;
 }
 
 /* logo */
-.head_logo {
-	padding: 0px 0px;
+.head_logo:hover {
+	background: black;
 }
 
+
+/* text */
+.hl_text {
+	.text-shadow;
+}
 
 /* form elements */
 .roundbutton, input[type=submit] {
-	padding: 3px;
-	font-weight: bold;
-}
-.roundbutton {
-	display: inline-block;
-	width: 100px;
-}
-
-
-/* board specific */
-#boards {
-	width: 100%;
-	margin: 0 auto;
-}
-
-#boards > div {
-	display:-moz-inline-stack;
-	display:inline-block;
-	zoom:1;
-	*display:inline;
-}
-
-.board {
-	position: relative;
-	top: 0;
-	left: 0;
+	background: @dark;
+	color: @light;
+	border: 0.1px solid @light;
+	.border-radius(5px);
+    	.box-shadow(0, 1px, 3px, rgba(0, 0, 0, 0.5));
 	text-align: center;
+	min-width: 100px;
 }
-.board {
-	min-height: 100px;
-	margin-bottom: 15px;
+.roundbutton:hover, input[type=submit]:hover {
+	background: @light;
+	color: @darker;
+	cursor: pointer;
 }
-
-.board .field {
-	width: 48px;
-	height: 48px;
-	float: left;
-}
-
-.board .dark, .board .dark:hover, .board .light, .board .light:hover {
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 300ms;
-	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 300ms;
-	transition-property: background-color;
-	transition-duration: 300ms;
-}
-
-.board .clear_row {
-	clear: left;
-}
-
-
-.promotion_piece {
-	float: left;
+select {
+	background: @light;
+	color: @darker;
 }
 
 /* data styles */
 
+#data {
+	color: white;
+}
 
 #data .data_header {
-	padding: 0.45em;
-	padding-left: 18px;
+	background-color: @darker;
 	text-align: left;
+	border-top: 1px dashed black;
 }
 #data .data_header .data_header_title {
-	font-weight: bolder;
-	font-size: 110%;
-	min-width: 25%;
-	float: left;
+	.text-shadow;
 }
 
-#data .data_header .inline_content {
-	font-size: 90%;
-	font-weight: normal;
-	padding-left: 3em;
-}
 #data .data_content {
-	padding: 0.45em 1.45em;
-	padding-left: 18px;
-	text-align: left;
-	font-size: 90%;
+	background-color: @lighter;
+	color: black;
 }
-#data .data_content_empty {
-	padding: 0em;
-}
-
 
 
 
@@ -163,9 +131,6 @@ h1, h2, h3, h4, h5, h6 {
 
 /* message box */
 #messages {
-	height: 100px;
-	overflow: auto;
-	padding: 2px 2px;
 	border: 1px solid black;
 }
 
@@ -175,7 +140,6 @@ h1, h2, h3, h4, h5, h6 {
 
 .time {
 	color: black;
-	padding-right: 10px;
 }
 
 
@@ -186,45 +150,55 @@ h1, h2, h3, h4, h5, h6 {
 }
 #chat_history {
 	padding: 2px 2px;
-	overflow: auto;
-	height: 60px;
-}
-#chat_input {
-	padding: 0px 2px 2px 2px;
 }
 .chat_username {
-	color: #50CC7E;
-	padding-right: 10px;
+	color: @lighter;
+}
+.chat_self {
+	color: white;
 }
 .chat_other {
-	font-weight: bold;
+	color: black;
 }
 
 /* Game Selection in new.html */
-.gameSelection {
-	width: 33%;
-	min-height: 200px;
-	overflow: auto;
-	float:left;
-}
-
 .gameSelection .entry {
-	margin: 2px 0px;
-	padding: 0px 3px;
+	background-color: @dark;
+	color: @lighter;
+}
+.gameSelection .entry:hover {
+	background-color: @lighter;
+	color: @dark;
 }
 
 #created_links {
+	.border-radius(5px);
+    	.box-shadow(0, 1px, 3px, rgba(0, 0, 0, 0.5));
 	border: 1px solid white;
-	margin: 20px 0px;
-	padding: 5px 5px 30px 5px;
+}
+#created_links a {
+	color: @light;
 }
 
-.refreshForm {
-	display: inline;
-}
 
 /* connection status */
 #conn_status {	
+	.border-radius(5px);
+    	.box-shadow(0, 1px, 3px, rgba(0, 0, 0, 0.5));
+	display: inline;
+}
+
+.conn_bad {
+	background: #FF643D;
+}
+
+.conn_unknown {
+	background: #FFFF5C;
+}
+
+.conn_good {
+	background: #3DFF64;
+	color: black;
 }
 
 

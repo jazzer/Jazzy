@@ -101,17 +101,19 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
         
             
     def serveStaticText(self, file):
-        print("serving " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
+        print("serving " + file + " statically as text from " + os.path.abspath(STATIC_SERVE_BASE + file))
         real_file = re.sub("\?.*", '', file)
-        a_file = open(STATIC_SERVE_BASE + real_file, encoding='utf-8')
-        a_string = a_file.read()
-
-        self.send_response(200)
-        #self.send_header("Content-type", "text/html")
-        self.end_headers()
-
-        self.output_raw(a_string)
-
+        try:
+            a_file = open(STATIC_SERVE_BASE + real_file, encoding='utf-8')
+            a_string = a_file.read()
+    
+            self.send_response(200)
+            #self.send_header("Content-type", "text/html")
+            self.end_headers()
+    
+            self.output_raw(a_string)
+        except IOError:
+            print('Could not serve that file. Not found!')
 
     def serveStaticBinary(self, file):
         #print("serving binary " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
@@ -164,11 +166,11 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
         # -----------------------
         # serving static content?
         #------------------------
-        if re.match('[^\.]+\.[html|js|css](\?\d*)?', self.path):
-            self.serveStaticText(self.path)
-            return
-        if re.match('[^\.]+\.[ico|png|jpe?g|gif|ogg|mp3](\?\d*)?', self.path):
+        if not(re.match('.+\.[ico|png|jpg|gif|ogg|mp3](\?[0-9a-fA-F]*)?', self.path) is None):
             self.serveStaticBinary(self.path)
+            return
+        if not(re.match('.+\.[html|js|css](\?[0-9a-fA-F]*)?', self.path) is None):
+            self.serveStaticText(self.path)
             return
         
         # -----------------------

@@ -1,0 +1,83 @@
+/*
+Copyright (c) 2011 Johannes Mitlmeier
+
+This file is part of Jazzy.
+
+Jazzy is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
+*/
+
+
+/* LESS variables */
+/* board colors */
+@board-base: #D66B00;
+/* highlighting colors */
+@highlight: #933;
+/* selection color */
+@selection: #393;
+
+/* derived colors */
+@board-dark: darken(@board-base, 10%);
+@board-dark-highlight: darken(@board-dark, 15%);
+@board-light: lighten(@board-base, 30%);
+@board-light-highlight: lighten(@board-light, 15%);
+
+
+/* mixins */
+.box-shadow (@x: 0, @y: 0, @blur: 1px, @color: #000) {
+	box-shadow: @arguments;
+	-moz-box-shadow: @arguments;
+	-webkit-box-shadow: @arguments;
+}
+
+.border-radius (@radius) {
+	border-radius: @radius;
+	-moz-border-radius: @radius;
+	-webkit-border-radius: @radius;
+}
+
+/* board specific */
+.board {
+	.box-shadow(0, 0, 2px, 2px, #D66B00);	
+	margin: 0px auto 20px auto;
+}
+
+.board .dark {
+	background-color: @board-dark;
+}
+
+.board .dark:hover {
+	background-color: @board-dark-highlight;
+}
+
+.board .light {
+	background-color: @board-light;
+}
+.board .light:hover {
+	background-color: @board-light-highlight;
+}
+
+
+.highlight_move_to {
+	background: none !important;
+	background-color: darken(@highlight, 10%) !important;
+}
+.highlight_move_from {
+	background: none !important;
+	background-color: lighten(@highlight, 5%) !important;
+}
+.highlight_input_move_from {
+	background: none !important;
+	background-color: @selection !important;
+}
+
