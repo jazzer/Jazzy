@@ -180,7 +180,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
         jsonoutput = {}
         if len(params) > 1:
             mq = mqPool.get(params[1])
-            # can't answer if mq is unknown
+            # can't answer if mq is not transferred (e.g. because it is yet unknown)
             if mq is None and not(params[0] in {'new', 'join', 'watch', 'getgames', 'admin'}):
                 return
 
@@ -320,6 +320,14 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                     mq.addMsg(Message('alert', {'msg': 'No draw by {0} move rule. Counter is at {1}.'.format(mq.game.DRAW_X_MOVES_VALUE, mq.game.board.drawXMoveCounter)}))
             
             jsonoutput = self.sendMQ(params)
+        
+        # messages about game end (resigning, draws) 
+        elif (params[0] == 'end'):
+            # player resigned
+            if (params[2] == 'resign'):
+                result = '0-1' if mq.subject.color == 'white' else '1-0' 
+                self.distributeToAll(mq.game, mq.game._generateGameOverMessage('Player resigned.', result, None))
+            
             
         # transfer chat message     
         elif (params[0] == 'post' and params[2] == 'chat'):            

@@ -505,11 +505,11 @@ function parseCurrPlayer(currPlayerValue) {
 
 	currPlayer = currPlayerValue;
 	if (!myTurn && currPlayer == mqId.toString().substring(0, 10)) {
-		document.title = "[DING] " + document.title;
+		document.title = "[*] " + document.title;
 		myTurn = true;
 	} 
 	else if (myTurn && currPlayer != mqId.toString().substring(0, 10)) {
-		document.title = document.title.replace(/\[DING\] /, "");
+		document.title = document.title.replace(/\[.\] /, "");
 		myTurn = false;
 	}
 }
@@ -534,6 +534,15 @@ function shortenFieldString(fString) {
 function lengthenFieldString(fString) {
 	if (fString === undefined) { return undefined; }
 	return fString.replace(/_/, "_field").replace(/^/, "board_");
+}
+
+// handle click to "resign" button in UI
+// send corresponding message to the server
+function _resign() {
+	confirmed = confirm("Do you really want to resign?");
+	if (confirmed) {
+		serverCall("end/" + mqId + "/resign", undefined, true, false);
+	}
 }
 
 
