@@ -26,6 +26,7 @@ class Player():
     def __init__(self):
         self.mq = MessageQueue()
         self.name = "John Doe"
+        self.offeringDraw = False
         
     def __unicode__(self):
         return "[Player]"

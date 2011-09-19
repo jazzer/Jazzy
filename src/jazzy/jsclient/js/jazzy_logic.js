@@ -539,12 +539,24 @@ function lengthenFieldString(fString) {
 // handle click to "resign" button in UI
 // send corresponding message to the server
 function _resign() {
-	confirmed = confirm("Do you really want to resign?");
+	var confirmed = confirm("Do you really want to resign?");
 	if (confirmed) {
 		serverCall("end/" + mqId + "/resign", undefined, true, false);
 	}
 }
 
+// handle click to "offer draw" button in UI
+// send corresponding message to the server
+function _offerDraw() {
+	if (myTurn) {
+		alert("You can only offer draw on your opponent's turn.");
+		return;
+	}
+	var confirmed = confirm("Do you really want to offer a draw?");
+	if (confirmed) {
+		serverCall("end/" + mqId + "/draw-offer", undefined, true, false);
+	}
+}
 
 
 function parseMQ(data) {
@@ -599,7 +611,7 @@ function parseMQ(data) {
 				addChatMessage(data[i]['user'], decodeURIComponent(data[i]['msg'])); 
 				break;
 			case "gameover":
-				goMsg = "Game finished. Result: " + data[i]['result'] + " (" + data[i]['msg'] + ")"
+				goMsg = "Game finished.\nResult: " + data[i]['result'] + "\n" + data[i]['msg'];
 				addServerMessage(goMsg);
 				setTimeout(function () { alert(goMsg); }, 1000);
 				// TODO play sound 
@@ -621,7 +633,13 @@ function parseMQ(data) {
 				break;
 			case "srvmsg":
 				addServerMessage(data[i]['msg']);
-				break; 
+				break;
+			case "draw-offer":
+				var confirmed = confirm("Your opponent is offering a draw. Do you accept?");
+				if (confirmed) {
+					serverCall("end/" + mqId + "/draw-offer", undefined, true, false);
+				}
+				break;
 			case "alert":
 				alert(data[i]['msg']);
 				break; 

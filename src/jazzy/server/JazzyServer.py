@@ -37,6 +37,7 @@ from jazzy.test.Test import Test
 from jazzy.logic import DifferentSetupGames, DifferentBoardGames, \
     DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, \
     HandicapGames, ClassicGame, TestGames
+from pickle import FALSE
 
 HOST_NAME = '' # public!
 PORT_NUMBER = 8090
@@ -93,9 +94,9 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             return json.dumps([])
         return json.dumps(mq.msgs)
     
-    def distributeToAll(self, game, msg, filter_player=None):
+    def distributeToAll(self, game, msg, filterPlayers=[]):
         for player in game.players + game.watchers:
-            if player != filter_player:
+            if not (player in filterPlayers):
                 player.mq.addMsg(msg)
         
             
@@ -315,7 +316,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                     
             if params[2] == 'xmoverule':
                 if mq.game.isXMoveDraw():
-                    self.distributeToAll(mq.game, mq.game._generateGameOverMessage('Draw by {0} move rule upon player\'s request'.format(mq.game.DRAW_X_MOVES_VALUE), '0.5-0.5', None))
+                    self.distributeToAll(mq.game, mq.game._generateGameOverMessage('Draw by {0} move rule upon player\'s request'.format(mq.game.DRAW_X_MOVES_VALUE), '0.5-0.5'))
                 else:
                     mq.addMsg(Message('alert', {'msg': 'No draw by {0} move rule. Counter is at {1}.'.format(mq.game.DRAW_X_MOVES_VALUE, mq.game.board.drawXMoveCounter)}))
             
@@ -323,11 +324,38 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
         
         # messages about game end (resigning, draws) 
         elif (params[0] == 'end'):
-            # player resigned
-            if (params[2] == 'resign'):
-                result = '0-1' if mq.subject.color == 'white' else '1-0' 
-                self.distributeToAll(mq.game, mq.game._generateGameOverMessage('Player resigned.', result, None))
-            
+            # only players please!
+            if isinstance(mq.subject, Player):
+                # player resigned
+                if (params[2] == 'resign'):
+                    result = '0-1' if mq.subject.color == 'white' else '1-0' 
+                    winner = mq.game.getNextCurrentPlayer() if mq.game.getCurrentPlayer() == mq.subject else mq.game.getCurrentPlayer()
+                    self.distributeToAll(mq.game, mq.game._generateGameOverMessage('Player resigned.', result, winner))
+                # player is offering draw
+                if (params[2] == 'draw-offer'):
+                    agreeingPlayers = []
+                    for player in mq.game.players:
+                        if player.offeringDraw:
+                            agreeingPlayers.append(player)
+                    
+                    # rule: you may not offer a draw when you are on the move!
+                    if len(agreeingPlayers) > 0 or mq.subject != mq.game.getCurrentPlayer():
+                        # keep the player's decision
+                        mq.subject.offeringDraw = True
+                        
+                        # do all players agree?
+                        agreeingPlayers = []
+                        for player in mq.game.players:
+                            if player.offeringDraw:
+                                agreeingPlayers.append(player)
+                                
+                        if len(agreeingPlayers) == len(mq.game.players):
+                            # finish the game
+                            self.distributeToAll(mq.game, mq.game._generateGameOverMessage('Players agreed.', '0.5-0.5', None))
+                        else:
+                            # ask the other players
+                            self.distributeToAll(mq.game, Message('draw-offer', {}), agreeingPlayers)
+                    
             
         # transfer chat message     
         elif (params[0] == 'post' and params[2] == 'chat'):            
@@ -339,7 +367,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             msg = params[3]
             msg = self.sanitizeHTML(msg)
                         
-            self.distributeToAll(mq.game, Message('chat', {'user': mq.subject.name, 'msg': msg}), filter_player=mq.subject)
+            self.distributeToAll(mq.game, Message('chat', {'user': mq.subject.name, 'msg': msg}), [mq.subject])
             jsonoutput = self.sendMQ(params)    
 
         # starting a new game (e.g. /new/classic)
@@ -375,7 +403,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             
             mq = self.createPlayer(game)
             jsonoutput = json.dumps({'mqId': mq.id})
-            self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Player joined.'}), mq.subject)
+            self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Player joined.'}), [mq.subject])
 
         elif (params[0] == 'watch'):
             game = gamePool.games[params[1]]
@@ -384,7 +412,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             else:
                 mq = self.createWatcher(game)
                 jsonoutput = json.dumps({'mqId': mq.id})
-                self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Watcher joined.'}), mq.subject)
+                self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Watcher joined.'}), [mq.subject])
          
         elif (params[0] == 'getgames'):
             jsonoutput = json.dumps(jsonGames)
