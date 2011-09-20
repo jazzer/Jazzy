@@ -19,6 +19,62 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 from jazzy.logic.ClassicGame import ClassicGame
 from jazzy.logic.Pieces import *
+import random
+
+# http://en.wikipedia.org/wiki/Chess960
+class Chess960Game(ClassicGame):
+    meta = {'title': 'Chess960',
+        'desc': 'Playing with a somewhat randomized starting position',
+        'link': 'http://en.wikipedia.org/wiki/Chess960',
+        'details': "Also known as Fischer Random Chess.",
+        'players': 2} 
+           
+    def startInit(self):
+        # find starting position
+        id = random.randint(0, 959)
+        print('Chess960 id: ' + str(id))
+        emptyBaseline = 'abcdefgh'
+        # using this algorithm: http://de.wikipedia.org/wiki/Chess960#IDs_f.C3.BCr_Startpositionen
+        # 1. modulo 4, position of (white) bishop: 0=b, 1=d, 2=f, 3=h.
+        step1 = id % 4
+        positions = {0: 'b', 1: 'd', 2: 'f', 3: 'h'}
+        baseline = emptyBaseline.replace(positions[step1], 'B');
+        print('white bishop to ' + positions[step1] + " (" + str(step1) + ")")
+        # 2. result modulo 4, position of (black) bishop: 0=a, 1=c, 2=e, 3=g.
+        step2 = (id // 4) % 4
+        positions = {0: 'a', 1: 'c', 2: 'e', 3: 'g'}
+        baseline = baseline.replace(positions[step2], 'B');
+        print('black bishop to ' + positions[step2] + " (" + str(step2) + ")")
+        # 3. result modulo 6 = number of empty fields from left before the queen's position
+        step3 = (id // 4 // 4) % 6
+        baseline = self._replaceXthPos(baseline, emptyBaseline, step3, 'Q')
+        # 4. by table
+        step4 = id // 4 // 4 // 6 # yields 0-9
+        table = {0: 'NNRKR', 
+                 1: 'NRNKR',
+                 2: 'NRKNR',
+                 3: 'NRKRN',
+                 4: 'RNNKR',
+                 5: 'RNKNR',
+                 6: 'RNKRN',
+                 7: 'RKNNR',
+                 8: 'RKNRN',
+                 9: 'RKRNN'}
+        for char in table[step4]:
+            baseline = self._replaceXthPos(baseline, emptyBaseline, 0, char)
+                        
+        super(Chess960Game,self).startInit(baseline.lower() + '/pppppppp/8/8/8/8/PPPPPPPP/' + baseline)
+        # TODO fix castling?
+        
+    def _replaceXthPos(self, text, emptyString, pos, newVal):
+        targetChar = ''
+        for char in text:
+            if char in emptyString:
+                pos = pos - 1
+                if pos == -1:
+                    targetChar = char
+                    break                
+        return text.replace(targetChar, newVal)
 
 # http://en.wikipedia.org/wiki/Legan_chess
 class LeganGame(ClassicGame):
