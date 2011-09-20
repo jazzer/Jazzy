@@ -27,6 +27,8 @@ class Player():
         self.mq = MessageQueue()
         self.name = "John Doe"
         self.offeringDraw = False
+        self.pocket = Pocket()
+        self.capturePocket = Pocket()
         
     def __unicode__(self):
         return "[Player]"
@@ -45,4 +47,32 @@ class Watcher():
         return "[Watcher]"
     
     def __str__(self):
-        return self.__unicode__()    
+        return self.__unicode__()  
+    
+    
+class Pocket():
+    def __init__(self):
+        self.pieces = []
+        self.dirty = False
+        
+    def getPieces(self):
+        return sorted(self.pieces, key=lambda piece: piece.value())
+    
+    def contains(self, pieceName):
+        for piece in self.pieces:
+            if piece.shortName == pieceName:
+                return True
+        return False
+    
+    # no guarantee which one is removed from the pocket
+    def remove(self, pieceName):
+        for piece in self.pieces:
+            if piece.shortName == pieceName:
+                self.pieces.remove(piece)
+                return True
+        return False
+        
+    def add(self, piece):
+        self.pieces.append(piece)
+        self.dirty = True
+        

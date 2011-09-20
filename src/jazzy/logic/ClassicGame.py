@@ -89,7 +89,7 @@ class ClassicGame():
         self.watchers = []
         self.possibleMoves = None
         self.xMoveDrawCounter = 0
-        
+
         # internal stuff
         self.joinedPlayers = 0
         self.finished = False
@@ -265,6 +265,10 @@ class ClassicGame():
             
         return moves
         
+    def handleCaptureMove(self, move, board):
+        # put the piece to the capturePocket
+        
+        pass
         
     def addPlayer(self, player):
         player.game = self

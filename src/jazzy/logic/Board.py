@@ -147,6 +147,9 @@ class Board(object):
         # standard move
         fromPiece = self.fields[move.fromField]
         fromPiece.moveCount = fromPiece.moveCount + 1
+        # is it a capturing move?
+        if not(self.fields[move.toField] is None):
+            self.game.handleCaptureMove(self, move)
         self.fields[move.toField] = fromPiece
         self.fields[move.fromField] = None
         if not(move.toPiece is None):

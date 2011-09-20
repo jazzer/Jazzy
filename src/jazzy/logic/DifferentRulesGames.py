@@ -319,3 +319,10 @@ class AndernachGame(ClassicGame):
             self.possibleMoves = None
             self.parsePossibleMoves()
         return moveList
+
+class CrazyhouseGame(ClassicGame):  
+    meta = {'title': 'Crazyhouse Chess',
+        'desc': "rather Loop Chess (see Wikipedia article) right now",
+        'link': 'http://en.wikipedia.org/wiki/Crazyhouse',
+        'details': "",
+        'players': 2}
