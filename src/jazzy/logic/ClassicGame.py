@@ -267,8 +267,7 @@ class ClassicGame():
         
     def handleCaptureMove(self, move, board):
         # put the piece to the capturePocket
-        
-        pass
+        self.getCurrentPlayer(board).capturePocket.add(board.fields[move.toField])
         
     def addPlayer(self, player):
         player.game = self

@@ -326,3 +326,11 @@ class CrazyhouseGame(ClassicGame):
         'link': 'http://en.wikipedia.org/wiki/Crazyhouse',
         'details': "",
         'players': 2}
+
+    def handleCaptureMove(self, move, board):
+        # put the piece to the capturePocket
+        super(CrazyhouseGame).getCurrentPlayer(move, board)
+        # and copy the piece with inverted color to the pocket
+        freshPiece = copy.deepcopy(board.fields[move.toField])
+        freshPiece.color = 'white' if freshPiece.color == 'black' else 'black'
+        self.getCurrentPlayer(board).pocket.add(freshPiece)
