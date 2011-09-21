@@ -121,16 +121,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .pocket {
-	width: 100px;
-	height: 20px;
-	border: 2px solid blue;
+	min-height: 48px;
 }
-
 .top-pocket {
 	margin-bottom: 15px;
 }
 .bottom-pocket {
 	margin-bottom: 15px;
+}
+.pocket > div {
+	display: inline-block;
 }
 
 .promotion_piece {

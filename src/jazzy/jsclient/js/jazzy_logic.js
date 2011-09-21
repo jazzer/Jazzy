@@ -600,6 +600,17 @@ function _offerDraw() {
 	}
 }
 
+function _fillPocket(id, content, board) {
+	var pocket = $('#' + id).empty();
+	for (var i=0; i<content.length; i++) {
+		console.debug(id);
+		console.debug(pocket);
+		console.debug(content.charAt(i));
+		console.debug(board.getPieceDiv(content.charAt(i)));
+		pocket.append(board.getPieceDiv(content.charAt(i)));
+	}
+}
+
 
 function parseMQ(data) {
 	// did we receive messages? if so, keep checking frequently
@@ -665,25 +676,36 @@ function parseMQ(data) {
 				while (true) {
 					j++
 					// build the board
-					if (data[i][j]['board_id'] != undefined) {
-						boardId = data[i][j]['board_id'];		
-						if (data[i][j]['board_size'] != undefined) {
-							boardSize = data[i][j]['board_size'].split('x');
-							board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[i][j]['flipped']);	
-							// load the position
-							board.loadFEN(data[i][j]['fen']);
-							// fix highlight
-							board.highlight_clear();
-							if (data[i][j]['lmove_from'] != undefined && data[i][j]['lmove_to'] != undefined) {
-								board.highlight_move(lengthenFieldString(data[i][j]['lmove_from']), lengthenFieldString(data[i][j]['lmove_to']));
-							}
+					try {
+						var test = data[i][j]['board_id'];
+					} catch (e) {
+						break;
+					}
+					boardId = data[i][j]['board_id'];		
+					if (data[i][j]['board_size'] != undefined) {
+						boardSize = data[i][j]['board_size'].split('x');
+						board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[i][j]['flipped']);	
+						// load the position
+						board.loadFEN(data[i][j]['fen']);
+						// fix highlight
+						board.highlight_clear();
+						if (data[i][j]['lmove_from'] != undefined && data[i][j]['lmove_to'] != undefined) {
+							board.highlight_move(lengthenFieldString(data[i][j]['lmove_from']), lengthenFieldString(data[i][j]['lmove_to']));
 						}
-						if (data[i][j]['pockets'] != undefined) {
-						
-						}
-						if (data[i][j]['capturePockets'] != undefined) {
-							// TODO implement filling (#27 on GitHub)
-						}
+					}
+					if (data[i][j]['pockets'] != undefined) {
+						pockets = data[i][j]['pockets'].split(',');
+						console.debug(pockets);
+						var msgFlipped = data[i][j]['flipped'];
+						console.debug(msgFlipped);
+						console.debug("oben: " + pockets[msgFlipped?0:1]);
+						console.debug("unten: " + pockets[msgFlipped?1:0]);
+						var targetBoard = boardStorage.getBoard(boardId);
+						_fillPocket('top-pocket-board_' + boardId, pockets[msgFlipped?0:1], targetBoard);
+						_fillPocket('bottom-pocket-board_' + boardId, pockets[msgFlipped?1:0], targetBoard);
+					}
+					if (data[i][j]['capturePockets'] != undefined) {
+						// TODO implement filling (#27 on GitHub)
 					}
 				}
 				// check if it's my turn

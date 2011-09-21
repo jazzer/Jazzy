@@ -33,6 +33,7 @@ class Board(object):
         self.height = height
         self.clear() # self.fields is created here
         self.moveHistory = []
+        self.resend = False # for triggering full retransmission of the board's status
         
         # do not change
         self.castlingsPossible = {} # dictionary of lists, keys = colors

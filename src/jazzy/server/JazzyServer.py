@@ -294,9 +294,12 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                     print(str(game.board))
                     
                     # resend parts of the board that have changed (not forced)
-                    sitMsg = mq.game.getSituationMessage(mq)
-                    if not(sitMsg is None):
-                        self.distributeToAll(game, sitMsg)
+                    for player in mq.game.players:
+                        sitMsg = mq.game.getSituationMessage(mq, player=player)
+                        if not(sitMsg is None):
+                            player.mq.addMsg(sitMsg)
+                    # clear board
+                    mq.game.board.resend = False # TODO generalize
                     
                     # distribute the game over message if there was one
                     if not(result is None):

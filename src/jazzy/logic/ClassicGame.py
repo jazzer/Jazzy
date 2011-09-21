@@ -285,12 +285,17 @@ class ClassicGame():
             return self.sortPieceList(self.possiblePromotionPieces)
                         
     
-    def getSituationMessage(self, mq, force=False):
+    def getSituationMessage(self, mq, force=False, player=None):
         if mq.watching:
             flipped = False
         else:
-            flipped = True if mq.subject.color == 'black' else False
-        
+            if player is None:
+                subject = mq.subject
+            else:
+                subject = player            
+            flipped = True if subject.color == 'black' else False
+                
+            
         result = {}
         send = False
         counter = 0
@@ -316,11 +321,13 @@ class ClassicGame():
                         data['lmove_to'] = str(lastMove.board.id) + '_' + str(lastMove.toField)
         
         # pockets
-        for pocket in self.board.pockets:
+        for key in self.board.pockets:
+            pocket = self.board.pockets[key]
             if force or self.board.resend or pocket.dirty:
                 send = True
                 data['pockets'] = ''.join([piece.getShortName() for piece in self.board.pockets['white'].getPieces()]) + ',' + ''.join([piece.getShortName() for piece in self.board.pockets['black'].getPieces()])
-        for pocket in self.board.capturePockets:
+        for key in self.board.pockets:
+            pocket = self.board.pockets[key]
             if force or self.board.resend or pocket.dirty:
                 send = True
                 data['capturePockets'] = ''.join([piece.getShortName() for piece in self.board.capturePockets['white'].getPieces()]) + ',' + ''.join([piece.getShortName() for piece in self.board.capturePockets['black'].getPieces()])
