@@ -148,12 +148,9 @@ class Board(object):
                 posCounter += 1     
 
     def getPiecesPocket(self, pos):
-        try:
-            # standard move
-            fromField = int(pos)
+        if str(pos)[0] != 'p':
             return None
-        except ValueError:
-            return self.pockets[self.game.COLORS[int(pos[2])]]
+        return self.pockets[self.game.COLORS[int(pos[1])]]
  
     def getPieceByPos(self, pos):
         pocketColor = None
