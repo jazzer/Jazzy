@@ -52,7 +52,7 @@ class DarkGame(ClassicGame):
     meta = {'title': 'Dark Chess',
             'desc': "",
             'link': 'http://en.wikipedia.org/wiki/Dark_chess',
-            'details': "",
+            'details': '',
             'players': 2} 
     def startInit(self):
         super(DarkGame, self).startInit()

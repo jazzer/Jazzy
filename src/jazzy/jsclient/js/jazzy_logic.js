@@ -659,16 +659,32 @@ function parseMQ(data) {
 				// TODO play sound 
 				break;
 			case "gamesit":
-				// build the board
-				boardId = data[i]['board_id'];		
-				boardSize = data[i]['board_size'].split('x');
-				board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[i]['flipped']);	
-				// load the position
-				board.loadFEN(data[i]['fen']);
-				// fix highlight
-				board.highlight_clear();
-				if (data[i]['lmove_from'] != undefined && data[i]['lmove_to'] != undefined) {
-					board.highlight_move(lengthenFieldString(data[i]['lmove_from']), lengthenFieldString(data[i]['lmove_to']));
+				console.debug(data[i]);
+				console.debug(data[i][0]);
+				var j = -1;
+				while (true) {
+					j++
+					// build the board
+					if (data[i][j]['board_id'] != undefined) {
+						boardId = data[i][j]['board_id'];		
+						if (data[i][j]['board_size'] != undefined) {
+							boardSize = data[i][j]['board_size'].split('x');
+							board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[i][j]['flipped']);	
+							// load the position
+							board.loadFEN(data[i][j]['fen']);
+							// fix highlight
+							board.highlight_clear();
+							if (data[i][j]['lmove_from'] != undefined && data[i][j]['lmove_to'] != undefined) {
+								board.highlight_move(lengthenFieldString(data[i][j]['lmove_from']), lengthenFieldString(data[i][j]['lmove_to']));
+							}
+						}
+						if (data[i][j]['pockets'] != undefined) {
+						
+						}
+						if (data[i][j]['capturePockets'] != undefined) {
+							// TODO implement filling (#27 on GitHub)
+						}
+					}
 				}
 				// check if it's my turn
 				parseCurrPlayer(data[i]['currP']);
@@ -691,3 +707,5 @@ function parseMQ(data) {
 		_debug("parsed message with id " + lastParsedMsg, 4);
 	}	
 }
+
+function isArray(obj){return(typeof(obj.length)=="undefined")?false:true;}

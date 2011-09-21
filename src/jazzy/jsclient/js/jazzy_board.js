@@ -115,10 +115,14 @@ Board.prototype.build = function() {
 		}
 	}
 
+	// pockets
+	topPocket = $('<div>').attr('id', 'top-pocket-' + boardId).addClass('pocket').addClass('top-pocket');
+	bottomPocket = $('<div>').attr('id', 'bottom-pocket-' + boardId).addClass('pocket').addClass('bottom-pocket');
+
 	// buttons for castling
-	innerDiv = $('<div>').append(boardDiv).append('<div class="roundbutton" onclick="_shortCastling(\'' + boardId + '\');">O-O</div> <div class="roundbutton" onclick="_longCastling(\'' + boardId + '\');">O-O-O</div><br /><br />');
+	outerDiv = $('<div>').append(topPocket).append(boardDiv).append(bottomPocket).append('<div class="roundbutton" onclick="_shortCastling(\'' + boardId + '\');">O-O</div> <div class="roundbutton" onclick="_longCastling(\'' + boardId + '\');">O-O-O</div><br /><br />');
 			
-	$("#boards").append(innerDiv);
+	$("#boards").append(outerDiv);
 
 	// correct the board div's size
 	var field_width = $("#" + boardId + "_field0").width();

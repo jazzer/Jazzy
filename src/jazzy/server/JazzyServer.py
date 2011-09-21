@@ -293,6 +293,11 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                     # debug position
                     print(str(game.board))
                     
+                    # resend parts of the board that have changed (not forced)
+                    sitMsg = mq.game.getSituationMessage(mq)
+                    if not(sitMsg is None):
+                        self.distributeToAll(game, sitMsg)
+                    
                     # distribute the game over message if there was one
                     if not(result is None):
                         self.distributeToAll(game, result)
@@ -395,7 +400,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
 
 
         elif (params[0] == 'getsit'):
-            jsonoutput = json.dumps([mq.game.getSituationMessage(mq).data])
+            jsonoutput = json.dumps([mq.game.getSituationMessage(mq, force=True).data])
         
         elif (params[0] == 'join'):
             game = gamePool.games[params[1]]

@@ -120,6 +120,18 @@ h1, h2, h3, h4, h5, h6 {
 	clear: left;
 }
 
+.pocket {
+	width: 100px;
+	height: 20px;
+	border: 2px solid blue;
+}
+
+.top-pocket {
+	margin-bottom: 15px;
+}
+.bottom-pocket {
+	margin-bottom: 15px;
+}
 
 .promotion_piece {
 	float: left;

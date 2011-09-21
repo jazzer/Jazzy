@@ -285,32 +285,56 @@ class ClassicGame():
             return self.sortPieceList(self.possiblePromotionPieces)
                         
     
-    def getSituationMessage(self, mq):
+    def getSituationMessage(self, mq, force=False):
         if mq.watching:
             flipped = False
         else:
             flipped = True if mq.subject.color == 'black' else False
-            
-        data = {'fen': self.getFenPos(self.board, mq.subject),
-                'board_id': self.board.id,
-                'board_size':  str(self.board.width) + 'x' + str(self.board.height),
+        
+        result = {}
+        send = False
+        counter = 0
+
+        # check boards
+        data = {'board_id': self.board.id,
                 'flipped': flipped}
-        # add last move if applicable    
-        if len(self.board.moveHistory) > 0 and self.SHOW_LAST_MOVE:
-            # TODO select last non-NullMove
-            lastMove = self.board.moveHistory[-1];
-            if not isinstance(lastMove, NullMove):
-                if lastMove.board is None:
-                    data['lmove_from'] = lastMove.fromField
-                    data['lmove_to'] = lastMove.toField
-                else:                    
-                    data['lmove_from'] = str(lastMove.board.id) + '_' + str(lastMove.fromField)
-                    data['lmove_to'] = str(lastMove.board.id) + '_' + str(lastMove.toField)
+        if force or self.board.resend:
+            send = True
+            data['fen'] = self.getFenPos(self.board, mq.subject)
+            data['board_size'] = str(self.board.width) + 'x' + str(self.board.height)
+        
+            # add last move if applicable    
+            if len(self.board.moveHistory) > 0 and self.SHOW_LAST_MOVE:
+                # TODO select last non-NullMove
+                lastMove = self.board.moveHistory[-1];
+                if not isinstance(lastMove, NullMove):
+                    if lastMove.board is None:
+                        data['lmove_from'] = lastMove.fromField
+                        data['lmove_to'] = lastMove.toField
+                    else:                    
+                        data['lmove_from'] = str(lastMove.board.id) + '_' + str(lastMove.fromField)
+                        data['lmove_to'] = str(lastMove.board.id) + '_' + str(lastMove.toField)
+        
+        # pockets
+        for pocket in self.board.pockets:
+            if force or self.board.resend or pocket.dirty:
+                send = True
+                data['pockets'] = ''.join([piece.getShortName() for piece in self.board.pockets['white'].getPieces()]) + ',' + ''.join([piece.getShortName() for piece in self.board.pockets['black'].getPieces()])
+        for pocket in self.board.capturePockets:
+            if force or self.board.resend or pocket.dirty:
+                send = True
+                data['capturePockets'] = ''.join([piece.getShortName() for piece in self.board.capturePockets['white'].getPieces()]) + ',' + ''.join([piece.getShortName() for piece in self.board.capturePockets['black'].getPieces()])
+                    
+        result[str(counter)] = data
+        counter += 1
         
         # add current player if applicable    
         if not(self.getCurrentPlayer(self.board) is None):
-            data['currP'] = self.getCurrentPlayer(self.board).mq.shortenedId
-        return Message("gamesit", data)
+            result['currP'] = self.getCurrentPlayer(self.board).mq.shortenedId
+        
+        if send:
+            return Message('gamesit', result)
+        return None
     
     def isRepetitionDraw(self):
         if not self.DRAW_REPETITION:
@@ -564,7 +588,7 @@ class ClassicGame():
             return self.board
         return None 
     
-    def isLegalMove(self, move, boardId = None):
+    def isLegalMove(self, move, boardId=None):
         self.parsePossibleMoves()
         if self.possibleMoves is None:
             return False
