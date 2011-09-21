@@ -183,8 +183,7 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 
 	if (!isPiece) {
 		return;
-	}
-	
+	}	
 
 	// clear target field
 	toField.children().css({'z-index': '2'}).fadeOut(400, function() {

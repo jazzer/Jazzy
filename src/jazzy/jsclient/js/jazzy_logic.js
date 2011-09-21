@@ -601,11 +601,11 @@ function _offerDraw() {
 }
 
 function _fillPocket(position, content, board) {
-	var pocketId = position=='top'?'1':'0';
+	var pocketId = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'1':'0';
 	var pocket = $('#' + position + '-pocket-board_' + board.id).empty();
 	for (var i=0; i<content.length; i++) {
 		var pieceDiv = board.getPieceDiv(content.charAt(i));
-		var fieldDiv = $('<div>').addClass('field').attr('id', 'board_' + board.id + '_p' + pocketId + i).append(pieceDiv);
+		var fieldDiv = $('<div>').addClass('field').attr('id', 'board_' + board.id + '_fieldp' + pocketId + i).append(pieceDiv);
 		// add click events
 		_addEvents(fieldDiv, board);
 		pocket.append(fieldDiv);
@@ -696,8 +696,11 @@ function parseMQ(data) {
 						pockets = data[i][j]['pockets'].split(',');
 						var msgFlipped = data[i][j]['flipped'];
 						var targetBoard = boardStorage.getBoard(boardId);
-						_fillPocket('top', pockets[msgFlipped?0:1], targetBoard);
-						_fillPocket('bottom', pockets[msgFlipped?1:0], targetBoard);
+						window.setTimeout(function() {
+							_fillPocket('top', pockets[msgFlipped?0:1], targetBoard);
+							_fillPocket('bottom', pockets[msgFlipped?1:0], targetBoard);
+						}, 1000);
+						
 					}
 					if (data[i][j]['capturePockets'] != undefined) {
 						// TODO implement filling (#27 on GitHub)

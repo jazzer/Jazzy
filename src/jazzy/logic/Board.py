@@ -157,15 +157,15 @@ class Board(object):
  
     def getPieceByPos(self, pos):
         pocketColor = None
-        try:
+        if str(pos)[0] == 'p':
+            # we got a piece in pocket
+            pocketColor = self.game.COLORS[int(pos[1])] # limited to 10 players per board!
+            pocketIndex = int(pos[2:])
+            return self.pockets[pocketColor].getPieces()[pocketIndex]
+        else:
             # on board
             fromField = int(pos)
             return self.fields[fromField]
-        except ValueError:
-            # we got a piece in pocket
-            pocketColor = self.game.COLORS[int(pos[2])] # limited to 10 players per board!
-            pocketIndex = int(pos[2:])
-            return self.pockets[pocketColor].getPieces()[pocketIndex]
             
     def move(self, move):        
         if isinstance(move, NullMove):

@@ -36,18 +36,21 @@ class Move():
         self.player = None
         self.isCheck = False
         self.board = None
+        self.parsed = None
         
         
-    def simpleParse(self, board):
+    def simpleParse(self, board, force=False):
         if self.fromField is None or self.toField is None:
+            return
+        if not (self.parsed is None) and not(force):
             return
         
         if board.getPieceByPos(self.fromField) is None:
             pass
         self.fromPiece = copy.deepcopy(board.getPieceByPos(self.fromField))
-        if self.fromPiece is None:
-            return
         self.takenPiece = copy.deepcopy(board.getPieceByPos(self.toField))
+        
+        self.parsed = board    
             
     def fullParse(self, board):
         if self.fromPiece is None:
