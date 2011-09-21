@@ -27,8 +27,6 @@ class Player():
         self.mq = MessageQueue()
         self.name = "John Doe"
         self.offeringDraw = False
-        self.pocket = Pocket()
-        self.capturePocket = Pocket()
         
     def __unicode__(self):
         return "[Player]"
@@ -56,7 +54,7 @@ class Pocket():
         self.dirty = False
         
     def getPieces(self):
-        return sorted(self.pieces, key=lambda piece: piece.value())
+        return self.pieces
     
     def contains(self, pieceName):
         for piece in self.pieces:
@@ -74,5 +72,6 @@ class Pocket():
         
     def add(self, piece):
         self.pieces.append(piece)
+        self.pieces = sorted(self.pieces, key=lambda piece: piece.value)
         self.dirty = True
         

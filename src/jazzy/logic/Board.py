@@ -22,6 +22,7 @@ import re
 import copy
 from jazzy.logic.Pieces import *
 from jazzy.logic.Move import Move, NullMove
+from jazzy.server.Player import Pocket
 
 class Board(object):
 
@@ -46,6 +47,13 @@ class Board(object):
         self.LIMIT_TOP_BOTTOM = True
         self.LIMIT_LEFT_RIGHT = True
         self.CAN_TAKE_OWN_PIECES = False
+        
+        # create and fill pockets
+        self.pockets = {}
+        self.capturePockets = {}
+        for color in game.COLORS:
+            self.pockets[color] = Pocket()
+            self.capturePockets[color] = Pocket()
     
     def splitPos(self, pos):
         return (pos % self.width, pos // self.width)
@@ -149,7 +157,7 @@ class Board(object):
         fromPiece.moveCount = fromPiece.moveCount + 1
         # is it a capturing move?
         if not(self.fields[move.toField] is None):
-            self.game.handleCaptureMove(self, move)
+            self.game.handleCaptureMove(move, self)
         self.fields[move.toField] = fromPiece
         self.fields[move.fromField] = None
         if not(move.toPiece is None):
@@ -215,16 +223,23 @@ class Board(object):
         return self.__unicode__()
         
     def __unicode__(self):
-        result = ""
+        # board
+        board = ''
         for row in range(self.height):
             for col in range(self.width):
                 piece = self.fields[row * self.width + col]
                 if piece is None:
-                    result = result + "|_"
+                    board = board + '|_'
                 else: 
-                    result = result + "|" + piece.getShortName()
-            result = result + "|\n"
-        return result
+                    board = board + '|' + piece.getShortName()
+            board = board + '|\n'
+        # pockets
+        pocketData = ''
+        for color in self.game.COLORS:
+            pocketData = pocketData + color + ':\n'
+            pocketData = pocketData + 'captured: ' + str([piece.getShortName() for piece in self.capturePockets[color].getPieces()]) + '\n'
+            pocketData = pocketData + 'pocket: ' + str([piece.getShortName() for piece in self.pockets[color].getPieces()]) + '\n'
+        return board + '\n\n' + pocketData
     
     def __deepcopy__(self, memo):
             result = Board(self.game, self.width, self.height)
@@ -239,4 +254,6 @@ class Board(object):
             # restore fields
             result.game = self.game;
             result.castlingsPossible = copy.copy(self.castlingsPossible);
+            result.pockets = copy.deepcopy(self.pockets);
+            result.capturePockets = copy.deepcopy(self.capturePockets);
             return result

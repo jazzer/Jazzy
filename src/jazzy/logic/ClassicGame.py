@@ -259,7 +259,7 @@ class ClassicGame():
         for move in moves:
             move.board = self.board
             
-        # reject all non-used draw offers (kinda auto-decline)
+        # reject all non-used draw offers (auto-decline)
         for player in self.players:
             player.offeringDraw = False
             
@@ -267,7 +267,7 @@ class ClassicGame():
         
     def handleCaptureMove(self, move, board):
         # put the piece to the capturePocket
-        self.getCurrentPlayer(board).capturePocket.add(board.fields[move.toField])
+        board.capturePockets[self.getLastCurrentPlayer(board).color].add(board.fields[move.toField])
         
     def addPlayer(self, player):
         player.game = self
@@ -374,6 +374,9 @@ class ClassicGame():
 
     def getNextCurrentPlayer(self, board):
         return self.players[(len(board.moveHistory) + 1) % self.NUM_PLAYERS]
+
+    def getLastCurrentPlayer(self, board):
+        return self.players[((len(board.moveHistory) - 1) + self.NUM_PLAYERS) % self.NUM_PLAYERS]
 
     def getNextPlayer(self, board, player):
         found = False
