@@ -21,7 +21,11 @@ import copy
 
 class Move():
     def __init__(self, fromField, toField):
-        self.fromField = fromField
+        try:
+            self.fromField = int(fromField)
+        except ValueError:
+            self.fromField = fromField
+            
         self.toField = toField
         self.fromPiece = None
         self.takenPiece = None  
@@ -33,14 +37,15 @@ class Move():
         self.isCheck = False
         self.board = None
         
+        
     def simpleParse(self, board):
         if self.fromField is None or self.toField is None:
             return
         
-        self.fromPiece = copy.deepcopy(board.fields[self.fromField])
+        self.fromPiece = copy.deepcopy(board.getPieceByPos(self.fromField))
         if self.fromPiece is None:
             return
-        self.takenPiece = copy.deepcopy(board.fields[self.toField])
+        self.takenPiece = copy.deepcopy(board.getPieceByPos(self.toField))
             
     def fullParse(self, board):
         # generate text representation
@@ -52,7 +57,8 @@ class Move():
             pieceName = '' if self.fromPiece.shortName == 'p' else self.fromPiece.shortName.upper()
             moveOrCapture = '-' if self.takenPiece is None else 'x'
             annotation = '' if self.annotation is None else ' (' + self.annotation + ')' 
-            self.str = pieceName + board.fieldToString(self.fromField) + moveOrCapture + board.fieldToString(self.toField) + annotation
+            fromFieldString = board.fieldToString(self.fromField) if board.getPiecesPocket(self.fromField) is None else '@'
+            self.str = pieceName + fromFieldString + moveOrCapture + board.fieldToString(self.toField) + annotation
                         
     def __eq__(self, move2):
         return move2.fromField == self.fromField and move2.toField == self.toField and move2.annotation == self.annotation

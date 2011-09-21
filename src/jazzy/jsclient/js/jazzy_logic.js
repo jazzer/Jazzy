@@ -359,7 +359,7 @@ function buildClassicBoard(cols, rows, flippedParam) {
 
 
 function postMove(from, to, promotion) {
-	// post move to server and move only upon response (means move was okay)!
+	// post move to server and wait for message queue containing it (means move was okay)!
 	var url = 'post/' + mqId + '/move/' + shortenFieldString(from) + '/' + shortenFieldString(to);
 	if (promotion != undefined) {
 		url += '/' + promotion
@@ -600,10 +600,15 @@ function _offerDraw() {
 	}
 }
 
-function _fillPocket(id, content, board) {
-	var pocket = $('#' + id).empty();
+function _fillPocket(position, content, board) {
+	var pocketId = position=='top'?'1':'0';
+	var pocket = $('#' + position + '-pocket-board_' + board.id).empty();
 	for (var i=0; i<content.length; i++) {
-		pocket.append(board.getPieceDiv(content.charAt(i)));
+		var pieceDiv = board.getPieceDiv(content.charAt(i));
+		var fieldDiv = $('<div>').addClass('field').attr('id', 'board_' + board.id + '_p' + pocketId + i).append(pieceDiv);
+		// add click events
+		_addEvents(fieldDiv, board);
+		pocket.append(fieldDiv);
 	}
 }
 
@@ -691,8 +696,8 @@ function parseMQ(data) {
 						pockets = data[i][j]['pockets'].split(',');
 						var msgFlipped = data[i][j]['flipped'];
 						var targetBoard = boardStorage.getBoard(boardId);
-						_fillPocket('top-pocket-board_' + boardId, pockets[msgFlipped?0:1], targetBoard);
-						_fillPocket('bottom-pocket-board_' + boardId, pockets[msgFlipped?1:0], targetBoard);
+						_fillPocket('top', pockets[msgFlipped?0:1], targetBoard);
+						_fillPocket('bottom', pockets[msgFlipped?1:0], targetBoard);
 					}
 					if (data[i][j]['capturePockets'] != undefined) {
 						// TODO implement filling (#27 on GitHub)

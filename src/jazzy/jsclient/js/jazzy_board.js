@@ -102,11 +102,7 @@ Board.prototype.build = function() {
 				field.attr('id', boardId + '_field' + (fields-counter-1));
 			}
 			// set events for drag and drop
-			if (!this.isWatching) {
-				field.mousedown(function() {_dnd_down($(this), board)});
-				field.mouseup(function() {_dnd_up($(this))});
-				field.click(function() {_dnd_click($(this), board)});
-			}
+			_addEvents(field, board);
 			
 			// append it to the board
 			boardDiv.append(field);
@@ -316,7 +312,13 @@ function highlight(fieldId, descr) {
 	$("#" + fieldId).addClass("highlight_" + descr);
 }
 
-
+function _addEvents(object, board) {
+	if (!board.isWatching) {
+		object.mousedown(function() {_dnd_down($(this), board)});
+		object.mouseup(function() {_dnd_up($(this))});
+		object.click(function() {_dnd_click($(this), board)});
+	}
+}
 
 
 

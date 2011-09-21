@@ -146,15 +146,37 @@ class Board(object):
                 #print("setting " + piece.__unicode__() + " to " + str(posCounter))
                 self.fields[posCounter] = piece
                 posCounter += 1     
+
+    def getPiecesPocket(self, pos):
+        try:
+            # standard move
+            fromField = int(pos)
+            return None
+        except ValueError:
+            return self.pockets[self.game.COLORS[int(pos[2])]]
  
-    
-    def move(self, move):
-        
+    def getPieceByPos(self, pos):
+        pocketColor = None
+        try:
+            # on board
+            fromField = int(pos)
+            return self.fields[fromField]
+        except ValueError:
+            # we got a piece in pocket
+            pocketColor = self.game.COLORS[int(pos[2])] # limited to 10 players per board!
+            pocketIndex = int(pos[2:])
+            return self.pockets[pocketColor].getPieces()[pocketIndex]
+            
+    def move(self, move):        
         if isinstance(move, NullMove):
             return        
         
+        fromPiece = self.getPieceByPos(move.fromField)
+        pocket = self.getPiecesPocket(move.fromField)
+        if not(pocket is None):
+            pocket.remove(fromPiece)
+
         # standard move
-        fromPiece = self.fields[move.fromField]
         fromPiece.moveCount = fromPiece.moveCount + 1
         # is it a capturing move?
         if not(self.fields[move.toField] is None):

@@ -334,3 +334,20 @@ class CrazyhouseGame(ClassicGame):
         freshPiece = copy.deepcopy(board.fields[move.toField])
         freshPiece.color = 'white' if freshPiece.color == 'black' else 'black'
         board.pockets[self.getLastCurrentPlayer(board).color].add(freshPiece)
+        
+    def getPossibleMoves(self, board, checkTest=True, player=None, noCastlingMoves=False):
+        classicMoves = super(CrazyhouseGame, self).getPossibleMoves(board, checkTest, player, noCastlingMoves)
+        
+        # default
+        if player is None:
+            player = self.getCurrentPlayer(board)
+        
+        # generate all moves from pocket
+        pocketMoves = []
+        playersPocket = board.pockets[player.color]
+        # find all empty fields on board
+        for piece in playersPocket:
+            pass        
+        
+        moves = classicMoves + pocketMoves
+        return moves

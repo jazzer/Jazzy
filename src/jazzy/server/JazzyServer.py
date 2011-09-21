@@ -234,7 +234,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                 postedMove.annotation = shortFrom.split('_')[1]
             else:
                 # standard move
-                fromField = int(shortFrom.split('_')[1])
+                fromField = shortFrom.split('_')[1]
                 toField = int(shortTo.split('_')[1])
                 postedMove = Move(fromField, toField)
                 # do we have a promotion option set?
@@ -246,7 +246,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             isLegalMove = game.isLegalMove(postedMove, targetBoard)
             # parse move
             postedMove.simpleParse(targetBoard)
-            postedMove.fullParse(targetBoard)    
+            postedMove.fullParse(targetBoard)
                             
             # put the message to all players
             if isLegalMove:
