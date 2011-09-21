@@ -354,6 +354,9 @@ class CrazyhouseGame(ClassicGame):
         # create the move objects
         for i in range(len(playersPocket.getPieces())):
             for j in emptyFields:
+                # filter posing pawns to promotion field
+                if j in self.promotionFields[player.color]:
+                    continue
                 pocketMoves.add(Move('p' + str(colNo) + str(i), j))   
         
         return classicMoves.union(pocketMoves)

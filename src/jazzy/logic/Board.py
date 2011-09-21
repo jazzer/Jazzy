@@ -97,13 +97,15 @@ class Board(object):
     
     def fieldToString(self, id):
         pos = self.splitPos(id)
-        # lowercase letters
+        # lower case letters
         if pos[0] < 27:
             return chr(97 + pos[0]) + str(self.height - pos[1])
-        # uppercase letters
+        # upper case letters
         if pos[0] < 53:
             return chr(65 + pos[0]) + str(self.height - pos[1])
-        # no way we can have bigger boards than that using classic notation
+        # no way we can have bigger boards than that using classic notation, 
+        # 53 should be okay as a one board limitation especially since
+        # you can have more of them (some additional tricks necessary to link them)
         return None
         
     def stringToField(self, string):
