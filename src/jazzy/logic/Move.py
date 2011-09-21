@@ -42,12 +42,17 @@ class Move():
         if self.fromField is None or self.toField is None:
             return
         
+        if board.getPieceByPos(self.fromField) is None:
+            pass
         self.fromPiece = copy.deepcopy(board.getPieceByPos(self.fromField))
         if self.fromPiece is None:
             return
         self.takenPiece = copy.deepcopy(board.getPieceByPos(self.toField))
             
     def fullParse(self, board):
+        if self.fromPiece is None:
+            return # something is wrong
+        
         # generate text representation
         if self.annotation == 'SHORTCASTLING':
             self.str = 'O-O'

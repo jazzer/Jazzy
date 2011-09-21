@@ -271,7 +271,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                             data['silent'] = True
                         else:
                             # normal move
-                            move.simpleParse(mq.game.board)
+                            #move.simpleParse(mq.game.board)
                             if move.board is None:
                                 data = {'from': move.fromField, 'to': move.toField}
                             else:

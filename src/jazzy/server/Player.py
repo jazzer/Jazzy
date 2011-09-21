@@ -63,10 +63,11 @@ class Pocket():
         return False
     
     # no guarantee which one is removed from the pocket
-    def remove(self, pieceName):
-        for piece in self.pieces:
-            if piece.shortName == pieceName:
+    def remove(self, piece):
+        for p in self.pieces:
+            if p == piece:
                 self.pieces.remove(piece)
+                self.dirty = True
                 return True
         return False
         

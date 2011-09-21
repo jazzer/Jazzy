@@ -343,11 +343,17 @@ class CrazyhouseGame(ClassicGame):
             player = self.getCurrentPlayer(board)
         
         # generate all moves from pocket
-        pocketMoves = []
+        pocketMoves = set()
         playersPocket = board.pockets[player.color]
+        colNo = self.COLORS.index(player.color)
         # find all empty fields on board
-        for piece in playersPocket:
-            pass        
+        emptyFields = []
+        for i in range(len(self.board.fields)):
+            if self.board.fields[i] is None:
+                emptyFields.append(i)
+        # create the move objects
+        for i in range(len(playersPocket.getPieces())):
+            for j in emptyFields:
+                pocketMoves.add(Move('p' + str(colNo) + str(i), j))   
         
-        moves = classicMoves + pocketMoves
-        return moves
+        return classicMoves.union(pocketMoves)

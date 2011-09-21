@@ -185,11 +185,12 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 		return;
 	}
 	
+
 	// clear target field
 	toField.children().css({'z-index': '2'}).fadeOut(400, function() {
 		$(this).remove();
 	});
-	
+
 	outerThis = this;
 	// move animation
 	fromField.children().css({position: 'relative',
@@ -210,7 +211,11 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 
 	if (!silent) {
 		// highlight
-		this.highlight_move(from, to);
+		//if (from.startsWith('p')) {
+			this.highlight_move(from, to);
+		//} else {
+			highlight(to, 'move_to');
+		//}
 		// sound
 		if (isCapture) {
 			playSound('media/capture');
@@ -327,6 +332,12 @@ function _debug(msg, level) {
 		addServerMessage(msg);
 	}
 }
+
+
+String.prototype.startsWith = function (str){
+    return data.substring(0, input.length) === input;
+};
+
 
 
 $(document).ready(function() {

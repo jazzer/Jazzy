@@ -170,11 +170,12 @@ class Board(object):
     def move(self, move):        
         if isinstance(move, NullMove):
             return        
+
+        move.simpleParse(self)
+        #move.fullParse(self) # not needed here
         
         fromPiece = self.getPieceByPos(move.fromField)
         pocket = self.getPiecesPocket(move.fromField)
-        if not(pocket is None):
-            pocket.remove(fromPiece)
 
         # standard move
         fromPiece.moveCount = fromPiece.moveCount + 1
@@ -182,12 +183,16 @@ class Board(object):
         if not(self.fields[move.toField] is None):
             self.game.handleCaptureMove(move, self)
         self.fields[move.toField] = fromPiece
-        self.fields[move.fromField] = None
+        if self.getPiecesPocket(move.fromField) is None:
+            self.fields[move.fromField] = None
         if not(move.toPiece is None):
             if move.toPiece == '':
                 self.fields[move.toField] = None # remove the piece
             else:
                 self.fields[move.toField] = move.toPiece
+
+        if not(pocket is None):
+            pocket.remove(fromPiece)
                 
     def getPlayerMoves(self, player):
         targets = set([])
