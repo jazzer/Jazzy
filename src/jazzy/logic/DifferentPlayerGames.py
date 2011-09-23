@@ -19,10 +19,23 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 from jazzy.logic.ClassicGame import ClassicGame
 
-class BughouseGame(ClassicGame):    
+class _MultiboardGame(ClassicGame):
+    ''' meta class for using more than one board with two players each '''
+
+    def startInit(self, gameClassList=[]):
+        # instantiate games, keep a list of them
+        self.gameList = []
+        for gameClass in gameClassList:
+            pass
+        # number boards (assign IDs)
+        
+
+class BughouseGame(_MultiboardGame):
     meta = {'title': 'Bughouse Chess',
             'desc': 'Four-player variant of Crazyhouse',
             'link': 'http://en.wikipedia.org/wiki/Bughouse_chess',
             'details': 'German: Tandemschach',
             'players': 2}
   
+    def startInit(self, boardNo=2):
+        pass

@@ -34,7 +34,7 @@ import os, sys, copy, urllib
 from collections import OrderedDict
 import gc
 from jazzy.test.Test import Test
-from jazzy.logic import DifferentSetupGames, DifferentBoardGames, \
+from jazzy.logic import DifferentSetupGames, DifferentPlayerGames, DifferentBoardGames, \
     DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, \
     HandicapGames, ClassicGame, TestGames
 import logging
@@ -62,6 +62,7 @@ gameModules = OrderedDict([(ClassicGame, 'Classic Chess'),
                (SmallerGames, 'Smaller Games'),
                (BiggerGames, 'Bigger Games'),
                (DifferentRulesGames, 'Different Rules'),
+               (DifferentPlayerGames, 'Different Players'),
                (DifferentPiecesGames, 'Different Pieces'),
                (DifferentBoardGames, 'Different Boards'),
                (HandicapGames, 'Handicap Games'),
@@ -70,6 +71,8 @@ gameModules = OrderedDict([(ClassicGame, 'Classic Chess'),
 for module in gameModules.keys():
     classes = inspect.getmembers(module, inspect.isclass(module))
     for name, obj in classes:
+        if name.startswith('_'): # "games" starting with a dash are internal only
+            continue
         try:
             if not(obj is dict) and (obj.__module__ == module.__name__):
                 metaInfo = copy.copy(obj.meta)
@@ -400,7 +403,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             for game in games:
                 if game['title'] == input:
                     selectedGame = game 
-            if selectedGame == None:
+            if selectedGame == None or selectedGame['class'].__name__.startswith('_'): # "games" starting with a dash are internal only 
                 jsonoutput = json.dumps([{'msg': 'No valid game: ' + input}])
             else:
                 # create desired game
