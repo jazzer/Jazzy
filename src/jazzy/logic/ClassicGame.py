@@ -75,7 +75,7 @@ class ClassicGame():
         # crazyhouse
         self.USE_POCKET = False
         self.USE_CRAZYHOUSE_POCKET = False
-        self.DROP_NO_PAWN_TO_PROMOTION_FIELD = True
+        self.DROP_NO_PAWN_TO_PROMOTION_FIELDS = True
         self.DROP_NO_CHECKMATE = True # TODO implement
         self.DROP_NO_CHECK = False # TODO implement
                 
@@ -124,6 +124,7 @@ class ClassicGame():
 
         # promotion settings
         self.promotionFields = {'white': self.board.getRankFields(0), 'black': self.board.getRankFields(self.board_height - 1)}
+        self.allPromotionFields = self.promotionFields['white'] + self.promotionFields['black']
         self.possiblePromotionPieces = self.USED_PIECES.difference(self.PAWN_PIECE_TYPES)
         if not self.CAN_PROMOTE_TO_KING:
             self.possiblePromotionPieces.difference_update(self.KING_PIECE_TYPES)
@@ -525,12 +526,13 @@ class ClassicGame():
         for i in range(len(self.board.fields)):
             if self.board.fields[i] is None:
                 emptyFields.append(i)
+        
         # create the move objects
         for i in range(len(playersPocket.getPieces())):
             for j in emptyFields:
-                if self.DROP_NO_PAWN_TO_PROMOTION_FIELD:
-                    # filter posing pawns to promotion field
-                    if (playersPocket.getPieces()[i].shortName in self.PAWN_PIECE_TYPES) and (j in self.promotionFields[player.color]):
+                if self.DROP_NO_PAWN_TO_PROMOTION_FIELDS:
+                    # filter posing pawns to promotion fields
+                    if (playersPocket.getPieces()[i].shortName in self.PAWN_PIECE_TYPES) and (j in self.allPromotionFields):
                         continue
                 moveSet.add(Move('p' + str(colNo) + str(i), j))
         return moveSet

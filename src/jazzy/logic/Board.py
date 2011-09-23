@@ -212,7 +212,7 @@ class Board(object):
         return targets
     
     def getRankFields(self, index):
-        return range(self.mergePos(0, index), self.mergePos(self.width - 1, index) + 1)
+        return list(range(self.mergePos(0, index), self.mergePos(self.width - 1, index) + 1))
     
     def drawCountRepetition(self):
         currPos = self.game.getPositionHash()

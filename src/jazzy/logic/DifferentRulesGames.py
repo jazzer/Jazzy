@@ -334,7 +334,7 @@ class CrazyhouseGame(ClassicGame):
         # crazyhouse
         self.USE_POCKET = True
         self.USE_CRAZYHOUSE_POCKET = True
-        self.DROP_NO_PAWN_TO_PROMOTION_FIELD = True
+        self.DROP_NO_PAWN_TO_PROMOTION_FIELDS = True
         self.DROP_NO_CHECKMATE = True
         self.DROP_NO_CHECK = False             
         

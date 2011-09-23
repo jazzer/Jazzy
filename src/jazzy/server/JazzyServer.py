@@ -37,8 +37,6 @@ from jazzy.test.Test import Test
 from jazzy.logic import DifferentSetupGames, DifferentBoardGames, \
     DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, \
     HandicapGames, ClassicGame, TestGames
-from pickle import FALSE
-from operator import attrgetter
 import logging
 
 logger = logging.getLogger("jazzyLog")
