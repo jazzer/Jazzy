@@ -18,6 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 from jazzy.logic.ClassicGame import ClassicGame
+import itertools
 
 class _MultiboardGame(ClassicGame):
     ''' meta class for using more than one board with two players each '''
@@ -26,8 +27,13 @@ class _MultiboardGame(ClassicGame):
         # instantiate games, keep a list of them
         self.gameList = []
         for gameClass in gameClassList:
-            pass
-        # number boards (assign IDs)
+            self.gameList.append(gameClass())
+        # assign IDs to boards
+        id = 1
+        for game in self.gameList:
+            game.board.id = id
+            id += 1
+    
         
 
 class BughouseGame(_MultiboardGame):
@@ -37,5 +43,6 @@ class BughouseGame(_MultiboardGame):
             'details': 'German: Tandemschach',
             'players': 2}
   
-    def startInit(self, boardNo=2):
-        pass
+    def startInit(self, boardCount=2):
+        super(BughouseGame, self).startInit([itertools.repeat('CrazyhouseGame', boardCount)])
+        

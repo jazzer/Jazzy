@@ -39,12 +39,12 @@ from jazzy.logic import DifferentSetupGames, DifferentPlayerGames, DifferentBoar
     HandicapGames, ClassicGame, TestGames
 import logging
 
-logger = logging.getLogger("jazzyLog")
+logger = logging.getLogger('jazzyLog')
 handler = logging.StreamHandler(sys.stdout) 
-frm = logging.Formatter("%(levelname)s: %(message)s") 
+frm = logging.Formatter('%(levelname)s: %(message)s') 
 handler.setFormatter(frm)
 logger.addHandler(handler) 
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
 
 HOST_NAME = '' # public!

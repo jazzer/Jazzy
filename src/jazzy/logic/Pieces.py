@@ -42,6 +42,8 @@ class Piece(object):
                 startPos = movedPos
                 
                 # move on board (respecting bounds)
+                if self.board is None:
+                    pass
                 movedPos = self.board.moveByDirection(startPos, mType['dirX'], mType['dirY'])
                 # did we hit bounds?
                 if movedPos is None:

@@ -25,7 +25,7 @@ from jazzy.logic.Move import Move, NullMove
 from jazzy.server.Player import Pocket
 import logging
 
-logger = logging.getLogger("jazzyLog")
+logger = logging.getLogger('jazzyLog')
 
 
 class Board(object):
@@ -100,6 +100,11 @@ class Board(object):
     
     
     def fieldToString(self, id):
+        if id is None:
+            return 'NoField'
+        if str(id).startswith('p'):
+            return str(id)
+        
         pos = self.splitPos(id)
         # lower case letters
         if pos[0] < 27:

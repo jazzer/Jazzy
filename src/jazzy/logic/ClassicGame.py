@@ -28,7 +28,7 @@ from jazzy.logic.GameOver import GameOver
 from jazzy.logic.Pieces import *
 import logging
 
-logger = logging.getLogger("jazzyLog")
+logger = logging.getLogger('jazzyLog')
 
 
 class ClassicGame():
@@ -254,7 +254,7 @@ class ClassicGame():
         # x moves rule
         if self.DRAW_X_MOVES:
             board.drawXMoveCounter += 1
-            if (move.fromPiece.getShortName().lower() in self.PAWN_PIECE_TYPES) or not(move.takenPiece is None):
+            if (move.annotation is None) and ((move.fromPiece.getShortName().lower() in self.PAWN_PIECE_TYPES) or not(move.takenPiece is None)):
                 board.drawXMoveCounter = 0
             
         # repetition
@@ -477,7 +477,8 @@ class ClassicGame():
         
     def getPossibleMoves(self, board, checkTest=True, player=None, noCastlingMoves=False, noDropMoves=False):
         if not checkTest:
-            logger.setLevel(logging.WARNING)
+            oldLogLevel = logger.level
+            logger.setLevel(logging.ERROR)
         logger.debug('getPossibleMoves')
         # default
         if player is None:
@@ -500,7 +501,7 @@ class ClassicGame():
             logger.debug('After check filter: %s' % str([move.str for move in moveSet]))
         logger.debug('=============')
         if not checkTest:
-            logger.setLevel(logging.DEBUG)
+            logger.setLevel(oldLogLevel)
         return moveSet
     
     def findAllPieceMoves(self, board, player, noDropMoves=False):
@@ -576,7 +577,7 @@ class ClassicGame():
                     # fields for king checked?          
                     if good and True:
                         # get all attacked fields
-                        opponentMoves = self.getPossibleMoves(board, False, self.getNextPlayer(board, player), noCastlingMoves=True)
+                        opponentMoves = self.getPossibleMoves(board, False, self.getNextPlayer(board, player), noCastlingMoves=True, noDropMoves=True)
                         opponentAttackedFields = set()
                         for oMove in opponentMoves:
                             opponentAttackedFields.add(oMove.toField)
