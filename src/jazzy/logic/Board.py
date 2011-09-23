@@ -183,6 +183,7 @@ class Board(object):
         #move.fullParse(self) # not needed here
         
         fromPiece = self.getPieceByPos(move.fromField)
+        fromPiece.board = self
         pocket = self.getPiecesPocket(move.fromField)
 
         # standard move
