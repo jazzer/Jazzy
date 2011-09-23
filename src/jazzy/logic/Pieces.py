@@ -231,7 +231,6 @@ class Pawn(Piece):
         if (self.moveCount > 0 and not self.changedSpeed):
             for moveType in self.moveType:
                 if not('hit_only' in moveType):
-                    #pass
                     moveType['max'] = self.NORMAL_SPEED
             self.changedSpeed = True
         

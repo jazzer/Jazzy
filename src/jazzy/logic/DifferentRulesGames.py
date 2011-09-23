@@ -21,6 +21,7 @@ from jazzy.logic.ClassicGame import ClassicGame
 import math
 from jazzy.logic.GameOver import GameOver
 from jazzy.logic.Move import Move, NullMove
+from jazzy.logic.Pieces import Pawn
 import copy
 
 class ExtinctionGame(ClassicGame):  
@@ -333,6 +334,11 @@ class CrazyhouseGame(ClassicGame):
         # and copy the piece with inverted color to the pocket
         freshPiece = copy.copy(board.fields[move.toField])
         freshPiece.color = 'white' if freshPiece.color == 'black' else 'black'
+        
+        if isinstance(freshPiece, Pawn):
+            freshPiece.moveCount = 1
+            freshPiece.changedSpeed = False            
+        
         board.pockets[self.getLastCurrentPlayer(board).color].add(freshPiece)
         
     def getPossibleMoves(self, board, checkTest=True, player=None, noCastlingMoves=False):
@@ -355,7 +361,7 @@ class CrazyhouseGame(ClassicGame):
         for i in range(len(playersPocket.getPieces())):
             for j in emptyFields:
                 # filter posing pawns to promotion field
-                if j in self.promotionFields[player.color]:
+                if (playersPocket.getPieces()[i].shortName in self.PAWN_PIECE_TYPES) and (j in self.promotionFields[player.color]):
                     continue
                 pocketMoves.add(Move('p' + str(colNo) + str(i), j))   
         

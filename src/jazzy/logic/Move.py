@@ -23,7 +23,7 @@ class Move():
     def __init__(self, fromField, toField):
         try:
             self.fromField = int(fromField)
-        except ValueError:
+        except (ValueError, TypeError):
             self.fromField = fromField
             
         self.toField = toField
