@@ -335,19 +335,16 @@ class CrazyhouseGame(ClassicGame):
         freshPiece = copy.copy(board.fields[move.toField])
         freshPiece.color = 'white' if freshPiece.color == 'black' else 'black'
         
+        # make sure the pawn is slow no matter where it is put // TODO rule check!
         if isinstance(freshPiece, Pawn):
             freshPiece.moveCount = 1
             freshPiece.changedSpeed = False            
         
         board.pockets[self.getLastCurrentPlayer(board).color].add(freshPiece)
         
-    def getPossibleMoves(self, board, checkTest=True, player=None, noCastlingMoves=False):
-        classicMoves = super(CrazyhouseGame, self).getPossibleMoves(board, checkTest, player, noCastlingMoves)
-        
-        # default
-        if player is None:
-            player = self.getCurrentPlayer(board)
-        
+    def findAllPieceMoves(self, board, player):
+        classicMoves = super(CrazyhouseGame, self).findAllPieceMoves(board, player)
+                
         # generate all moves from pocket
         pocketMoves = set()
         playersPocket = board.pockets[player.color]

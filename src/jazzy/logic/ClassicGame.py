@@ -90,6 +90,9 @@ class ClassicGame():
         self.possibleMoves = None
         self.xMoveDrawCounter = 0
 
+        # Debugging
+        self.DEBUG_LEGAL_MOVES_ON_ILLEGAL_MOVE = True
+
         # internal stuff
         self.joinedPlayers = 0
         self.finished = False

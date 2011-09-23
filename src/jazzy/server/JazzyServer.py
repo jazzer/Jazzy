@@ -38,6 +38,7 @@ from jazzy.logic import DifferentSetupGames, DifferentBoardGames, \
     DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, \
     HandicapGames, ClassicGame, TestGames
 from pickle import FALSE
+from operator import attrgetter
 
 HOST_NAME = '' # public!
 PORT_NUMBER = 8090
@@ -310,6 +311,9 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                 # not legal move
                 msg = Message('alert', {'msg': 'Illegal move.'})
                 mq.addMsg(msg)
+                if game.DEBUG_LEGAL_MOVES_ON_ILLEGAL_MOVE:
+                    msg = Message('srvmsg', {'msg': 'Possible moves are: ' + str(sorted(mq.game.possibleMoves, key=attrgetter('fromField', 'toField')))})
+                    mq.addMsg(msg)
                 jsonoutput = self.sendMQ(params)
         
         # draw claims
