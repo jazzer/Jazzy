@@ -31,6 +31,11 @@ class MicroGame(ClassicGame):
         super(MicroGame,self).startInit('knbr/p3/4/3P/RBNK')
         self.PIECE_MAP['p'] = SlowPawn
         self.CASTLING = False
+        
+        # DEBUG        
+        self.USE_POCKET = True
+        self.USE_CRAZYHOUSE_POCKET = True
+        self.DROP_NO_PAWN_TO_PROMOTION_FIELD = True
 
 class LosAlamosGame(ClassicGame):  
     meta = {'title': 'Los Alamos Chess',

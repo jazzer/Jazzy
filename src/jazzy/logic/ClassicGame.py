@@ -26,6 +26,10 @@ from jazzy.logic.Move import NullMove
 from jazzy.server.Player import Player
 from jazzy.logic.GameOver import GameOver
 from jazzy.logic.Pieces import *
+import logging
+
+logger = logging.getLogger("jazzyLog")
+
 
 class ClassicGame():
     meta = {'title': 'Classic Chess',
@@ -470,19 +474,31 @@ class ClassicGame():
         self.possibleMoves = moveSet
         
     def getPossibleMoves(self, board, checkTest=True, player=None, noCastlingMoves=False):
+        if not checkTest:
+            logger.setLevel(logging.WARNING)
+        logger.debug('getPossibleMoves')
         # default
         if player is None:
             player = self.getCurrentPlayer(board)
+        logger.debug('Player: %s' % player.color)
             
         moveSet = self.findAllPieceMoves(board, player)
         # materialize
+        logger.debug('Unfiltered moves generated:')
         for move in moveSet:
             move.simpleParse(board)
             move.fullParse(board)        
+            logger.debug(move.str)
+            
         # filter
         moveSet = self.filterMovesByRules(moveSet, board, player, noCastlingMoves)
+        logger.debug('After filtering by rules: %s' % str([move.str for move in moveSet]))
         if checkTest:
             moveSet = self.filterMovesToCheck(moveSet, board, player)
+            logger.debug('After check filter: %s' % str([move.str for move in moveSet]))
+        logger.debug('=============')
+        if not checkTest:
+            logger.setLevel(logging.DEBUG)
         return moveSet
     
     def findAllPieceMoves(self, board, player):
