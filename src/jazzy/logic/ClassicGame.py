@@ -288,6 +288,7 @@ class ClassicGame():
             # and copy the piece with inverted color to the pocket
             freshPiece = copy.copy(board.fields[move.toField])
             freshPiece.color = 'white' if freshPiece.color == 'black' else 'black'
+            freshPiece.board = None
             
             # make sure the pawn is slow no matter where it is put // TODO rule check!
             if isinstance(freshPiece, Pawn):
