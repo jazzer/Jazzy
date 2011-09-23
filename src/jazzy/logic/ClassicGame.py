@@ -290,8 +290,9 @@ class ClassicGame():
             
             # make sure the pawn is slow no matter where it is put // TODO rule check!
             if isinstance(freshPiece, Pawn):
+                freshPiece.endInit() # important to make him look the other side
                 freshPiece.moveCount = 1
-                freshPiece.changedSpeed = False       
+                freshPiece.changedSpeed = False
             
             board.pockets[self.getLastCurrentPlayer(board).color].add(freshPiece)
         
@@ -473,7 +474,7 @@ class ClassicGame():
         
         self.possibleMoves = moveSet
         
-    def getPossibleMoves(self, board, checkTest=True, player=None, noCastlingMoves=False):
+    def getPossibleMoves(self, board, checkTest=True, player=None, noCastlingMoves=False, noDropMoves=False):
         if not checkTest:
             logger.setLevel(logging.WARNING)
         logger.debug('getPossibleMoves')
@@ -482,7 +483,7 @@ class ClassicGame():
             player = self.getCurrentPlayer(board)
         logger.debug('Player: %s' % player.color)
             
-        moveSet = self.findAllPieceMoves(board, player)
+        moveSet = self.findAllPieceMoves(board, player, noDropMoves)
         # materialize
         logger.debug('Unfiltered moves generated:')
         for move in moveSet:
@@ -501,7 +502,7 @@ class ClassicGame():
             logger.setLevel(logging.DEBUG)
         return moveSet
     
-    def findAllPieceMoves(self, board, player):
+    def findAllPieceMoves(self, board, player, noDropMoves=False):
         # get all the player's pieces
         pieces = board.findPlayersPieces(player)
         # get all their candidate moves
@@ -509,7 +510,7 @@ class ClassicGame():
         for pos in pieces:
             moveSet |= board.fields[pos].getPossibleMoves(pos)
             
-        if self.USE_POCKET:
+        if self.USE_POCKET and not noDropMoves:
             moveSet = moveSet.union(self.createPocketMoves(board, player))
             
         return moveSet
@@ -637,6 +638,7 @@ class ClassicGame():
 
     def filterMovesToCheck(self, moveSet, board, player):
         for move in set(moveSet): # work on a copy to be able to remove inside
+            logger.debug('Testing move %s for check' % move.str)
             # no more tests for castling (it has already been filtered for moving into check!)
             if not(move.annotation is None) and 'CASTLING' in move.annotation:
                 continue
@@ -645,11 +647,16 @@ class ClassicGame():
             #print('filtering ' + str(move))
             # create a board copy for analysis purposes
             whatIfBoard = copy.deepcopy(self.board)
+            logger.debug('board vs. whatIfBoard:\n%s\n\n%s' % (str(board), str(whatIfBoard)))
             self.move(move, whatIfBoard)
+            logger.debug('whatIfBoard after:\n%s' % str(whatIfBoard))
             #print("what if? \n" + whatIfBoard.__unicode__())
             # did the player stay in check?            
             if whatIfBoard.isInCheck(player):
-                moveSet.remove(move)                
+                logger.debug('still in check -> removing move %s from the list' % move.str)
+                moveSet.remove(move)
+            else:
+                logger.debug('not in check -> keeping move %s in the list' % move.str)
         return moveSet
             
     def getBoard(self, boardId):

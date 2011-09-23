@@ -23,6 +23,10 @@ import copy
 from jazzy.logic.Pieces import *
 from jazzy.logic.Move import Move, NullMove
 from jazzy.server.Player import Pocket
+import logging
+
+logger = logging.getLogger("jazzyLog")
+
 
 class Board(object):
 
@@ -218,15 +222,19 @@ class Board(object):
             self.positions[currPos] = 1
         
     def isInCheck(self, player):
+        logger.debug('is %s checked?' % player.color)
         kingPositions = self.findPieces(self.game.KING_PIECE_TYPES, player.color)
         if (len(kingPositions) != 1):
             return False
+        logger.debug('kings: %s' % str([self.fieldToString(x) for x in kingPositions]))
             
-        nextMoves = self.game.getPossibleMoves(self, checkTest=False, player=self.game.getNextPlayer(self, player))
+        nextMoves = self.game.getPossibleMoves(self, checkTest=False, player=self.game.getNextPlayer(self, player), noDropMoves = True)
         # check all the moves for one which killed the last king
         targetFields = []
         for nextMove in nextMoves:
             targetFields.append(nextMove.toField)
+        logger.debug('attacked fields: %s' % str([self.fieldToString(x) for x in targetFields]))
+    
         selfInCheck = (len(kingPositions) > 0 and set(kingPositions).issubset(set(targetFields)))
         return selfInCheck
    
