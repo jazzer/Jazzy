@@ -67,6 +67,13 @@ class ClassicGame():
         self.DRAW_X_MOVES_VALUE = 50
         self.DRAW_REPETITION = True
         self.DRAW_REPETITION_VALUE = 3
+        
+        # crazyhouse
+        self.USE_POCKET = False
+        self.USE_CRAZYHOUSE_POCKET = False
+        self.DROP_NO_PAWN_TO_PROMOTION_FIELD = True
+        self.DROP_NO_CHECKMATE = True # TODO implement
+        self.DROP_NO_CHECK = False # TODO implement
                 
         # global board settings
         self.BLOCKED_FIELDS = []
@@ -272,6 +279,18 @@ class ClassicGame():
         # put the piece to the capturePocket
         board.capturePockets[self.getLastCurrentPlayer(board).color].add(board.fields[move.toField])
         
+        if self.USE_CRAZYHOUSE_POCKET:
+            # and copy the piece with inverted color to the pocket
+            freshPiece = copy.copy(board.fields[move.toField])
+            freshPiece.color = 'white' if freshPiece.color == 'black' else 'black'
+            
+            # make sure the pawn is slow no matter where it is put // TODO rule check!
+            if isinstance(freshPiece, Pawn):
+                freshPiece.moveCount = 1
+                freshPiece.changedSpeed = False       
+            
+            board.pockets[self.getLastCurrentPlayer(board).color].add(freshPiece)
+        
     def addPlayer(self, player):
         player.game = self
         player.color = self.COLORS[self.joinedPlayers]
@@ -473,6 +492,30 @@ class ClassicGame():
         moveSet = set()
         for pos in pieces:
             moveSet |= board.fields[pos].getPossibleMoves(pos)
+            
+        if self.USE_POCKET:
+            moveSet = moveSet.union(self.createPocketMoves(board, player))
+            
+        return moveSet
+    
+    def createPocketMoves(self, board, player):
+        moveSet = set()
+        # generate all moves from pocket
+        playersPocket = board.pockets[player.color]
+        colNo = self.COLORS.index(player.color)
+        # find all empty fields on board
+        emptyFields = []
+        for i in range(len(self.board.fields)):
+            if self.board.fields[i] is None:
+                emptyFields.append(i)
+        # create the move objects
+        for i in range(len(playersPocket.getPieces())):
+            for j in emptyFields:
+                if self.DROP_NO_PAWN_TO_PROMOTION_FIELD:
+                    # filter posing pawns to promotion field
+                    if (playersPocket.getPieces()[i].shortName in self.PAWN_PIECE_TYPES) and (j in self.promotionFields[player.color]):
+                        continue
+                moveSet.add(Move('p' + str(colNo) + str(i), j))
         return moveSet
     
     def parseCastling(self, moveSet, board, player):

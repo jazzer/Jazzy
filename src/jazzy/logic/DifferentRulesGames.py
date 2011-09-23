@@ -327,39 +327,14 @@ class CrazyhouseGame(ClassicGame):
         'link': 'http://en.wikipedia.org/wiki/Crazyhouse',
         'details': "",
         'players': 2}
+    
+    def startInit(self, fenPos=''):
+        super(CrazyhouseGame, self).startInit()
 
-    def handleCaptureMove(self, move, board):
-        # put the piece to the capturePocket
-        super(CrazyhouseGame, self).handleCaptureMove(move, board)
-        # and copy the piece with inverted color to the pocket
-        freshPiece = copy.copy(board.fields[move.toField])
-        freshPiece.color = 'white' if freshPiece.color == 'black' else 'black'
+        # crazyhouse
+        self.USE_POCKET = True
+        self.USE_CRAZYHOUSE_POCKET = True
+        self.DROP_NO_PAWN_TO_PROMOTION_FIELD = True
+        self.DROP_NO_CHECKMATE = True
+        self.DROP_NO_CHECK = False             
         
-        # make sure the pawn is slow no matter where it is put // TODO rule check!
-        if isinstance(freshPiece, Pawn):
-            freshPiece.moveCount = 1
-            freshPiece.changedSpeed = False            
-        
-        board.pockets[self.getLastCurrentPlayer(board).color].add(freshPiece)
-        
-    def findAllPieceMoves(self, board, player):
-        classicMoves = super(CrazyhouseGame, self).findAllPieceMoves(board, player)
-                
-        # generate all moves from pocket
-        pocketMoves = set()
-        playersPocket = board.pockets[player.color]
-        colNo = self.COLORS.index(player.color)
-        # find all empty fields on board
-        emptyFields = []
-        for i in range(len(self.board.fields)):
-            if self.board.fields[i] is None:
-                emptyFields.append(i)
-        # create the move objects
-        for i in range(len(playersPocket.getPieces())):
-            for j in emptyFields:
-                # filter posing pawns to promotion field
-                if (playersPocket.getPieces()[i].shortName in self.PAWN_PIECE_TYPES) and (j in self.promotionFields[player.color]):
-                    continue
-                pocketMoves.add(Move('p' + str(colNo) + str(i), j))   
-        
-        return classicMoves.union(pocketMoves)

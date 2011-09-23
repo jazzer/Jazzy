@@ -312,7 +312,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                 msg = Message('alert', {'msg': 'Illegal move.'})
                 mq.addMsg(msg)
                 if game.DEBUG_LEGAL_MOVES_ON_ILLEGAL_MOVE:
-                    msg = Message('srvmsg', {'msg': 'Possible moves are: ' + str(sorted(mq.game.possibleMoves, key=attrgetter('fromField', 'toField')))})
+                    msg = Message('srvmsg', {'msg': 'Possible moves are: ' + str(sorted(mq.game.possibleMoves, key=lambda move: [move.fromField, move.toField]))})
                     mq.addMsg(msg)
                 jsonoutput = self.sendMQ(params)
         
