@@ -28,7 +28,7 @@ var flipped = false;
 var dnd_clicked = false;
 var dragSource = undefined;
 
-var ui_setting_animate_move = false;
+var ui_setting_animate_move = true;
 
 
 /* BoardStorage class */
@@ -173,16 +173,16 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 	if (from == -1) {
 		return;
 	}
-	if (silent === undefined) { silent = false; } // default
+	if (silent === undefined) { var silent = false; } // default
 
 
-	fromField = $("#" + from);
-	toField = $("#" + to);	
-	isPiece = (fromField.children().length > 0);
+	var fromField = $("#" + from);
+	var toField = $("#" + to);	
+	var isPiece = (fromField.children().length > 0);
 	if (!isPiece) {
 		return;
 	}
-	isCapture = (toField.children().length > 0);
+	var isCapture = (toField.children().length > 0);
 	
 	// animate the move?
 	if (ui_setting_animate_move) {
