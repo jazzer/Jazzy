@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) 2011 Johannes Mitlmeier
 
 This file is part of Jazzy.

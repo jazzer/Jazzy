@@ -1,4 +1,4 @@
-/*
+/*!
 Copyright (c) 2011 Johannes Mitlmeier
 
 This file is part of Jazzy.
@@ -632,7 +632,7 @@ function parseMQ(data) {
 		mtype = data[i]['mtype'];
 		switch (mtype) {
 			case "move":
-				silent = data[i]['silent'] == true?true:false;				
+				silent = data[i]['silent'] == true?true:false;
 				boardId = data[i]['from'].replace(/_.*/, '');
 				board = boardStorage.getBoard(boardId);	
 				board.move(lengthenFieldString(data[i]['from']), lengthenFieldString(data[i]['to']), data[i]['toPiece'], silent); 

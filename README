@@ -29,6 +29,17 @@ sudo gem install less
 sudo ln -s /var/lib/gems/1.8/bin/lessc /usr/bin/
 
 
+We use jshint (http://www.jshint.com) for beautifying JavaScript.
+
+Preparation for Ubuntu Linux 11.04:
+sudo apt-get install rhino
+
+
+We use YUI compressor (http://developer.yahoo.com/yui/compressor/) for minifying JavaScript.
+
+Preparation for Ubuntu Linux 11.04:
+sudo apt-get install yui-compressor
+
 
 =============================
   Credits
