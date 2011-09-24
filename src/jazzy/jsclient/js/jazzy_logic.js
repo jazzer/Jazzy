@@ -634,7 +634,7 @@ function parseMQ(data) {
 			case "move":
 				silent = data[i]['silent'] == true?true:false;
 				boardId = data[i]['from'].replace(/_.*/, '');
-				board = boardStorage.getBoard(boardId);	
+				board = boardStorage.getBoard(boardId);
 				board.move(lengthenFieldString(data[i]['from']), lengthenFieldString(data[i]['to']), data[i]['toPiece'], silent); 
 				parseCurrPlayer(data[i]['currP']);
 				// TODO add ['check'] in server and client -> play sound (don't set when game is finished)

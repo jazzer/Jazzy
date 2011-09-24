@@ -28,6 +28,8 @@ var flipped = false;
 var dnd_clicked = false;
 var dragSource = undefined;
 
+var ui_setting_animate_move = false;
+
 
 /* BoardStorage class */
 function BoardStorage() {
@@ -168,53 +170,54 @@ Board.prototype.getPieceDiv = function(pieceType) {
 
 
 Board.prototype.move = function(from, to, toPiece, silent) {
-	// sanitize input?
-	// without animation: $("#field" + from).children().detach().appendTo($("#field" + to).children().remove().end());
 	if (from == -1) {
 		return;
 	}
-	if (silent === undefined) { silent = false; }
+	if (silent === undefined) { silent = false; } // default
 
-	// animate the move
+
 	fromField = $("#" + from);
 	toField = $("#" + to);	
-	isCapture = (toField.children().length > 0);
 	isPiece = (fromField.children().length > 0);
-
 	if (!isPiece) {
 		return;
-	}	
-
-	// clear target field
-	toField.children().css({'z-index': '2'}).fadeOut(400, function() {
-		$(this).remove();
-	});
-
-	outerThis = this;
-	// move animation
-	fromField.children().css({position: 'relative',
-				'z-index': 1,
-				left: 0,
-				top: 0})
-		.animate({ 
-				left: toField.offset().left-fromField.offset().left,
-				top: toField.offset().top-fromField.offset().top
-	    	}, 400, "swing", function() {
-			// finished the move action, now do the promotion if requested
-			if (toPiece != undefined) {
-				$(this).fadeOut(400).parent().append(outerThis.getPieceDiv(toPiece)).fadeIn(400);
-			}
-			// eventually set the piece to new field
-			fromField.children().css({top: 0, left: 0}).detach().prependTo(toField);
+	}
+	isCapture = (toField.children().length > 0);
+	
+	// animate the move?
+	if (ui_setting_animate_move) {
+		// clear target field
+		toField.children().css({'z-index': '2'}).fadeOut(400, function() {
+			$(this).remove();
 		});
+
+		outerThis = this;
+		// move animation
+		fromField.children().css({position: 'relative',
+					'z-index': 1,
+					left: 0,
+					top: 0})
+			.animate({ 
+					left: toField.offset().left-fromField.offset().left,
+					top: toField.offset().top-fromField.offset().top
+		    	}, 400, "swing", function() {
+				// finished the move action, now do the promotion if requested
+				if (toPiece != undefined) {
+					$(this).fadeOut(400).parent().append(outerThis.getPieceDiv(toPiece)).fadeIn(400);
+				}
+				// eventually set the piece to new field
+				fromField.children().css({top: 0, left: 0}).detach().prependTo(toField);
+			});
+	} else {
+		// no animation
+		toField.children().remove();
+		fromField.children().detach().appendTo(toField);
+	}
+
 
 	if (!silent) {
 		// highlight
-		//if (from.startsWith('p')) {
-			this.highlight_move(from, to);
-		//} else {
-			highlight(to, 'move_to');
-		//}
+		this.highlight_move(from, to);
 		// sound
 		if (isCapture) {
 			playSound('media/capture');
