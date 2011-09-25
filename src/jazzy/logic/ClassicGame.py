@@ -394,7 +394,7 @@ class ClassicGame():
         return self.board.drawXMoveCounter >= self.DRAW_X_MOVES_VALUE
         
     def getGameOverMessage(self):
-        player = self.getNextCurrentPlayer(self.board)
+        player = self.getNextCurrentPlayer()
         go = GameOver(self.board)
         if go.noLegalMove():
             if go.inCheck():
@@ -432,7 +432,9 @@ class ClassicGame():
             board = self.board        
         return self.players[len(board.moveHistory) % self.NUM_PLAYERS]
 
-    def getNextCurrentPlayer(self, board):
+    def getNextCurrentPlayer(self, board=None):
+        if board == None:
+            board = self.board        
         return self.players[(len(board.moveHistory) + 1) % self.NUM_PLAYERS]
 
     def getLastCurrentPlayer(self, board):

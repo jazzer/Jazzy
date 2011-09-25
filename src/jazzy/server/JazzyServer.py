@@ -97,8 +97,11 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
     
     def sanitizeHTML(self, string):
         # TODO handle urlencoding here! possibly de- and reencode or filter 'bad' escape sequences? 
-        return re.sub(r'(<[^>]*>)', '', string)
-    
+        result = re.sub(r'(<[^>]*>)', '', string)
+        result = result.replace('%3C', '')
+        result = result.replace('%3E', '')
+        return result
+        
     def sendMQ(self, params):
         mq = mqPool.get(params[1])
         if mq is None:
