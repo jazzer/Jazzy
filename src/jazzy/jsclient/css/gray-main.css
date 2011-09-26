@@ -1,6 +1,7 @@
 body{background:#5e5e5e;color:white;}
 h1,h2,h3,h4,h5,h6{color:white;text-shadow:;}
 a,a:hover,a:visited{color:white;}
+.box{border-radius:15px;-moz-border-radius:15px;-webkit-border-radius:15px;box-shadow:8px 8px 8px #ffffff 0 1px #000000;-moz-box-shadow:8px 8px 8px #ffffff 0 1px #000000;-webkit-box-shadow:8px 8px 8px #ffffff 0 1px #000000;background-color:#333;}
 .menu{background:#373737;}.menu a{text-decoration:none;}
 .menu_item{text-shadow:;color:white;}
 .menu_item:hover{background:#c3c3c3;}
@@ -13,10 +14,8 @@ select{background:#c3c3c3;color:#373737;}
 #data .data_header{background-color:#373737;text-align:left;border-top:1px dashed black;}
 #data .data_header .data_header_title{text-shadow:;}
 #data .data_content{background-color:#eaeaea;color:black;}
-#messages{border:1px solid black;}
 .message{color:white;}
 .time{color:black;}
-#chat{border:1px solid black;}
 #chat_history{padding:2px 2px;}
 .chat_username{color:#eaeaea;}
 .chat_self{color:white;}

@@ -1,0 +1,284 @@
+/*
+Copyright (c) 2011 Johannes Mitlmeier
+
+This file is part of Jazzy.
+
+Jazzy is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
+*/
+
+
+
+/* general */
+body {
+	font-family: 'Ubuntu', arial, serif;
+	padding-top: 75px;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Ubuntu', arial, serif;
+}
+.box {
+	display: inline-block;
+	min-width: 300px;
+	vertical-align: top;
+	padding: 15px 5px;
+	margin-bottom: 10px;
+	float: left;
+	margin: 5px;
+}
+.box > h1 {
+	margin-top: 0px;
+}
+.centered {
+	text-align: center;
+}
+.clear {
+	clear: left;
+}
+
+
+/* menu styles */
+.menu {
+	width: 100%;
+	position: fixed;
+	left: 0px;
+	top: 0px;
+	z-index: 100;
+}
+.menu_item {
+	float: left;
+	min-width: 160px;
+	line-height: 50px;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 130%;
+	font-weight: bolder;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 1000ms;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 1000ms;
+	transition-property: background-color;
+	transition-duration: 1000ms;
+}
+
+/* style box */
+#style-box {
+}
+
+/* logo */
+.head_logo {
+	padding: 0px 0px;
+}
+
+
+/* form elements */
+.roundbutton, input[type=submit] {
+	padding: 3px;
+	font-weight: bold;
+}
+.roundbutton {
+	display: inline-block;
+	width: 100px;
+}
+
+
+/* board specific */
+#boards {
+	width: 100%;
+	margin: 0 auto;
+}
+
+#boards > div {
+	display:-moz-inline-stack;
+	display: inline-block;
+	zoom: 1;
+	*display: inline;
+}
+
+.board {
+	position: relative;
+	top: 0;
+	left: 0;
+	text-align: center;
+}
+.board {
+	min-height: 100px;
+	margin-bottom: 15px;
+}
+
+.board .field {
+	width: 48px;
+	height: 48px;
+	float: left;
+}
+
+.board .dark, .board .dark:hover, .board .light, .board .light:hover {
+	-moz-transition-property: background-color;
+	-moz-transition-duration: 300ms;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 300ms;
+	transition-property: background-color;
+	transition-duration: 300ms;
+}
+
+.board .clear_row {
+	clear: left;
+}
+
+.pocket {
+	min-height: 48px;
+}
+.top-pocket {
+	margin-bottom: 15px;
+}
+.bottom-pocket {
+	margin-bottom: 15px;
+}
+.pocket > div {
+	display: inline-block;
+}
+
+.promotion_piece {
+	float: left;
+}
+
+/* data styles */
+
+
+#data .data_header {
+	padding: 0.45em;
+	padding-left: 18px;
+	text-align: left;
+}
+#data .data_header .data_header_title {
+	font-weight: bolder;
+	font-size: 110%;
+	min-width: 25%;
+	float: left;
+}
+
+#data .data_header .inline_content {
+	font-size: 90%;
+	font-weight: normal;
+	padding-left: 3em;
+}
+#data .data_content {
+	padding: 0.45em 1.45em;
+	padding-left: 18px;
+	text-align: left;
+	font-size: 90%;
+}
+#data .data_content_empty {
+	padding: 0em;
+}
+
+
+
+
+/* common styles for message and chat box */
+
+
+/* message box */
+#messages {
+	height: 100px;
+	overflow: auto;
+	padding: 2px 2px;
+	resize: vertical;
+}
+
+.message {
+	color: white;
+}
+
+.time {
+	color: black;
+	padding-right: 10px;
+}
+
+
+
+/* chat box */
+#chat {
+	resize: vertical;
+	min-width: 400px;
+}
+#chat_history {
+	padding: 2px 2px;
+	overflow: auto;
+	height: 60px;
+}
+#chat_input {
+	padding: 0px 2px 2px 2px;
+}
+.chat_username {
+	color: #50CC7E;
+	padding-right: 10px;
+}
+.chat_other {
+	font-weight: bold;
+}
+
+/* Game Selection in new.html */
+.gameSelection {
+	width: 33%;
+	min-height: 200px;
+	overflow: auto;
+	float:left;
+}
+
+.gameSelection .entry {
+	margin: 2px 0px;
+	padding: 0px 3px;
+}
+
+#created_links {
+	border: 1px solid white;
+	margin: 20px 0px;
+	padding: 5px 5px 30px 5px;
+}
+
+.refreshForm {
+	display: inline;
+}
+
+/* connection status */
+#conn_status {	
+}
+
+
+
+/*
+ * SimpleModal Basic Modal Dialog
+ * http://www.ericmmartin.com/projects/simplemodal/
+ * http://code.google.com/p/simplemodal/
+ *
+ * Copyright (c) 2010 Eric Martin - http://ericmmartin.com
+ *
+ * Licensed under the MIT license:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *
+ * Revision: $Id: basic.css 257 2010-07-27 23:06:56Z emartin24 $
+ */
+
+#basic-modal-content {display:none;}
+
+/* Overlay */
+#simplemodal-overlay {background-color:#000; cursor:wait;}
+
+/* Container */
+#simplemodal-container {min-height: 110px; min-width: 300px; color:#bbb; background-color:#333; border:4px solid #444; padding:12px;}
+#simplemodal-container .simplemodal-data {padding:8px;}
+#simplemodal-container code {background:#141414; border-left:3px solid #65B43D; color:#bbb; display:block; font-size:12px; margin-bottom:12px; padding:4px 6px 6px;}
+#simplemodal-container a {color:#ddd;}
+#simplemodal-container a.modalCloseImg {background:url(../img/basic/x.png) no-repeat; width:25px; height:29px; display:inline; z-index:3200; position:absolute; top:-15px; right:-16px; cursor:pointer;}
+#simplemodal-container h3 {color:#84b8d9;}

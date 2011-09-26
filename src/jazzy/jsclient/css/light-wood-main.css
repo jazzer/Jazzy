@@ -13,10 +13,8 @@ select{background:#ff8000;color:#000000;}
 #data .data_header{background-color:#000000;text-align:left;border-top:1px dashed black;}
 #data .data_header .data_header_title{text-shadow:;}
 #data .data_content{background-color:#ffa64d;color:black;}
-#messages{border:1px solid black;}
 .message{color:white;}
 .time{color:black;}
-#chat{border:1px solid black;}
 #chat_history{padding:2px 2px;}
 .chat_username{color:#ffa64d;}
 .chat_self{color:white;}

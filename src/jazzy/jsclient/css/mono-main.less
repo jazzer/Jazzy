@@ -55,6 +55,9 @@ h1, h2, h3, h4, h5, h6 {
 a, a:hover, a:visited {
 	color: white;
 }
+.box {
+	border: 1px solid black;
+}
 
 
 /* menu styles */
@@ -128,11 +131,10 @@ select {
 
 /* message box */
 #messages {
-	border: 1px solid black;
 }
 
 .message {
-	color: white;
+	color: black;
 }
 
 .time {
@@ -143,19 +145,19 @@ select {
 
 /* chat box */
 #chat {
-	border: 1px solid black;
 }
 #chat_history {
 	padding: 2px 2px;
+	color: @darker;
 }
 .chat_username {
 	color: @lighter;
 }
 .chat_self {
-	color: white;
+	color: @dark;
 }
 .chat_other {
-	color: black;
+	color: @darker;
 }
 
 /* Game Selection in new.html */

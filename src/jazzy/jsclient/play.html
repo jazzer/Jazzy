@@ -6,7 +6,7 @@
 <!-- Google webfonts //-->
 <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
 <!-- stylesheet //-->
-<link rel="stylesheet" type="text/css" href="css/style.css" />
+<link rel="stylesheet" type="text/css" href="css/layout-desktop.css" />
 <link rel="stylesheet" type="text/css" href="css/gray-main.css" />
 <link rel="stylesheet" type="text/css" href="css/gray-board.css" />
 <!-- javascript logic //-->
@@ -30,7 +30,8 @@
 </div>
 
 <!-- chessboard -->
-<div class="centered">
+<div class="box centered">
+<h1>Game</h1>
 <div id="boards">
 </div>
 
@@ -41,7 +42,8 @@
 </div>
 
 <!-- data display -->
-<h2>Details</h2>
+<div class="box">
+<h1>Details</h1>
 <div id="data">
 <div id="data__game_type">
 <div class="data_header"><span class="data_header_title">Game Type</span> <span class="inline_content"></span></div>
@@ -64,26 +66,33 @@
 <div class="data_content_empty"></div>
 </div>
 </div>
-
-<!-- message box -->
-<h2>Messages</h2>
-<div id="messages">
 </div>
 
 <!-- chat box -->
-<h2>Chat</h2>
+<div class="box">
+<h1>Chat</h1>
 <div id="chat">
 <div id="chat_history">
 </div>
 <div id="chat_input">
 <form onsubmit="sendChat();return false;">
-<input name="chatmsg" type="text" style="width: 87%" maxlength="250"><input type="submit" value="Send"  style="width: 12%">
+<input name="chatmsg" type="text" style="width: 99%" maxlength="250">
+<input type="submit" value="Send" style="width: 100%">
 </form>
+</div>
+</div>
+</div>
+
+<!-- message box -->
+<div class="box">
+<h1>Messages</h1>
+<div id="messages">
 </div>
 </div>
 
 <!-- style box -->
-<h2>Style</h2>
+<div class="box">
+<h1>Style</h1>
 <div id="style-box">
 	<form>Main: 
 	<select name="style-chooser-main" size="1">
@@ -93,9 +102,11 @@
        	</select>
 	</form>
 </div>
+</div>
 
 <!-- server connection -->
-<h2>Server</h2>
+<div class="box">
+<h1>Server</h1>
 Current connection status: <div id="conn_status" class="roundbutton conn_bad">not connected</div>
 <div class="roundbutton" onclick="_playInit();">Refresh</div>
 <div id="btnDisconnect" class="roundbutton">Disconnect</div>
@@ -109,6 +120,7 @@ Current connection status: <div id="conn_status" class="roundbutton conn_bad">no
 <option>5</option>
 </select>
 </form>
+</div>
 
 </body>
 

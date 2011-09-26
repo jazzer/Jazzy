@@ -1,6 +1,7 @@
 body{background:#ffffff;color:#000000;}
 h1,h2,h3,h4,h5,h6{color:#000000;text-shadow:;}
 a,a:hover,a:visited{color:white;}
+.box{border:1px solid black;}
 .menu{background:#000000;}.menu a{text-decoration:none;}
 .menu_item{text-shadow:;color:white;}
 .menu_item:hover{background:#cccccc;}
@@ -13,14 +14,12 @@ select{background:#cccccc;color:#000000;}
 #data .data_header{background-color:#000000;text-align:left;border-top:1px dashed black;}
 #data .data_header .data_header_title{text-shadow:;}
 #data .data_content{background-color:#ffffff;color:black;}
-#messages{border:1px solid black;}
-.message{color:white;}
+.message{color:black;}
 .time{color:black;}
-#chat{border:1px solid black;}
-#chat_history{padding:2px 2px;}
+#chat_history{padding:2px 2px;color:#000000;}
 .chat_username{color:#ffffff;}
-.chat_self{color:white;}
-.chat_other{color:black;}
+.chat_self{color:#333333;}
+.chat_other{color:#000000;}
 .gameSelection .entry{background-color:#333333;color:#ffffff;}
 .gameSelection .entry:hover{background-color:#ffffff;color:#333333;}
 #created_links{border:1px solid white;}
