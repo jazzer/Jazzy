@@ -662,7 +662,8 @@ function parseMQ(data) {
 				selectionDiv.modal();				
 				break;
 			case "chat":
-				addChatMessage(data[i]['user'], decodeURIComponent(data[i]['msg'])); 
+				addChatMessage(data[i]['user'], decodeURIComponent(data[i]['msg']));
+				playSound('media/chat-message');
 				break;
 			case "gameover":
 				goMsg = "Game finished.\nResult: " + data[i]['result'] + "\n" + data[i]['msg'];
