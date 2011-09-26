@@ -210,7 +210,7 @@ h1, h2, h3, h4, h5, h6 {
 /* chat box */
 #chat {
 	resize: vertical;
-	min-width: 400px;
+	width: 400px;
 }
 #chat_history {
 	padding: 2px 2px;

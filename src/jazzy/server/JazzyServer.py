@@ -395,7 +395,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             msg = self.sanitizeHTML(msg)
                         
             self.distributeToAll(mq.game, Message('chat', {'user': mq.subject.name, 'msg': msg}), [mq.subject])
-            jsonoutput = self.sendMQ(params)    
+            jsonoutput = self.sendMQ(params)
 
         # starting a new game (e.g. /new/classic)
         elif (params[0] == 'new'):

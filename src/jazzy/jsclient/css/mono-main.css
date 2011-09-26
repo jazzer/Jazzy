@@ -17,7 +17,7 @@ select{background:#cccccc;color:#000000;}
 .message{color:black;}
 .time{color:black;}
 #chat_history{padding:2px 2px;color:#000000;}
-.chat_username{color:#ffffff;}
+.chat_username{color:#333333;}
 .chat_self{color:#333333;}
 .chat_other{color:#000000;}
 .gameSelection .entry{background-color:#333333;color:#ffffff;}
