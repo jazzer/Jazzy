@@ -98,6 +98,14 @@ class _MultiboardGame(ClassicGame):
                 return game.getNextPlayer(board, player)
         return None
     
+    def getBoard(self, boardId):
+        for game in self.gameList:
+            foundBoard = game.getBoard(boardId)
+            if not(foundBoard is None):
+                return foundBoard
+        return None 
+
+    
 
 class BughouseGame(_MultiboardGame):
     meta = {'title': 'Bughouse Chess',

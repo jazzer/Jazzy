@@ -228,7 +228,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             shortFrom = originalFrom.replace('board_', '').replace('_field', '_');
             shortTo = originalTo.replace('board_', '').replace('_field', '_');
             boardId = shortFrom.split('_')[0]
-            targetBoard = game.getBoard(boardId)
+            targetBoard = mq.metagame.getBoard(boardId)
             
             # create move
             if  shortFrom.split('_')[1] == 'SHORTCASTLING' or  shortFrom.split('_')[1] == 'LONGCASTLING':

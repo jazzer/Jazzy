@@ -45,8 +45,6 @@ class Move():
         if not (self.parsed is None) and not(force):
             return
         
-        if board.getPieceByPos(self.fromField) is None:
-            pass
         self.fromPiece = copy.deepcopy(board.getPieceByPos(self.fromField))
         self.takenPiece = copy.deepcopy(board.getPieceByPos(self.toField))
         

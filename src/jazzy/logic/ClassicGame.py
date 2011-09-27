@@ -693,7 +693,7 @@ class ClassicGame():
         return moveSet
             
     def getBoard(self, boardId):
-        if self.board.id == boardId:
+        if str(self.board.id) == str(boardId):
             return self.board
         return None 
     
