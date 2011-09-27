@@ -48,6 +48,30 @@ class ExtinctionGame(ClassicGame):
         # default stuff
         return super(ExtinctionGame, self)._valueResult(player, msg)
 
+class ForwardGame(ClassicGame):
+    meta = {'title': 'Forward Chess',
+            'desc': 'No piece can ever move backwards or sidewards. Forward only!',
+            'link': '',
+            'details': '',
+            'players': 2}
+    
+    def startInit(self):
+        super(ForwardGame, self).startInit()
+        # castling options
+        self.CASTLING = False # disable
+
+    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves=False):
+        moveSet = super(ForwardGame, self).filterMovesByRules(moveSet, board, player, noCastlingMoves)
+        # remove the bad moves
+        for move in set(moveSet):
+            dir = -1 if player.color == 'white' else 1
+            fromRow = board.splitPos(move.fromField)[1] 
+            toRow = board.splitPos(move.toField)[1]
+            if (toRow - fromRow) * dir <= 0:
+                moveSet.remove(move)            
+        return moveSet
+
+
 
 class DarkGame(ClassicGame):
     meta = {'title': 'Dark Chess',
