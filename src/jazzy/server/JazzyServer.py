@@ -413,7 +413,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                 #    jsonoutput = json.dumps({'msg': 'Invalid game name.'})
                     
         elif (params[0] == 'getsit'):
-            jsonoutput = json.dumps([mq.game.getSituationMessage(mq, force=True).data])
+            jsonoutput = json.dumps([mq.metagame.getSituationMessage(mq, force=True).data])
 
         elif (params[0] == 'getslots'):     
             try:    
@@ -428,7 +428,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             try:    
                 game = gamePool.games[params[1]]
                 targetPlayer = None
-                for player in game.players:
+                for player in game.getAllPlayers():
                     if player.mq.shortenedId == params[2]:
                         targetPlayer = player
                         break

@@ -19,6 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 from jazzy.logic.ClassicGame import ClassicGame
 from jazzy.logic.DifferentRulesGames import CrazyhouseGame
+from jazzy.server.MessageHandler import Message
 import uuid
 
 class _MultiboardGame(ClassicGame):
@@ -34,6 +35,10 @@ class _MultiboardGame(ClassicGame):
             id += 1
 
         self.id = uuid.uuid4().hex
+        
+        # set metagame
+        for player in self.getAllPlayers():
+            player.mq.metagame = self
 
        
     def endInit(self):
@@ -61,8 +66,38 @@ class _MultiboardGame(ClassicGame):
         return slotList
 
     def getSituationMessage(self, mq, force=False, player=None):
-        return super(_MultiboardGame, self).getSituationMessage(mq, force, player)
+        gameSitMsg = Message('gamesit', {})
+        boardCounter = 0
+        for game in self.gameList:
+            gameSitMsg.data[str(boardCounter)] = game.getSituationMessage(mq, force, player).data['0']
+            boardCounter += 1
+        return gameSitMsg
 
+
+    def getCurrentPlayer(self, board=None):
+        for game in self.gameList:
+            if game.board == board:
+                return game.getCurrentPlayer(board)
+        return None
+    
+    def getNextCurrentPlayer(self, board=None):
+        for game in self.gameList:
+            if game.board == board:
+                return game.getCurrentPlayer(board)
+        return None
+
+    def getLastCurrentPlayer(self, board):
+        for game in self.gameList:
+            if game.board == board:
+                return game.getLastCurrentPlayer(board)
+        return None
+    
+    def getNextPlayer(self, board, player):
+        for game in self.gameList:
+            if game.board == board:
+                return game.getNextPlayer(board, player)
+        return None
+    
 
 class BughouseGame(_MultiboardGame):
     meta = {'title': 'Bughouse Chess',

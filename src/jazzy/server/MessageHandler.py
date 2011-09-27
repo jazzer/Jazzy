@@ -50,6 +50,7 @@ class MessageQueue(object):
         self.watching = False
         # self.subject (Player or Watcher)
         # self.game
+        # self.metagame
         
     def addMsg(self, message):
         self.msgs.append(message.data)
@@ -77,7 +78,7 @@ class MessageQueuePool(object):
         return self.mqs[mqId]
     
     def __unicode__(self):
-        return "MessageQueuePool"
+        return 'MessageQueuePool'
         
     def __str__(self):
         return self.__unicode__()

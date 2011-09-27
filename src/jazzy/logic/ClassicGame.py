@@ -185,6 +185,7 @@ class ClassicGame():
             # backlinks for the MQ
             mq.subject = player
             mq.game = self
+            mq.metagame = self
         
     def inferBoardSize(self):
         # get board's height
@@ -361,7 +362,10 @@ class ClassicGame():
             send = True
             data['fen'] = self.getFenPos(self.board, mq.subject)
             data['board_size'] = str(self.board.width) + 'x' + str(self.board.height)
-        
+            # add current player if applicable    
+            if not(self.getCurrentPlayer(self.board) is None):
+                data['currP'] = self.getCurrentPlayer(self.board).mq.shortenedId
+
             # add last move if applicable    
             if len(self.board.moveHistory) > 0 and self.SHOW_LAST_MOVE:
                 # TODO select last non-NullMove
@@ -389,10 +393,6 @@ class ClassicGame():
         result[str(counter)] = data
         counter += 1
         
-        # add current player if applicable    
-        if not(self.getCurrentPlayer(self.board) is None):
-            result['currP'] = self.getCurrentPlayer(self.board).mq.shortenedId
-            
         result['gameId'] = self.id
         
         if send:
