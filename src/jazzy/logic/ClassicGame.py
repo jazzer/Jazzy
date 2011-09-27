@@ -43,8 +43,7 @@ class ClassicGame():
         self.endInit()
     
     def startInit(self, fenPos='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'):
-        # settings
-        
+        # settings        
         # players
         self.NUM_PLAYERS = 2
         self.COLORS = ['white', 'black']
@@ -113,12 +112,6 @@ class ClassicGame():
         if not hasattr(self, 'board') or self.board == None:
             self.board = Board(self, width=self.board_width, height=self.board_height)
         
-        # pregenerate players to avoid nasty errors before all players have joined
-        for i in range(self.NUM_PLAYERS):
-            player = Player()
-            player.color = self.COLORS[i]
-            self.players.append(player)  
-                      
         # load position
         self.board.loadFenPos(self.fenPos)
 
@@ -168,16 +161,26 @@ class ClassicGame():
                                                    self.board.mergePos(kingLong[0], kingLong[1]),
                                                    self.board.mergePos(rookLong[0], rookLong[1])] # [0]: king for short, [1] rook for short, [2]: king for long, [3] rook for long
         
+        # pre-create players
+        self.createPlayers()
+        
         # draw preparations
         if self.DRAW_REPETITION:
             self.board.drawCountRepetition()
+    
+    def getAllPlayers(self):
+        ''' also returns all players from sub-games '''
+        return self.players    
+
+    def getAllWatchers(self):
+        ''' also returns all players from sub-games '''
+        return self.watchers    
         
-    def createPlayers(self, mqPool):
+    def createPlayers(self):
         # all of them will be dummys at first and filled via the slot mechanism
-        for _ in range(self.NUM_PLAYERS):
+        while len(self.players) < self.NUM_PLAYERS:
             player = Player()
             mq = player.mq
-            mqPool.add(mq)            
             self.addPlayer(player)
             # backlinks for the MQ
             mq.subject = player
@@ -311,8 +314,9 @@ class ClassicGame():
     def addPlayer(self, player):
         player.game = self
         player.color = self.COLORS[self.joinedPlayers]
-        self.players[self.joinedPlayers] = player
-        self.joinedPlayers = self.joinedPlayers + 1
+        print(self.joinedPlayers)
+        self.players.append(player)
+        self.joinedPlayers += 1
     
     def addWatcher(self, watcher):
         self.watchers.append(watcher)

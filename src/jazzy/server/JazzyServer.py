@@ -109,7 +109,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
         return json.dumps(mq.msgs)
     
     def distributeToAll(self, game, msg, filterPlayers=[]):
-        for player in game.players + game.watchers:
+        for player in game.getAllPlayers() + game.getAllWatchers():
             if not (player in filterPlayers):
                 player.mq.addMsg(msg)
         
@@ -399,17 +399,18 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                 jsonoutput = json.dumps([{'msg': 'No valid game: ' + input}])
             else:
                 # create desired game
-                try:
-                    game = selectedGame['class']()
-                    gamePool.add(game)
-                    game.createPlayers(mqPool)
-                    # generate answer
-                    jsonoutput = json.dumps({'link': 'game.html?' + game.id})
-                    # nicely say hello (next time)
-                    self.distributeToAll(game, Message('srvmsg', {'msg': 'Welcome to the server!'}))
-                    self.distributeToAll(game, Message('srvmsg', {'msg': 'We are playing ' + selectedGame['title'] + ', see ' + selectedGame['link']}))
-                except Exception:
-                    jsonoutput = json.dumps({'msg': 'Invalid game name.'})
+                #try:
+                game = selectedGame['class']()
+                gamePool.add(game)
+                for player in game.getAllPlayers():
+                    mqPool.add(player.mq)
+                # generate answer
+                jsonoutput = json.dumps({'link': 'game.html?' + game.id})
+                # nicely say hello (next time)
+                self.distributeToAll(game, Message('srvmsg', {'msg': 'Welcome to the server!'}))
+                self.distributeToAll(game, Message('srvmsg', {'msg': 'We are playing ' + selectedGame['title'] + ', see ' + selectedGame['link']}))
+                #except Exception:
+                #    jsonoutput = json.dumps({'msg': 'Invalid game name.'})
                     
         elif (params[0] == 'getsit'):
             jsonoutput = json.dumps([mq.game.getSituationMessage(mq, force=True).data])

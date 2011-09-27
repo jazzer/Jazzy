@@ -360,5 +360,4 @@ class CrazyhouseGame(ClassicGame):
         self.USE_CRAZYHOUSE_POCKET = True
         self.DROP_NO_PAWN_TO_PROMOTION_FIELDS = True
         self.DROP_NO_CHECKMATE = True
-        self.DROP_NO_CHECK = False             
-        
+        self.DROP_NO_CHECK = False
