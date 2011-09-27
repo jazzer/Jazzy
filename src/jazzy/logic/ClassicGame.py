@@ -313,6 +313,8 @@ class ClassicGame():
         else:
             return self.sortPieceList(self.possiblePromotionPieces)
                         
+    def getSlotsMessage(self, mq):
+        return Message([{'pname': 'Johannes', 'open': True, 'desc': 'White'}, {'pname': 'Mareike', 'open': False, 'desc': 'Black'}])
     
     def getSituationMessage(self, mq, force=False, player=None):
         if mq.watching:

@@ -36,8 +36,11 @@ h1, h2, h3, h4, h5, h6 {
 	float: left;
 	margin: 5px;
 }
-.box > h1 {
+.box > h1, .box > h2 {
 	margin-top: 0px;
+}
+.full-width {
+	width: 95%;
 }
 .centered {
 	text-align: center;
@@ -250,6 +253,35 @@ h1, h2, h3, h4, h5, h6 {
 .refreshForm {
 	display: inline;
 }
+
+/* player slots */
+#slots > .slot-box {
+	width: 300px;
+	height: 100px;
+	vertical-align: middle;
+}
+.slot-open {
+	background: #2f7;
+	color: black;
+}
+.slot-open:hover {
+	background: #2b0;
+}
+.slot-taken {
+	background: #666;
+}
+.slot-taken:hover {
+	background: #e03;
+}
+
+.slot-box > .slot-desc {
+	font-size: 200%;
+	font-weight: bolder;
+}
+.slot-box > .slot-pname {
+	font-size: 150%;
+}
+
 
 /* connection status */
 #conn_status {	

@@ -42,12 +42,8 @@ var debugLevel = 1;
 var refreshInterval = 2;
 var sinceLastRefresh = 0;
 var gameId = undefined;
-var mqId = undefined;
-var lastParsedMsg = undefined;
+var mqId, lastParsedMsg, currPlayer, availible_games, currSelectedGame
 var activeJSONCall = false;
-var currPlayer = undefined;
-var availible_games = undefined;
-var currSelectedGame = undefined;
 var unsuccessfulServerCallCounter = -1;
 var styleNameArray = styleNames.split(",");
 
@@ -253,13 +249,11 @@ function buildCategories() {
 	categories = new Object();
 	for (gameId in availible_games) {
 		game = availible_games[gameId];
-		//alert(game['cat']);
 		categories[game['cat']] = 1; // using it as a set basically
 	}
 	
 	// add them
 	for (cat in categories) {
-		//alert(cat);
 		entry = $('<div>').addClass('entry').html(cat);
 		entry.click(function() {showGames($(this).html());}); // TODO setup function
 		target.append(entry);
@@ -274,7 +268,6 @@ function showGames(cat) {
 	// loop games
 	for (gameId in availible_games) {
 		game = availible_games[gameId];
-		//alert(game['cat']);
 		if (game['cat'] == cat) {
 			entry = $('<div>').addClass('entry').html(game['title']);
 			entry.click(function() {showDetails($(this).html());}); // TODO setup function
@@ -532,6 +525,42 @@ function getMQ() {
 		});
 }
 
+
+function updateOverview() {
+	$(document).ready(function() {
+		window.setInterval("showSlots()", 5000);
+		showSlots();
+	});
+}
+
+function showSlots()  {
+	gameId = window.location.href.match(/[\dA-Fa-f]+$/);
+	serverCall('getslots/' + gameId, function(data) {
+		var target = $('#slots').empty();
+		for (var i=0;i<data.length;i++) {
+			var slotDiv = $('<div>').addClass('slot-box');
+			console.debug(slotDiv);
+			if (data[i]['open'] === true) {
+				slotContent = '<div class="slot-desc">{0}</div><div class="slot-pname">{1}</div>'.format(data[i]['desc'], data[i]['pname']);
+				slotDiv.addClass('slot-open');
+				// add joining event
+				slotDiv.click(function() {
+					var joinId = data[i]['joinId'];
+					serverCall('join/' + joinId, undefined, true, true);
+				});
+				console.debug(slotDiv);
+			} else {
+				slotContent = '<div class="slot-desc">{0}</div><div class="slot-pname"></div>'.format(data[i]['desc']);
+				slotDiv.addClass('slot-taken');
+			}
+			// put to DOM
+			console.debug(target);
+			target.append(slotDiv.html(slotContent));
+		}
+	}, true, true);
+}
+
+
 function recalcInterval(success) {
 	if (success) {
 		refreshInterval = base_interval;
@@ -729,4 +758,33 @@ function parseMQ(data) {
 	}	
 }
 
+
+// convience methods
+
 function isArray(obj){return(typeof(obj.length)=="undefined")?false:true;}
+
+// Inspired by http://bit.ly/juSAWl
+// Augment String.prototype to allow for easier formatting.  This implementation 
+// doesn't completely destroy any existing String.prototype.format functions,
+// and will stringify objects/arrays.
+String.prototype.format = function(i, safe, arg) {
+
+  function format() {
+    var str = this, len = arguments.length+1;
+
+    // For each {0} {1} {n...} replace with the argument in that position.  If 
+    // the argument is an object or an array it will be stringified to JSON.
+    for (i=0; i < len; arg = arguments[i++]) {
+      safe = typeof arg === 'object' ? JSON.stringify(arg) : arg;
+      str = str.replace(RegExp('\\{'+(i-1)+'\\}', 'g'), safe);
+    }
+    return str;
+  }
+
+  // Save a reference of what may already exist under the property native.  
+  // Allows for doing something like: if("".format.native) { /* use native */ }
+  format.native = String.prototype.format;
+
+  // Replace the prototype property
+  return format;
+}();

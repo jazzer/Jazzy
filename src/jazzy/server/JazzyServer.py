@@ -198,7 +198,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
         if len(params) > 1:
             mq = mqPool.get(params[1])
             # can't answer if mq is not transferred (e.g. because it is yet unknown)
-            if mq is None and not(params[0] in {'new', 'join', 'watch', 'getgames', 'admin'}):
+            if mq is None and not(params[0] in {'new', 'join', 'watch', 'getgames', 'getslots', 'admin'}):
                 return
 
         # check if there is an acknowledgement included starting at an arbitrary index
@@ -421,7 +421,11 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
 
         elif (params[0] == 'getsit'):
             jsonoutput = json.dumps([mq.game.getSituationMessage(mq, force=True).data])
-        
+
+        elif (params[0] == 'getslots'):            
+            #jsonoutput = json.dumps([mq.game.getSlotMessage(mq).data])
+            jsonoutput = json.dumps([{'pname': 'Johannes', 'open': True, 'desc': 'White'}, {'pname': 'Mareike', 'open': False, 'desc': 'Black'}])
+            
         elif (params[0] == 'join'):
             game = gamePool.games[params[1]]
             # check if more players are accepted for the game
