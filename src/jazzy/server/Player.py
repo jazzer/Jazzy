@@ -23,13 +23,21 @@ from MessageHandler import MessageQueue
 
 class Player():
 
-    def __init__(self):
+    def __init__(self, name = None):
         self.mq = MessageQueue()
-        self.name = "John Doe"
         self.offeringDraw = False
+        if name is None:
+            # dummy ...
+            self.name = 'John Doe'
+            self.dummy = True
+        else:
+            # ... or not
+            self.name = name
+            self.dummy = False
+        
         
     def __unicode__(self):
-        return "[Player]"
+        return '[Player] %s' % self.name
     
     def __str__(self):
         return self.__unicode__()

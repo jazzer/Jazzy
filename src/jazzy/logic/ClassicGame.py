@@ -172,6 +172,16 @@ class ClassicGame():
         if self.DRAW_REPETITION:
             self.board.drawCountRepetition()
         
+    def createPlayers(self, mqPool):
+        # all of them will be dummys at first and filled via the slot mechanism
+        for _ in range(self.NUM_PLAYERS):
+            player = Player()
+            mq = player.mq
+            mqPool.add(mq)            
+            self.addPlayer(player)
+            # backlinks for the MQ
+            mq.subject = player
+            mq.game = self
         
     def inferBoardSize(self):
         # get board's height
@@ -313,8 +323,17 @@ class ClassicGame():
         else:
             return self.sortPieceList(self.possiblePromotionPieces)
                         
-    def getSlotsMessage(self, mq):
-        return Message([{'pname': 'Johannes', 'open': True, 'desc': 'White'}, {'pname': 'Mareike', 'open': False, 'desc': 'Black'}])
+    def getSlotsMessageData(self):
+        slotList = []
+        for i in range(len(self.players)):
+            player = self.players[i]
+            playerDict = dict()
+            playerDict['open'] = player.dummy
+            playerDict['desc'] = self.COLORS[i]
+            playerDict['pname'] = '' if player.dummy else player.name
+            playerDict['joinId'] = player.mq.shortenedId
+            slotList.append(playerDict)
+        return slotList
     
     def getSituationMessage(self, mq, force=False, player=None):
         if mq.watching:
@@ -369,6 +388,8 @@ class ClassicGame():
         # add current player if applicable    
         if not(self.getCurrentPlayer(self.board) is None):
             result['currP'] = self.getCurrentPlayer(self.board).mq.shortenedId
+            
+        result['gameId'] = self.id
         
         if send:
             return Message('gamesit', result)

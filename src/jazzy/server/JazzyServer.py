@@ -148,17 +148,6 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
         except IOError:
             print('Could not serve that file. Not found!')
 
-    def createPlayer(self, game):
-        player = Player()
-        mq = player.mq
-        mqPool.add(mq)            
-        game.addPlayer(player)
-        gamePool.add(game)
-        # backlinks for the MQ
-        mq.subject = player
-        mq.game = game
-        return mq
-
     def createWatcher(self, game):
         watcher = Watcher()
         mq = watcher.mq
@@ -410,31 +399,52 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                 jsonoutput = json.dumps([{'msg': 'No valid game: ' + input}])
             else:
                 # create desired game
-                game = selectedGame['class']()
-                mq = self.createPlayer(game)
-                # generate answer
-                jsonoutput = json.dumps({'gameId': game.id, 'mqId': mq.id})
-                # nicely say hello (next time)
-                mq.addMsg(Message('srvmsg', {'msg': 'Welcome to the server!'}))
-                mq.addMsg(Message('srvmsg', {'msg': 'We are playing ' + selectedGame['title'] + ', see ' + selectedGame['link']}))            
-
-
+                try:
+                    game = selectedGame['class']()
+                    gamePool.add(game)
+                    game.createPlayers(mqPool)
+                    # generate answer
+                    jsonoutput = json.dumps({'link': 'game.html?' + game.id})
+                    # nicely say hello (next time)
+                    self.distributeToAll(game, Message('srvmsg', {'msg': 'Welcome to the server!'}))
+                    self.distributeToAll(game, Message('srvmsg', {'msg': 'We are playing ' + selectedGame['title'] + ', see ' + selectedGame['link']}))
+                except Exception:
+                    jsonoutput = json.dumps({'msg': 'Invalid game name.'})
+                    
         elif (params[0] == 'getsit'):
             jsonoutput = json.dumps([mq.game.getSituationMessage(mq, force=True).data])
 
-        elif (params[0] == 'getslots'):            
-            #jsonoutput = json.dumps([mq.game.getSlotMessage(mq).data])
-            jsonoutput = json.dumps([{'pname': 'Johannes', 'open': True, 'desc': 'White'}, {'pname': 'Mareike', 'open': False, 'desc': 'Black'}])
+        elif (params[0] == 'getslots'):     
+            try:    
+                game = gamePool.games[params[1]]
+            except KeyError:
+                return
+            jsonoutput = json.dumps(game.getSlotsMessageData())
             
-        elif (params[0] == 'join'):
-            game = gamePool.games[params[1]]
-            # check if more players are accepted for the game
-            if (len(game.players) >= game.NUM_PLAYERS):
-                jsonoutput = json.dumps({'msg': 'Sorry. Game is already full.'})
+        elif (params[0] == 'join'): 
+            # message format: /join/[gameId]/[shortened mqId]
+            # find the player targeted
+            try:    
+                game = gamePool.games[params[1]]
+                targetPlayer = None
+                for player in game.players:
+                    if player.mq.shortenedId == params[2]:
+                        targetPlayer = player
+                        break
+            except KeyError:
+                    jsonoutput = json.dumps({'msg': 'Invalid game ID.'})
             
-            mq = self.createPlayer(game)
-            jsonoutput = json.dumps({'mqId': mq.id})
-            self.distributeToAll(mq.game, Message('srvmsg', {'msg': 'Player joined.'}), [mq.subject])
+            if targetPlayer is None:
+                jsonoutput = json.dumps({'msg': 'Invalid slot ID.'})
+            else:
+                if not targetPlayer.dummy:
+                    jsonoutput = json.dumps({'msg': 'Slot is taken.'})
+                else:   
+                    jsonoutput = json.dumps({'link': 'play.html?' + player.mq.id})
+                    self.distributeToAll(game, Message('srvmsg', {'msg': 'Player joined.'}))
+                    # taken slot now
+                    targetPlayer.dummy = False
+                    
 
         elif (params[0] == 'watch'):
             game = gamePool.games[params[1]]

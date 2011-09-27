@@ -275,6 +275,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .slot-box > .slot-desc {
+	text-transform: capitalize;
 	font-size: 200%;
 	font-weight: bolder;
 }

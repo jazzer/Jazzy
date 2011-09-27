@@ -441,28 +441,7 @@ function refresh() {
 
 function createGame() {
 	if (currSelectedGame == undefined) { return; }
-	$(function() {
-		$("#created_links").html();
-		type = currSelectedGame;
-		createNewGameIds(type);
-		var your_link = server_url + 'play.html?' + mqId;
-		var their_link = server_url + 'join.html?' + gameId;
-		var watch_link = server_url + 'watch.html?' + gameId;
-		$("#created_links").html('<b><h3>Your link:</h3> <a href="'+your_link+'">'+your_link+'</a></b><h3>Link for other players:</h3><a href="'+their_link+'">'+their_link+'</a><h3>Watch Game:</h3><a href="'+watch_link+'">'+watch_link+'</a>');
-	});
-}
-
-function createNewGameIds(type) {
-	// sanitize!?
-	$.ajax({
-		url: server_url + "new/" + type + "/" + new Date().getTime(),
-		async: false,
-		dataType: 'json',
-		success: function(data){
-			mqId = data['mqId'];
-			gameId = data['gameId'];
-		}
-	});
+	serverCall('new/' + currSelectedGame, function(data) { follow(data); }, true, true);
 }
 
 
@@ -539,25 +518,32 @@ function showSlots()  {
 		var target = $('#slots').empty();
 		for (var i=0;i<data.length;i++) {
 			var slotDiv = $('<div>').addClass('slot-box');
-			console.debug(slotDiv);
 			if (data[i]['open'] === true) {
 				slotContent = '<div class="slot-desc">{0}</div><div class="slot-pname">{1}</div>'.format(data[i]['desc'], data[i]['pname']);
 				slotDiv.addClass('slot-open');
 				// add joining event
-				slotDiv.click(function() {
-					var joinId = data[i]['joinId'];
-					serverCall('join/' + joinId, undefined, true, true);
+				slotDiv.data('joinId', data[i]['joinId']);
+				slotDiv.click(function(joinId) {
+					serverCall('join/' + gameId + '/' + $(this).data('joinId'), function(data) { follow(data);}, true, true);
 				});
-				console.debug(slotDiv);
 			} else {
 				slotContent = '<div class="slot-desc">{0}</div><div class="slot-pname"></div>'.format(data[i]['desc']);
 				slotDiv.addClass('slot-taken');
 			}
 			// put to DOM
-			console.debug(target);
 			target.append(slotDiv.html(slotContent));
 		}
 	}, true, true);
+}
+
+
+function follow(data) {
+	if (data['msg'] !== undefined) {
+		alert(data['msg']);
+	} else {
+		// follow the link sent by the server
+		window.location = data['link'];
+	}
 }
 
 
@@ -738,6 +724,8 @@ function parseMQ(data) {
 				}
 				// check if it's my turn
 				parseCurrPlayer(data[i]['currP']);
+				// add the appropriate link to the game's overview page
+				$('a[href="#game"]').attr('href', 'game.html?' + data[i]['gameId']);
 				break;
 			case "srvmsg":
 				addServerMessage(data[i]['msg']);
