@@ -748,13 +748,40 @@ function parseMQ(data) {
 
 
 function getPlayerName() {
-  try {
-    'localStorage' in window && window['localStorage'] !== null;
-  } catch (e) {
-    return false;
-  }
-  var oldName = window.localStorage.getItem("bar");
+	try {
+		var support = 'localStorage' in window && window['localStorage'] !== null;
+	} catch (e) {
+		// no support for local storage
+		_askName();
+		return undefined;
+	}
+	var oldName = window.localStorage.getItem('jazzy-player-name');
+	if (oldName === null) {
+		_askName();
+		return undefined;
+	}
+	return oldName;
 }
+
+function _askName() {
+	var txt = 'Please enter your name:<br /><input type="text" id="alertName" name="alertName" value="John Doe" />';
+	$.prompt(txt, {
+		callback: _lS_nameCallback,
+		buttons: { Hey: 'Hello', Bye: 'Good Bye' }
+	});
+}
+
+function _lS_nameCallback(v,m,f){
+	an = m.children('#alertName');
+
+	if(f.alertName == ""){
+		an.css("border","solid #ff0000 1px");
+		return false;
+	}
+	window.localStorage.setItem('jazzy-player-name', f.alertName);
+	return true;
+}
+
 
 
 // convience methods
