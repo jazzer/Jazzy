@@ -353,7 +353,7 @@ class ClassicGame():
             
         result = {}
         send = False
-        counter = 0
+        counter = 0 # this code is prepared for multi-board games, but it is not used
 
         # check boards
         data = {'board_id': self.board.id,

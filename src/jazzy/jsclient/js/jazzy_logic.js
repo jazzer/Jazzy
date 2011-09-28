@@ -721,11 +721,11 @@ function parseMQ(data) {
 					if (data[i][j]['capturePockets'] != undefined) {
 						// TODO implement filling (#27 on GitHub)
 					}
+					// check if it's my turn
+					parseCurrPlayer(data[i][j]['currP']);
 				}
-				// check if it's my turn
-				parseCurrPlayer(data[i]['currP']);
 				// add the appropriate link to the game's overview page
-				$('a[href="#game"]').attr('href', 'game.html?' + data[i]['gameId']);
+				$('#menu_game').children('a').attr('href', 'game.html?' + data[i]['gameId']);
 				break;
 			case "srvmsg":
 				addServerMessage(data[i]['msg']);

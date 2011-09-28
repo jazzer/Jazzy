@@ -1,4 +1,4 @@
-.board{box-shadow:0 0 2px 2px #d66b00;-moz-box-shadow:0 0 2px 2px #d66b00;-webkit-box-shadow:0 0 2px 2px #d66b00;margin:0px auto 20px auto;}
+.board{box-shadow:0 0 2px 2px #d66b00;-moz-box-shadow:0 0 2px 2px #d66b00;-webkit-box-shadow:0 0 2px 2px #d66b00;}
 .board .dark{background-color:#a35200;}
 .board .dark:hover{background-color:#562b00;}
 .board .light{background-color:#ffb870;}

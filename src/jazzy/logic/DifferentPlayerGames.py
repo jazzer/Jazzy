@@ -71,6 +71,7 @@ class _MultiboardGame(ClassicGame):
         for game in self.gameList:
             gameSitMsg.data[str(boardCounter)] = game.getSituationMessage(mq, force, player).data['0']
             boardCounter += 1
+        gameSitMsg.data['gameId'] = self.id
         return gameSitMsg
 
 
