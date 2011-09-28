@@ -539,7 +539,7 @@ function showSlots()  {
 
 function follow(data) {
 	if (data['msg'] !== undefined) {
-		alert(data['msg']);
+		$.prompt(data['msg']);
 	} else {
 		// follow the link sent by the server
 		window.location = data['link'];
@@ -596,7 +596,7 @@ function lengthenFieldString(fString) {
 // handle click to "resign" button in UI
 // send corresponding message to the server
 function _resign() {
-	var confirmed = confirm("Do you really want to resign?");
+	var confirmed = $.prompt("Do you really want to resign?", { buttons: { Yes: true, No: false }, focus: 1 });
 	if (confirmed) {
 		serverCall("end/" + mqId + "/resign", undefined, true, false);
 	}
@@ -606,10 +606,10 @@ function _resign() {
 // send corresponding message to the server
 function _offerDraw() {
 	if (myTurn) {
-		alert("You can only offer draw on your opponent's turn.");
+		$.prompt("You can only offer draw on your opponent's turn.");
 		return;
 	}
-	var confirmed = confirm("Do you really want to offer a draw?");
+	var confirmed = confirm("Do you really want to offer a draw?", { buttons: { Yes: true, No: false }, focus: 1 });
 	if (confirmed) {
 		serverCall("end/" + mqId + "/draw-offer", undefined, true, false);
 	}
@@ -683,7 +683,7 @@ function parseMQ(data) {
 			case "gameover":
 				goMsg = "Game finished.\nResult: " + data[i]['result'] + "\n" + data[i]['msg'];
 				addServerMessage(goMsg);
-				setTimeout(function () { alert(goMsg); }, 1000);
+				setTimeout(function () { $.prompt(goMsg); }, 1000);
 				// TODO play sound 
 				break;
 			case "gamesit":
@@ -731,13 +731,13 @@ function parseMQ(data) {
 				addServerMessage(data[i]['msg']);
 				break;
 			case "draw-offer":
-				var confirmed = confirm("Your opponent is offering a draw. Do you accept?");
+				var confirmed = confirm("Your opponent is offering a draw. Do you accept?", { buttons: { Yes: true, No: false }, focus: 1 });
 				if (confirmed) {
 					serverCall("end/" + mqId + "/draw-offer", undefined, true, false);
 				}
 				break;
 			case "alert":
-				alert(data[i]['msg']);
+				$.prompt(data[i]['msg']);
 				break; 
 			}		
 
