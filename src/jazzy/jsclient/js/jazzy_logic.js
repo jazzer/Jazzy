@@ -747,6 +747,16 @@ function parseMQ(data) {
 }
 
 
+function getPlayerName() {
+  try {
+    'localStorage' in window && window['localStorage'] !== null;
+  } catch (e) {
+    return false;
+  }
+  var oldName = window.localStorage.getItem("bar");
+}
+
+
 // convience methods
 
 function isArray(obj){return(typeof(obj.length)=="undefined")?false:true;}

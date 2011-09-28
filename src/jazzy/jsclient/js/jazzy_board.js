@@ -118,7 +118,7 @@ Board.prototype.build = function() {
 	bottomPocket = $('<div>').attr('id', 'bottom-pocket-' + boardId).addClass('pocket').addClass('bottom-pocket');
 
 	// buttons for castling
-	outerDiv = $('<div>').append('Pocket: ').append(topPocket).append(boardDiv).append('Pocket: ').append(bottomPocket).append('<div class="roundbutton" onclick="_shortCastling(\'' + boardId + '\');">O-O</div> <div class="roundbutton" onclick="_longCastling(\'' + boardId + '\');">O-O-O</div><br /><br />');
+	outerDiv = $('<div>').attr('id', boardId + '-frame').append(topPocket).append(boardDiv).append(bottomPocket).append($('<div>').attr('id', boardId + '-controls').append(getBoardControls(boardId)));
 			
 	$("#boards").append(outerDiv);
 
@@ -127,6 +127,10 @@ Board.prototype.build = function() {
 	boardDiv.css("width", field_width*cols);
 	var field_height = $("#" + boardId + "_field0").height();
 	boardDiv.css("height", field_height*rows);
+}
+
+function getBoardControls(boardId) {
+	return '<div class="roundbutton" onclick="_shortCastling(\'' + boardId + '\');">O-O</div> <div class="roundbutton" onclick="_longCastling(\'' + boardId + '\');">O-O-O</div><br /><br />' + '<div id="btn_offer_draw" class="roundbutton" onclick="_offerDraw(\'' + boardId + '\');">Offer draw</div>' + '<div id="btn_repetition" class="roundbutton" onclick="_repetition(\'' + boardId + '\');">Claim Repetition</div>' + '<div id="btn_x_move_rule" class="roundbutton" onclick="_xMoveRule(\'' + boardId + '\');">Claim x Move rule</div>&nbsp;' + '<div id="btn_resign" class="roundbutton" onclick="_resign(\'' + boardId + '\');">Resign</div>';
 }
 
 
