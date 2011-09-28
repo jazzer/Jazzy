@@ -423,7 +423,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             jsonoutput = json.dumps(game.getSlotsMessageData())
             
         elif (params[0] == 'join'): 
-            # message format: /join/[gameId]/[shortened mqId]
+            # message format: /join/[gameId]/[shortened mqId]/[playerName]
             # find the player targeted
             try:    
                 game = gamePool.games[params[1]]
@@ -442,8 +442,11 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                     jsonoutput = json.dumps({'msg': 'Slot is taken.'})
                 else:   
                     jsonoutput = json.dumps({'link': 'play.html?' + player.mq.id})
-                    self.distributeToAll(game, Message('srvmsg', {'msg': 'Player joined.'}))
-                    # taken slot now
+                    playerName = params[3] if len(params) > 3 else ''
+                    if playerName != '':
+                        player.name = playerName
+                    self.distributeToAll(game, Message('srvmsg', {'msg': 'Player %s joined.' % playerName}))
+                    # slot is taken now
                     targetPlayer.dummy = False
                     
 

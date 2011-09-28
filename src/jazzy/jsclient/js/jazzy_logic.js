@@ -42,7 +42,7 @@ var debugLevel = 1;
 var refreshInterval = 2;
 var sinceLastRefresh = 0;
 var gameId = undefined;
-var mqId, lastParsedMsg, currPlayer, availible_games, currSelectedGame
+var mqId, lastParsedMsg, currPlayer, availible_games, currSelectedGame, playerName
 var activeJSONCall = false;
 var unsuccessfulServerCallCounter = -1;
 var styleNameArray = styleNames.split(",");
@@ -524,7 +524,7 @@ function showSlots()  {
 				// add joining event
 				slotDiv.data('joinId', data[i]['joinId']);
 				slotDiv.click(function(joinId) {
-					serverCall('join/' + gameId + '/' + $(this).data('joinId'), function(data) { follow(data);}, true, true);
+					serverCall('join/' + gameId + '/' + $(this).data('joinId') + '/' + getPlayerName(), function(data) { follow(data);}, true, true);
 				});
 			} else {
 				slotContent = '<div class="slot-desc">{0}</div><div class="slot-pname"></div>'.format(data[i]['desc']);
@@ -748,6 +748,10 @@ function parseMQ(data) {
 
 
 function getPlayerName() {
+	if (playerName !== undefined) {
+		return playerName;
+	}
+	// search for saved old name
 	try {
 		var support = 'localStorage' in window && window['localStorage'] !== null;
 	} catch (e) {
@@ -767,7 +771,7 @@ function _askName() {
 	var txt = 'Please enter your name:<br /><input type="text" id="alertName" name="alertName" value="John Doe" />';
 	$.prompt(txt, {
 		callback: _lS_nameCallback,
-		buttons: { Hey: 'Hello', Bye: 'Good Bye' }
+		buttons: { Ok: true }
 	});
 }
 
@@ -778,7 +782,8 @@ function _lS_nameCallback(v,m,f){
 		an.css("border","solid #ff0000 1px");
 		return false;
 	}
-	window.localStorage.setItem('jazzy-player-name', f.alertName);
+	playerName = f.alertName; // save globally
+	window.localStorage.setItem('jazzy-player-name', playerName);
 	return true;
 }
 
