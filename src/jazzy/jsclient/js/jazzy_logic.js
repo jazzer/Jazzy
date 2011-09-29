@@ -627,6 +627,18 @@ function _fillPocket(position, content, board) {
 	}
 }
 
+function _fillPlayers(position, content, board) {
+	var playerId = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'1':'0';
+	var playerHostDiv = $('#' + position + '-players-board_' + board.id).empty();
+	var playerSplit = content.split(',');
+	for (var i=0; i<playerSplit.length; i++) {
+		var playerData = playerSplit[i].split(':');
+		var playerDiv = $('<div>').addClass('player').attr('id', board.id + '_p' + playerData[1]).html(playerData[0]);
+		// add click events
+		playerHostDiv.append(playerDiv);
+	}
+}
+
 
 function parseMQ(data) {
 	// did we receive messages? if so, keep checking frequently
@@ -708,6 +720,12 @@ function parseMQ(data) {
 							board.highlight_move(lengthenFieldString(data[i][j]['lmove_from']), lengthenFieldString(data[i][j]['lmove_to']));
 						}
 					}
+					if (data[i][j]['players'] != undefined) {
+						var players = data[i][j]['players'].split('/');
+						var targetBoard = boardStorage.getBoard(boardId);
+						_fillPlayers('top', players[1], targetBoard);
+						_fillPlayers('bottom', players[0], targetBoard);
+					}
 					if (data[i][j]['pockets'] != undefined) {
 						pockets = data[i][j]['pockets'].split(',');
 						var msgFlipped = data[i][j]['flipped'];
@@ -729,6 +747,9 @@ function parseMQ(data) {
 				break;
 			case "srvmsg":
 				addServerMessage(data[i]['msg']);
+				break;
+			case "setname":
+				$('[id$="_p' + data[i]['id'] + '"]').html(data[i]['name']);
 				break;
 			case "draw-offer":
 				var confirmed = confirm("Your opponent is offering a draw. Do you accept?", { buttons: { Yes: true, No: false }, focus: 1 });

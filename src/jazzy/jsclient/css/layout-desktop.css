@@ -150,6 +150,17 @@ h1, h2, h3, h4, h5, h6 {
 	display: inline-block;
 }
 
+.top-players {
+	margin-bottom: 15px;
+}
+.bottom-players {
+	margin-bottom: 15px;
+}
+.player {
+	display: inline-block;
+	padding: 2px;
+}
+
 .promotion_piece {
 	float: left;
 }

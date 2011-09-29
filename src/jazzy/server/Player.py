@@ -26,6 +26,8 @@ class Player():
     def __init__(self, name = None):
         self.mq = MessageQueue()
         self.offeringDraw = False
+        self.flipBoard = False # has to be set upon creation
+
         if name is None:
             # dummy ...
             self.name = 'John Doe'
@@ -47,10 +49,11 @@ class Watcher():
     def __init__(self):
         self.mq = MessageQueue()
         self.mq.watching = True
-        self.name = "John Doe"
+        self.name = 'John Doe'
+        self.flipBoard = False
         
     def __unicode__(self):
-        return "[Watcher]"
+        return '[Watcher]'
     
     def __str__(self):
         return self.__unicode__()  

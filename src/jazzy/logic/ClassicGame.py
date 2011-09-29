@@ -178,8 +178,11 @@ class ClassicGame():
         
     def createPlayers(self):
         # all of them will be dummys at first and filled via the slot mechanism
+        flipStatus = False # it's fine for "white" players
         while len(self.players) < self.NUM_PLAYERS:
             player = Player()
+            player.flipBoard = flipStatus
+            flipStatus = not flipStatus
             mq = player.mq
             self.addPlayer(player)
             # backlinks for the MQ
@@ -340,16 +343,11 @@ class ClassicGame():
             slotList.append(playerDict)
         return slotList
     
-    def getSituationMessage(self, mq, force=False, player=None):
-        if mq.watching:
-            flipped = False
+    def getSituationMessage(self, mq, force=False, player=None, init=False):
+        if player is None:
+            subject = mq.subject
         else:
-            if player is None:
-                subject = mq.subject
-            else:
-                subject = player            
-            flipped = True if subject.color == 'black' else False
-                
+            subject = player            
             
         result = {}
         send = False
@@ -357,11 +355,27 @@ class ClassicGame():
 
         # check boards
         data = {'board_id': self.board.id,
-                'flipped': flipped}
+                'flipped': subject.flipBoard}
         if force or self.board.resend:
             send = True
             data['fen'] = self.getFenPos(self.board, mq.subject)
             data['board_size'] = str(self.board.width) + 'x' + str(self.board.height)
+            # add players
+            if init:
+                playerData = ''
+                # collect all players for bottom pocket ("white")
+                bottomPlayers = filter(lambda player: not player.flipBoard, self.players)
+                for player in bottomPlayers:
+                    playerData += '%s:%s,' % (player.name, player.mq.shortenedId)
+                playerData = playerData[:-1] + '/'
+                # collect all players for top pocket ("schwarz")
+                topPlayers = filter(lambda player: player.flipBoard, self.players)
+                for player in topPlayers:
+                    playerData += '%s:%s,' % (player.name, player.mq.shortenedId)
+                playerData = playerData[:-1]
+                # add players to the board data
+                data['players'] = playerData # format: name:id,name:id/name:id,name:id
+            
             # add current player if applicable    
             if not(self.getCurrentPlayer(self.board) is None):
                 data['currP'] = self.getCurrentPlayer(self.board).mq.shortenedId

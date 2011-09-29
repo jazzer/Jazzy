@@ -413,7 +413,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                 #    jsonoutput = json.dumps({'msg': 'Invalid game name.'})
                     
         elif (params[0] == 'getsit'):
-            jsonoutput = json.dumps([mq.metagame.getSituationMessage(mq, force=True).data])
+            jsonoutput = json.dumps([mq.metagame.getSituationMessage(mq, force=True, init=True).data])
 
         elif (params[0] == 'getslots'):     
             try:    
@@ -446,6 +446,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                     if playerName != '':
                         player.name = playerName
                     self.distributeToAll(game, Message('srvmsg', {'msg': 'Player %s joined.' % playerName}))
+                    self.distributeToAll(game, Message('setname', {'name': playerName, 'id': player.mq.shortenedId}), [player])
                     # slot is taken now
                     targetPlayer.dummy = False
                     
