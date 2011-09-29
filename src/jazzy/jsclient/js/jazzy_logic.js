@@ -42,10 +42,13 @@ var debugLevel = 1;
 var refreshInterval = 2;
 var sinceLastRefresh = 0;
 var gameId = undefined;
-var mqId, lastParsedMsg, currPlayer, availible_games, currSelectedGame, playerName
+var mqId, lastParsedMsg, availible_games, currSelectedGame, playerName
 var activeJSONCall = false;
 var unsuccessfulServerCallCounter = -1;
 var styleNameArray = styleNames.split(",");
+var selfPlayerIDs = '';
+var currPlayer = new Object();
+var myTurn = new Object();
 
 // quality data
 var QUALITY_BUFFER_SIZE = 5;
@@ -555,19 +558,37 @@ function recalcInterval(success) {
 	}
 }
 
-function parseCurrPlayer(currPlayerValue) {
+function parseCurrPlayer(currPlayerValue, boardId) {
+	var mark = '{!}'
 	if (currPlayerValue == undefined) {
 		return;
 	}
 
-	currPlayer = currPlayerValue;
-	if (!myTurn && currPlayer == mqId.toString().substring(0, 10)) {
-		document.title = "[*] " + document.title;
-		myTurn = true;
-	} 
-	else if (myTurn && currPlayer != mqId.toString().substring(0, 10)) {
-		document.title = document.title.replace(/\[.\] /, "");
-		myTurn = false;
+	currPlayer[boardId] = currPlayerValue;
+	myTurn[boardId] = selfPlayerIDs.indexOf(currPlayerValue) != -1;
+
+	// set styles
+	// clear board
+	$('[id^="' + boardId + '_p"]').removeClass('player-curr');
+	// set new
+	$('[id$="_p' + currPlayerValue +'"]').addClass('player-curr');
+
+	if (myTurn[boardId]) {
+		if (document.title.substr(0, mark.length) !== mark) {
+			document.title = mark + ' ' + document.title;
+		}
+	} else {
+		// nowhere current player?
+		var noTurn = true;
+		for (var i=0; i<myTurn.length; i++) {
+			if (myTurn[i]) {
+				noTurn = false;
+				break;
+			}
+		}
+		if (noTurn) {	
+			document.title = document.title.replace(/^[^a-zA-Z0-9]+ /, "");
+		}
 	}
 }
 
@@ -628,7 +649,7 @@ function _fillPocket(position, content, board) {
 }
 
 function _fillPlayers(position, content, board) {
-	var playerId = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'1':'0';
+	var position = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'top':'bottom';
 	var playerHostDiv = $('#' + position + '-players-board_' + board.id).empty();
 	var playerSplit = content.split(',');
 	for (var i=0; i<playerSplit.length; i++) {
@@ -663,7 +684,7 @@ function parseMQ(data) {
 				boardId = data[i]['from'].replace(/_.*/, '');
 				board = boardStorage.getBoard(boardId);
 				board.move(lengthenFieldString(data[i]['from']), lengthenFieldString(data[i]['to']), data[i]['toPiece'], silent); 
-				parseCurrPlayer(data[i]['currP']);
+				parseCurrPlayer(data[i]['currP'], boardId);
 				// TODO add ['check'] in server and client -> play sound (don't set when game is finished)
 				break;
 			case "movehist":
@@ -700,6 +721,8 @@ function parseMQ(data) {
 				break;
 			case "gamesit":
 				var j = -1;
+				// save own IDs
+				selfPlayerIDs = data[i]['playerSelf'];
 				while (true) {
 					j++
 					// build the board
@@ -740,7 +763,7 @@ function parseMQ(data) {
 						// TODO implement filling (#27 on GitHub)
 					}
 					// check if it's my turn
-					parseCurrPlayer(data[i][j]['currP']);
+					parseCurrPlayer(data[i][j]['currP'], boardId);
 				}
 				// add the appropriate link to the game's overview page
 				$('#menu_game').children('a').attr('href', 'game.html?' + data[i]['gameId']);

@@ -27,6 +27,7 @@ class Player():
         self.mq = MessageQueue()
         self.offeringDraw = False
         self.flipBoard = False # has to be set upon creation
+        self.aliases = []
 
         if name is None:
             # dummy ...

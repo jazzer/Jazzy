@@ -374,7 +374,7 @@ class ClassicGame():
                     playerData += '%s:%s,' % (player.name, player.mq.shortenedId)
                 playerData = playerData[:-1]
                 # add players to the board data
-                data['players'] = playerData # format: name:id,name:id/name:id,name:id
+                data['players'] = playerData  # format: name:id,name:id/name:id,name:id
             
             # add current player if applicable    
             if not(self.getCurrentPlayer(self.board) is None):
@@ -408,7 +408,9 @@ class ClassicGame():
         counter += 1
         
         result['gameId'] = self.id
-        
+        # add ownPlayers
+        result['playerSelf'] = mq.shortenedId + ',' + str(mq.subject.aliases)
+
         if send:
             return Message('gamesit', result)
         return None
