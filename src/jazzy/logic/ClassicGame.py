@@ -409,7 +409,7 @@ class ClassicGame():
         
         result['gameId'] = self.id
         # add ownPlayers
-        result['playerSelf'] = mq.shortenedId + ',' + str(mq.subject.aliases)
+        result['playerSelf'] = mq.shortenedId + ',' + ','.join(mq.subject.aliases)
 
         if send:
             return Message('gamesit', result)

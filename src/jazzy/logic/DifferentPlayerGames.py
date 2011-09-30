@@ -65,11 +65,13 @@ class _MultiboardGame(ClassicGame):
             slotList += newList
         return slotList
 
-    def getSituationMessage(self, mq, force=False, player=None):
+    def getSituationMessage(self, mq, force=False, player=None, init=False):
         gameSitMsg = Message('gamesit', {})
         boardCounter = 0
         for game in self.gameList:
-            gameSitMsg.data[str(boardCounter)] = game.getSituationMessage(mq, force, player).data['0']
+            subMsg = game.getSituationMessage(mq, force, player, init)
+            gameSitMsg.data[str(boardCounter)] = subMsg.data['0']
+            gameSitMsg.data['playerSelf'] = subMsg.data['playerSelf']
             boardCounter += 1
         gameSitMsg.data['gameId'] = self.id
         return gameSitMsg

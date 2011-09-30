@@ -580,8 +580,8 @@ function parseCurrPlayer(currPlayerValue, boardId) {
 	} else {
 		// nowhere current player?
 		var noTurn = true;
-		for (var i=0; i<myTurn.length; i++) {
-			if (myTurn[i]) {
+		for (thisBoardTurn in myTurn) {
+			if (thisBoardTurn) {
 				noTurn = false;
 				break;
 			}
