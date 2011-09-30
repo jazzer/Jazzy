@@ -573,22 +573,23 @@ function parseCurrPlayer(currPlayerValue, boardId) {
 	// set new
 	$('[id$="_p' + currPlayerValue +'"]').addClass('player-curr');
 
-	if (myTurn[boardId]) {
+	// nowhere current player?
+	var turn = false;
+	for (thisBoardTurn in myTurn) {
+		alert(thisBoardTurn + ' ' + myTurn[thisBoardTurn]);
+		if (myTurn[thisBoardTurn]) {
+			turn = true;
+			break;
+		}
+	}
+	// set title accordingly
+	if (turn) {
 		if (document.title.substr(0, mark.length) !== mark) {
 			document.title = mark + ' ' + document.title;
-		}
+		}		
 	} else {
-		// nowhere current player?
-		var noTurn = true;
-		for (thisBoardTurn in myTurn) {
-			if (thisBoardTurn) {
-				noTurn = false;
-				break;
-			}
-		}
-		if (noTurn) {	
-			document.title = document.title.replace(/^[^a-zA-Z0-9]+ /, "");
-		}
+		alert('remove');
+		document.title = document.title.replace(/^[^a-zA-Z0-9]+ /, '');
 	}
 }
 
@@ -663,7 +664,7 @@ function _fillPlayers(position, content, board) {
 
 function parseMQ(data) {
 	// did we receive messages? if so, keep checking frequently
-	recalcInterval(data.length > 0);
+	recalcInterval(data !== null && data.length > 0);
 
 	if (data.length > 0) {
 		_debug("Received message queue: " + JSON.stringify(data, null, '\t'), 2);
