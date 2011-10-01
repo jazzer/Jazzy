@@ -558,15 +558,21 @@ function recalcInterval(success) {
 	}
 }
 
-function parseCurrPlayer(currPlayerValue, boardId) {
+function _parseCurrPlayer(currPlayerValue, boardId) {
 	var mark = '{!}'
 	if (currPlayerValue == undefined) {
 		return;
 	}
+	console.debug('analyzing currPlayerValue of ' + currPlayerValue);
+	console.debug('selfPlayerIDs: ' + selfPlayerIDs);
 
 	currPlayer[boardId] = currPlayerValue;
+	console.debug('currP per board');
+	console.debug(currPlayer);
 	myTurn[boardId] = selfPlayerIDs.indexOf(currPlayerValue) != -1;
-
+	console.debug('myTurn per board');
+	console.debug(myTurn);
+	
 	// set styles
 	// clear board
 	$('[id^="' + boardId + '_p"]').removeClass('player-curr');
@@ -576,21 +582,23 @@ function parseCurrPlayer(currPlayerValue, boardId) {
 	// nowhere current player?
 	var turn = false;
 	for (thisBoardTurn in myTurn) {
-		alert(thisBoardTurn + ' ' + myTurn[thisBoardTurn]);
 		if (myTurn[thisBoardTurn]) {
 			turn = true;
 			break;
 		}
 	}
+	console.debug('turn? ' + turn);
 	// set title accordingly
 	if (turn) {
 		if (document.title.substr(0, mark.length) !== mark) {
+			console.debug('adding');
 			document.title = mark + ' ' + document.title;
 		}		
 	} else {
-		alert('remove');
+		console.debug('removing');
 		document.title = document.title.replace(/^[^a-zA-Z0-9]+ /, '');
 	}
+	console.debug('------------');
 }
 
 function _changeDebugLevel() {
@@ -649,13 +657,38 @@ function _fillPocket(position, content, board) {
 	}
 }
 
+function _parseBoardPlayers(players, targetBoard) {
+	// format players: name:id,name:id/name:id,name:id
+	var playerArray = players.toString().split(/[,/]/);
+	var myBoard = false;
+	for (i in playerArray) {
+		var playerID = playerArray[i].split(':')[1];
+		console.debug('compare self: ' + selfPlayerIDs + '\nto: ' + playerID);
+		if (selfPlayerIDs.search(playerID) !== -1) {
+			myBoard = true;
+			break;
+		}
+	}
+	// set style
+	var board = $('#board_' + targetBoard.id + '-frame');
+	board.removeClass('board-mine').removeClass('board-notmine');
+	if (myBoard) {
+		board.addClass('board-mine');
+		$('#board_' + targetBoard.id + '-controls').show();
+	} else {
+		board.addClass('board-notmine');
+		$('#board_' + targetBoard.id + '-controls').hide();
+		targetBoard.lock();
+	}
+}
+
 function _fillPlayers(position, content, board) {
 	var position = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'top':'bottom';
 	var playerHostDiv = $('#' + position + '-players-board_' + board.id).empty();
 	var playerSplit = content.split(',');
 	for (var i=0; i<playerSplit.length; i++) {
 		var playerData = playerSplit[i].split(':');
-		var playerDiv = $('<div>').addClass('player').attr('id', board.id + '_p' + playerData[1]).html(playerData[0]);
+		var playerDiv = $('<div>').addClass('player').attr('id', board.id + '_p' + playerData[1]).html(playerData[0]).attr('title', playerData[1]); // [0] = name, [1] = ID
 		// add click events
 		playerHostDiv.append(playerDiv);
 	}
@@ -685,7 +718,7 @@ function parseMQ(data) {
 				boardId = data[i]['from'].replace(/_.*/, '');
 				board = boardStorage.getBoard(boardId);
 				board.move(lengthenFieldString(data[i]['from']), lengthenFieldString(data[i]['to']), data[i]['toPiece'], silent); 
-				parseCurrPlayer(data[i]['currP'], boardId);
+				_parseCurrPlayer(data[i]['currP'], boardId);
 				// TODO add ['check'] in server and client -> play sound (don't set when game is finished)
 				break;
 			case "movehist":
@@ -745,8 +778,9 @@ function parseMQ(data) {
 						}
 					}
 					if (data[i][j]['players'] != undefined) {
-						var players = data[i][j]['players'].split('/');
+						var players = data[i][j]['players'].split('/');						
 						var targetBoard = boardStorage.getBoard(boardId);
+						_parseBoardPlayers(players, targetBoard);
 						_fillPlayers('top', players[1], targetBoard);
 						_fillPlayers('bottom', players[0], targetBoard);
 					}
@@ -764,7 +798,7 @@ function parseMQ(data) {
 						// TODO implement filling (#27 on GitHub)
 					}
 					// check if it's my turn
-					parseCurrPlayer(data[i][j]['currP'], boardId);
+					_parseCurrPlayer(data[i][j]['currP'], boardId);
 				}
 				// add the appropriate link to the game's overview page
 				$('#menu_game').children('a').attr('href', 'game.html?' + data[i]['gameId']);
