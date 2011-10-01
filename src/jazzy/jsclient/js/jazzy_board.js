@@ -70,6 +70,10 @@ Board.prototype.lock = function() {
 Board.prototype.unlock = function() {
 	this.locked = false;
 }
+Board.prototype.isLocked = function() {
+	return this.locked;
+}
+
 
 Board.prototype.build = function() {
 	// create a new board
@@ -254,37 +258,41 @@ Board.prototype.highlight_clear = function() {
 
 
 function _dnd_down(thisElement, board) {
-	if (!board.locked && board.myTurn && thisElement.children().length > 0 && !dnd_clicked) {	
+	console.debug('dnd down >> ' + dragSource);
+	if (!board.isLocked() && board.myTurn && thisElement.children().length > 0 && !dnd_clicked) {	
 		dragSource = thisElement.attr('id');
 		thisElement.addClass('highlight_input_move_from');
-	}	
+	}
 }
 
-function _dnd_up(thisElement) {
-	//console.debug("up at " + thisElement.attr('id'));
-	//console.debug(dragSource);
-	if (dragSource == undefined || dnd_clicked) {
+function _dnd_up(thisElement, board) {
+	console.debug("up at " + thisElement.attr('id'));
+	console.debug(dragSource);
+	console.debug(board.isLocked());
+	console.debug(dnd_clicked);
+	if (board.isLocked() || dragSource === undefined) {
+		dragSource = undefined;
+		$('[class*="highlight_input_move_from"]').removeClass('highlight_input_move_from');
+		dragSource = undefined;
 		return;
 	}
+
 	dropTarget = thisElement.attr('id');
 	//console.debug(dropTarget);
-	if (dropTarget !== undefined && dragSource != dropTarget) {
-		postMove(dragSource, dropTarget);
-	} 
-
-	$("#" + dragSource).removeClass('highlight_input_move_from');
-	dragSource = undefined; // this operation has been handled
+	if (dropTarget !== undefined) {
+		if (dragSource === dropTarget) {
+			dnd_clicked = true;
+		} else {
+			postMove(dragSource, dropTarget);
+			$('[class*="highlight_input_move_from"]').removeClass('highlight_input_move_from');
+			dragSource = undefined; // this operation has been handled
+			dnd_clicked = false;
+		}
+	}
 }
 
 
 function _dnd_click(thisElement, board) {
-	if (dragSource == undefined) {
-		_dnd_down(thisElement, board);
-		dnd_clicked = true;
-	} else {
-		dnd_clicked = false;
-		_dnd_up(thisElement);
-	}
 }
 
 function _lengthenFen(fenString, maxVal) {
@@ -329,7 +337,7 @@ function highlight(fieldId, descr) {
 function _addEvents(object, board) {
 	if (!board.isWatching) {
 		object.mousedown(function() {_dnd_down($(this), board)});
-		object.mouseup(function() {_dnd_up($(this))});
+		object.mouseup(function() {_dnd_up($(this), board)});
 		object.click(function() {_dnd_click($(this), board)});
 	}
 }

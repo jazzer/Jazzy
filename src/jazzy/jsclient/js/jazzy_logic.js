@@ -572,7 +572,16 @@ function _parseCurrPlayer(currPlayerValue, boardId) {
 	myTurn[boardId] = selfPlayerIDs.indexOf(currPlayerValue) != -1;
 	console.debug('myTurn per board');
 	console.debug(myTurn);
-	
+
+	// lock board if not my turn 
+	// (prevents some nasty bugs when sending moves 
+	// before receiving the last one of your opponent)
+	if (myTurn[boardId]) {
+		boardStorage.getBoard(boardId).unlock();
+	} else {
+		boardStorage.getBoard(boardId).lock();
+	}
+
 	// set styles
 	// clear board
 	$('[id^="' + boardId + '_p"]').removeClass('player-curr');

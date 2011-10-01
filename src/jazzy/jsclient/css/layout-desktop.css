@@ -99,6 +99,7 @@ h1, h2, h3, h4, h5, h6 {
 #boards {
 	width: 100%;
 	margin: 0 auto;
+	vertical-align: top;
 }
 
 #boards > div {
@@ -115,7 +116,6 @@ h1, h2, h3, h4, h5, h6 {
 	margin-left: 50px;
 	margin-right: 50px;
 	margin-bottom: 15px;
-	vertical-align: top;
 }
 
 .board .field {
