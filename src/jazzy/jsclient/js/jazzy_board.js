@@ -58,7 +58,6 @@ function Board(id, width, height, flipped) {
 	this.flipped = flipped;
 	this.isWatching = false;
 	this.locked = false;
-	this.myTurn = true;	
 
 	this.build();
 }
@@ -238,8 +237,7 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 	}
 
 	// reset click event memory
-	dragSource = undefined;
-	dnd_clicked = false;
+	_dnd_remove();
 }
 
 Board.prototype.highlight_move = function(from, to) {
@@ -259,7 +257,13 @@ Board.prototype.highlight_clear = function() {
 
 function _dnd_down(thisElement, board) {
 	console.debug('dnd down >> ' + dragSource);
-	if (!board.isLocked() && board.myTurn && thisElement.children().length > 0 && !dnd_clicked) {	
+	// deselect (somewhat against the rules, but can we prevent that fraud
+	// in online gaming?)
+	if (dragSource === thisElement.attr('id')) {
+		dragSource = undefined; // will remove in up event
+	}
+
+	if (!board.isLocked() && myTurn[board.id] && thisElement.children().length > 0 && !dnd_clicked) {	
 		dragSource = thisElement.attr('id');
 		thisElement.addClass('highlight_input_move_from');
 	}
@@ -271,9 +275,7 @@ function _dnd_up(thisElement, board) {
 	console.debug(board.isLocked());
 	console.debug(dnd_clicked);
 	if (board.isLocked() || dragSource === undefined) {
-		dragSource = undefined;
-		$('[class*="highlight_input_move_from"]').removeClass('highlight_input_move_from');
-		dragSource = undefined;
+		_dnd_remove();
 		return;
 	}
 
@@ -284,16 +286,19 @@ function _dnd_up(thisElement, board) {
 			dnd_clicked = true;
 		} else {
 			postMove(dragSource, dropTarget);
-			$('[class*="highlight_input_move_from"]').removeClass('highlight_input_move_from');
-			dragSource = undefined; // this operation has been handled
+			_dnd_remove(); // this operation has been handled
 			dnd_clicked = false;
 		}
 	}
 }
 
 
-function _dnd_click(thisElement, board) {
+function _dnd_remove() {
+	dragSource = undefined;
+	$('[class*="highlight_input_move_from"]').removeClass('highlight_input_move_from');
+	dnd_clicked = false;
 }
+
 
 function _lengthenFen(fenString, maxVal) {
 	var replacement = "__";
@@ -338,7 +343,6 @@ function _addEvents(object, board) {
 	if (!board.isWatching) {
 		object.mousedown(function() {_dnd_down($(this), board)});
 		object.mouseup(function() {_dnd_up($(this), board)});
-		object.click(function() {_dnd_click($(this), board)});
 	}
 }
 

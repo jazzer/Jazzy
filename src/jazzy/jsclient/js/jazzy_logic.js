@@ -333,7 +333,6 @@ function buildClassicBoard(cols, rows, flippedParam) {
 			if (!isWatching) {
 				field.mousedown(function() {_dnd_down($(this))});
 				field.mouseup(function() {_dnd_up($(this))});
-				field.click(function() {_dnd_click($(this))});
 			}
 			
 			// append it to the board			
