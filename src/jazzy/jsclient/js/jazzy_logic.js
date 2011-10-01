@@ -700,6 +700,10 @@ function _fillPlayers(position, content, board) {
 		var playerDiv = $('<div>').addClass('player').attr('id', board.id + '_p' + playerData[1]).html(playerData[0]).attr('title', playerData[1]); // [0] = name, [1] = ID
 		// add click events
 		playerHostDiv.append(playerDiv);
+		// highlight if it's yourself
+		if (selfPlayerIDs.search(playerData[1]) !== -1) {
+			playerDiv.addClass('player-me');
+		}
 	}
 }
 
