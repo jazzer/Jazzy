@@ -55,6 +55,12 @@ class _MultiboardGame(ClassicGame):
         for game in self.gameList:
             watcherList += game.getAllWatchers()
         return watcherList
+    
+    def getAllBoards(self):
+        boardList = []
+        for game in self.gameList:
+            boardList += game.getAllBoards()
+        return boardList
 
     def getSlotsMessageData(self):
         slotList = []
@@ -69,8 +75,12 @@ class _MultiboardGame(ClassicGame):
         gameSitMsg = Message('gamesit', {})
         boardCounter = 0
         for game in self.gameList:
+<<<<<<< HEAD
             subMsg = game.getSituationMessage(mq, force, player, init)
             gameSitMsg.data[str(boardCounter)] = subMsg.data['0']
+=======
+            gameSitMsg.data[str(boardCounter)] = game.getSituationMessage(mq, force, player, init).data['0']
+>>>>>>> experimental
             boardCounter += 1
         gameSitMsg.data['gameId'] = self.id
         gameSitMsg.data['playerSelf'] = ','.join(mq.subject.aliases + [mq.shortenedId])
@@ -124,4 +134,13 @@ class BughouseGame(_MultiboardGame):
         super(BughouseGame, self).startInit(gameList)
         
     def handleCaptureMove(self, move, board):
-        return super(BughouseGame, self).handleCaptureMove(move, board)
+        super(BughouseGame, self).handleCaptureMove(move, board)
+        originalPiece = board.fields[move.toField]
+        # find the board next to mine on the right (wrapped)
+        boards = self.getAllBoards()
+        for i in range(len(boards)):
+            if boards[i] == board:
+                targetBoard = boards[(i+1) % len(boards)]
+        targetPocket = targetBoard.pockets[originalPiece.color]
+        board.pockets[self.getLastCurrentPlayer(board).color]
+        self._putPieceToPocket(originalPiece, targetPocket, flipColor=False)
