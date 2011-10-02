@@ -448,6 +448,11 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
                         playerName = playerName.replace('bot:', '')
                         # exchange the pregenerated player for the bot
                         # TODO keep mq and all links in both directions
+                        bot = playerName()
+                        targetPlayer.mq.subject = bot
+                        bot.mq = targetPlayer.mq
+                        targetPlayer = bot
+                        jsonoutput = json.dumps({'msg': 'Added %s.' % playerName})
                     else:
                         jsonoutput = json.dumps({'link': 'play.html?' + player.mq.id})
                     if playerName != '':

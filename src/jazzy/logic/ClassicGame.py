@@ -175,6 +175,9 @@ class ClassicGame():
     def getAllWatchers(self):
         ''' also returns all players from sub-games '''
         return self.watchers    
+    
+    def getAllBoards(self):
+        return self.board
         
     def createPlayers(self):
         # all of them will be dummys at first and filled via the slot mechanism
@@ -302,18 +305,23 @@ class ClassicGame():
         board.capturePockets[self.getLastCurrentPlayer(board).color].add(board.fields[move.toField])
         
         if self.USE_CRAZYHOUSE_POCKET:
-            # and copy the piece with inverted color to the pocket
-            freshPiece = copy.copy(board.fields[move.toField])
+            self._putPieceToPocket(board.fields[move.toField], board.pockets[self.getLastCurrentPlayer(board).color], flipColor=True)
+
+    def _putPieceToPocket(self, originalPiece, targetPocket, flipColor=False):
+        # and copy the piece with inverted color to the pocket
+        freshPiece = copy.copy(originalPiece)
+        if flipColor:
             freshPiece.color = 'white' if freshPiece.color == 'black' else 'black'
-            freshPiece.board = None
-            
-            # make sure the pawn is slow no matter where it is put // TODO rule check!
-            if isinstance(freshPiece, Pawn):
-                freshPiece.endInit() # important to make him look the other side
-                freshPiece.moveCount = 1
-                freshPiece.changedSpeed = False
-            
-            board.pockets[self.getLastCurrentPlayer(board).color].add(freshPiece)
+        freshPiece.board = None
+        
+        # make sure the pawn is slow no matter where it is put // TODO rule check!
+        if isinstance(freshPiece, Pawn):
+            freshPiece.endInit() # important to make him look the other side
+            freshPiece.moveCount = 1
+            freshPiece.changedSpeed = False
+       
+        targetPocket.add(freshPiece)
+     
         
     def addPlayer(self, player):
         player.game = self
