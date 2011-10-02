@@ -20,6 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 
 from MessageHandler import MessageQueue
+from random import choice
 
 class Player():
 
@@ -28,6 +29,7 @@ class Player():
         self.offeringDraw = False
         self.flipBoard = False # has to be set upon creation
         self.aliases = []
+        self.human = True
 
         if name is None:
             # dummy ...
@@ -87,4 +89,26 @@ class Pocket():
         self.pieces.append(piece)
         self.pieces = sorted(self.pieces, key=lambda piece: piece.value)
         self.dirty = True
+        
+        
+''' some extremely simple AI players '''        
+class Bot(Player):
+    def __init__(self):
+        super(Bot, self).__init__()
+        self.human = False
+        
+    def play(self):
+        pass
+    
+    
+class RanBot(Bot):
+    def play(self):
+        # where am I? 
+        board = self.mq.board
+        game = self.mq.game
+        # choose a possible move randomly
+        game.parsePossibleMoves(self)
+        myMove = choice(game.possibleMoves)
+        # and move
+        game.move(myMove, board, True)
         

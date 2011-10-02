@@ -424,6 +424,8 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             
         elif (params[0] == 'join'): 
             # message format: /join/[gameId]/[shortened mqId]/[playerName]
+            # playerName starting with "bot:" indicates non-human player
+            
             # find the player targeted
             try:    
                 game = gamePool.games[params[1]]
@@ -440,9 +442,14 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             else:
                 if not targetPlayer.dummy:
                     jsonoutput = json.dumps({'msg': 'Slot is taken.'})
-                else:   
-                    jsonoutput = json.dumps({'link': 'play.html?' + player.mq.id})
+                else:
                     playerName = params[3] if len(params) > 3 else ''
+                    if playerName.startswith('bot:'):
+                        playerName = playerName.replace('bot:', '')
+                        # exchange the pregenerated player for the bot
+                        # TODO keep mq and all links in both directions
+                    else:
+                        jsonoutput = json.dumps({'link': 'play.html?' + player.mq.id})
                     if playerName != '':
                         player.name = playerName
                     self.distributeToAll(game, Message('srvmsg', {'msg': 'Player %s joined.' % playerName}))
