@@ -167,6 +167,15 @@ class ClassicGame():
         # draw preparations
         if self.DRAW_REPETITION:
             self.board.drawCountRepetition()
+            
+        # metagame
+        self.metagame = self
+        self.board.metagame = self
+   
+    def distributeToAll(self, msg, filterPlayers=[]):
+        for player in self.getAllPlayers() + self.getAllWatchers():
+            if not (player in filterPlayers):
+                player.mq.addMsg(msg)
     
     def getAllPlayers(self):
         ''' also returns all players from sub-games '''
@@ -177,7 +186,7 @@ class ClassicGame():
         return self.watchers    
     
     def getAllBoards(self):
-        return self.board
+        return [self.board]
         
     def createPlayers(self):
         # all of them will be dummys at first and filled via the slot mechanism
@@ -237,7 +246,7 @@ class ClassicGame():
         
         return True
        
-    def move(self, move, board, preGeneratePossibleMoves=True):
+    def move(self, move, board, preGeneratePossibleMoves=True, noHandleCapture=False):
         moves = [move]
 
         # castling moves first
@@ -267,7 +276,7 @@ class ClassicGame():
                 xMove.player = self.getCurrentPlayer(board)
                 xMove.simpleParse(board)
                 xMove.fullParse(board)        
-            board.move(xMove)
+            board.move(xMove, noHandleCapture)
         # TODO parse check here?
         
         # parse additional draw conditions
@@ -362,8 +371,9 @@ class ClassicGame():
         counter = 0 # this code is prepared for multi-board games, but it is not used
 
         # check boards
+        totalFlip = not (subject.flipBoard and mq.game.board.inherentlyFlipped)
         data = {'board_id': self.board.id,
-                'flipped': subject.flipBoard}
+                'flipped': totalFlip and self.board.inherentlyFlipped}
         if force or self.board.resend:
             send = True
             data['fen'] = self.getFenPos(self.board, mq.subject)
@@ -415,9 +425,10 @@ class ClassicGame():
         result[str(counter)] = data
         counter += 1
         
-        result['gameId'] = self.id
-        # add ownPlayers
-        result['playerSelf'] = mq.shortenedId + ',' + ','.join(mq.subject.aliases)
+        if init:
+            result['gameId'] = self.id
+            # add ownPlayers
+            result['playerSelf'] = mq.shortenedId + ',' + ','.join(mq.subject.aliases)
 
         if send:
             return Message('gamesit', result)
@@ -513,10 +524,10 @@ class ClassicGame():
             return None
         return self.COLORS[(pos + 1) % len(self.COLORS)]    
         
-    def parsePossibleMoves(self):
+    def parsePossibleMoves(self, force=False):
         if self.getCurrentPlayer(self.board) is None:
             return
-        elif not(self.possibleMoves is None):
+        elif not(self.possibleMoves is None) and not force:
             return        
         
         moveSet = self.getPossibleMoves(self.board, checkTest=self.CHECK_FOR_CHECK)
@@ -705,7 +716,7 @@ class ClassicGame():
             # create a board copy for analysis purposes
             whatIfBoard = copy.deepcopy(self.board)
             logger.debug('board vs. whatIfBoard:\n%s\n\n%s' % (str(board), str(whatIfBoard)))
-            self.move(move, whatIfBoard)
+            self.move(move, whatIfBoard, noHandleCapture=True)
             logger.debug('whatIfBoard after:\n%s' % str(whatIfBoard))
             #print("what if? \n" + whatIfBoard.__unicode__())
             # did the player stay in check?            

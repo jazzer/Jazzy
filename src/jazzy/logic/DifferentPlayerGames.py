@@ -18,7 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 from jazzy.logic.ClassicGame import ClassicGame
-from jazzy.logic.DifferentRulesGames import CrazyhouseGame
+from jazzy.logic.DifferentRulesGames import _SingleBughouseGame
 from jazzy.server.MessageHandler import Message
 import uuid
 
@@ -32,6 +32,8 @@ class _MultiboardGame(ClassicGame):
         id = 1
         for game in self.gameList:
             game.board.id = id
+            game.metagame = self
+            game.board.metagame = self
             id += 1
 
         self.id = uuid.uuid4().hex
@@ -75,12 +77,8 @@ class _MultiboardGame(ClassicGame):
         gameSitMsg = Message('gamesit', {})
         boardCounter = 0
         for game in self.gameList:
-<<<<<<< HEAD
             subMsg = game.getSituationMessage(mq, force, player, init)
             gameSitMsg.data[str(boardCounter)] = subMsg.data['0']
-=======
-            gameSitMsg.data[str(boardCounter)] = game.getSituationMessage(mq, force, player, init).data['0']
->>>>>>> experimental
             boardCounter += 1
         gameSitMsg.data['gameId'] = self.id
         gameSitMsg.data['playerSelf'] = ','.join(mq.subject.aliases + [mq.shortenedId])
@@ -129,18 +127,10 @@ class BughouseGame(_MultiboardGame):
   
     def startInit(self, boardCount=2):
         gameList = []
-        for _ in range(boardCount):
-            gameList.append(CrazyhouseGame())
+        for i in range(boardCount):
+            game = _SingleBughouseGame()
+            if i % 2 == 1:
+                game.board.inherentlyFlipped = True
+            gameList.append(game)
         super(BughouseGame, self).startInit(gameList)
         
-    def handleCaptureMove(self, move, board):
-        super(BughouseGame, self).handleCaptureMove(move, board)
-        originalPiece = board.fields[move.toField]
-        # find the board next to mine on the right (wrapped)
-        boards = self.getAllBoards()
-        for i in range(len(boards)):
-            if boards[i] == board:
-                targetBoard = boards[(i+1) % len(boards)]
-        targetPocket = targetBoard.pockets[originalPiece.color]
-        board.pockets[self.getLastCurrentPlayer(board).color]
-        self._putPieceToPocket(originalPiece, targetPocket, flipColor=False)

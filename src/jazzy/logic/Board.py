@@ -38,6 +38,7 @@ class Board(object):
         self.clear() # self.fields is created here
         self.moveHistory = []
         self.resend = False # for triggering full retransmission of the board's status
+        self.inherentlyFlipped = False
         
         # do not change
         self.castlingsPossible = {} # dictionary of lists, keys = colors
@@ -175,7 +176,7 @@ class Board(object):
             fromField = int(pos)
             return self.fields[fromField]
             
-    def move(self, move):        
+    def move(self, move, noHandleCapture=False):        
         if isinstance(move, NullMove):
             return        
 
@@ -189,7 +190,7 @@ class Board(object):
         # standard move
         fromPiece.moveCount = fromPiece.moveCount + 1
         # is it a capturing move?
-        if not(self.fields[move.toField] is None):
+        if not noHandleCapture and not(self.fields[move.toField] is None):
             self.game.handleCaptureMove(move, self)
         self.fields[move.toField] = fromPiece
         if self.getPiecesPocket(move.fromField) is None:

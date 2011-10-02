@@ -361,3 +361,28 @@ class CrazyhouseGame(ClassicGame):
         self.DROP_NO_PAWN_TO_PROMOTION_FIELDS = True
         self.DROP_NO_CHECKMATE = True
         self.DROP_NO_CHECK = False
+
+
+class _SingleBughouseGame(ClassicGame):
+
+    def handleCaptureMove(self, move, board):
+        # take care of capturePocket
+        super(_SingleBughouseGame, self).handleCaptureMove(move, board)
+
+        originalPiece = board.fields[move.toField]
+        # find the board next to mine on the right (wrapped)
+        boards = self.metagame.getAllBoards()
+        for i in range(len(boards)):
+            if boards[i].id == board.id:
+                targetBoard = boards[(i+1) % len(boards)]
+        targetPocket = targetBoard.pockets[originalPiece.color]
+        board.pockets[self.getLastCurrentPlayer(board).color]
+        self._putPieceToPocket(originalPiece, targetPocket, flipColor=False)
+        
+        # we interfered with another games, that sure has implications:
+        targetBoard.game.parsePossibleMoves(force=True) # so that you can instantly use it
+        movingPlayer = board.game.getCurrentPlayer()
+        # the pocket needs to be resent
+        msg = targetBoard.game.getSituationMessage(movingPlayer.mq, force=False, init=False)
+        self.distributeToAll(msg)        
+
