@@ -371,9 +371,8 @@ class ClassicGame():
         counter = 0 # this code is prepared for multi-board games, but it is not used
 
         # check boards
-        totalFlip = not (subject.flipBoard and mq.game.board.inherentlyFlipped)
         data = {'board_id': self.board.id,
-                'flipped': totalFlip and self.board.inherentlyFlipped}
+                'flipped': subject.flipBoard != self.board.inherentlyFlipped}
         if force or self.board.resend:
             send = True
             data['fen'] = self.getFenPos(self.board, mq.subject)
