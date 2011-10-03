@@ -313,7 +313,7 @@ class ClassicGame():
         # put the piece to the capturePocket
         board.capturePockets[self.getLastCurrentPlayer(board).color].add(board.fields[move.toField])
         
-        if self.USE_CRAZYHOUSE_POCKET:
+        if self.USE_POCKET and self.USE_CRAZYHOUSE_POCKET:
             self._putPieceToPocket(board.fields[move.toField], board.pockets[self.getLastCurrentPlayer(board).color], flipColor=True)
 
     def _putPieceToPocket(self, originalPiece, targetPocket, flipColor=False):
@@ -361,6 +361,8 @@ class ClassicGame():
         return slotList
     
     def getPocketMessage(self, onlyNew=True):
+        if not self.USE_POCKET:
+            return None
         if onlyNew and not self.board.pockets['white'].dirty and not self.board.pockets['black'].dirty:
             return None
         result = {}

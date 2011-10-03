@@ -508,15 +508,9 @@ function _parseCurrPlayer(currPlayerValue, boardId) {
 	if (currPlayerValue == undefined) {
 		return;
 	}
-	console.debug('analyzing currPlayerValue of ' + currPlayerValue);
-	console.debug('selfPlayerIDs: ' + selfPlayerIDs);
 
 	currPlayer[boardId] = currPlayerValue;
-	console.debug('currP per board');
-	console.debug(currPlayer);
 	myTurn[boardId] = selfPlayerIDs.indexOf(currPlayerValue) != -1;
-	console.debug('myTurn per board');
-	console.debug(myTurn);
 
 	// lock board if not my turn 
 	// (prevents some nasty bugs when sending moves 
@@ -541,18 +535,14 @@ function _parseCurrPlayer(currPlayerValue, boardId) {
 			break;
 		}
 	}
-	console.debug('turn? ' + turn);
 	// set title accordingly
 	if (turn) {
 		if (document.title.substr(0, mark.length) !== mark) {
-			console.debug('adding');
 			document.title = mark + ' ' + document.title;
 		}		
 	} else {
-		console.debug('removing');
 		document.title = document.title.replace(/^[^a-zA-Z0-9]+ /, '');
 	}
-	console.debug('------------');
 }
 
 function _changeDebugLevel() {
@@ -618,7 +608,6 @@ function _parseBoardPlayers(players, targetBoard) {
 	var myBoard = false;
 	for (i in playerArray) {
 		var playerID = playerArray[i].split(':')[1];
-		console.debug('compare self: ' + selfPlayerIDs + '\nto: ' + playerID);
 		if (selfPlayerIDs.search(playerID) !== -1) {
 			myBoard = true;
 			break;

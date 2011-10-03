@@ -212,9 +212,12 @@ h1, h2, h3, h4, h5, h6 {
 
 
 /* message box */
-#messages {
-	height: 100px;
+#messages {	
+	min-height: 100px;
+	max-height: 800px;
 	overflow: auto;
+	min-width: 200px;
+	max-width: 800px;
 	padding: 2px 2px;
 	resize: vertical;
 }
@@ -233,7 +236,10 @@ h1, h2, h3, h4, h5, h6 {
 /* chat box */
 #chat {
 	resize: vertical;
-	width: 400px;
+	min-width: 200px;
+	max-width: 800px;
+	min-height: 100px;
+	max-height: 800px;
 }
 #chat_history {
 	padding: 2px 2px;
