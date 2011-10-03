@@ -18,7 +18,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 from jazzy.logic.ClassicGame import ClassicGame
-from jazzy.logic.DifferentRulesGames import _SingleBughouseGame
 from jazzy.server.MessageHandler import Message
 import uuid
 
@@ -134,3 +133,28 @@ class BughouseGame(_MultiboardGame):
             gameList.append(game)
         super(BughouseGame, self).startInit(gameList)
         
+
+class _SingleBughouseGame(ClassicGame):
+
+    def handleCaptureMove(self, move, board):
+        # take care of capturePocket
+        super(_SingleBughouseGame, self).handleCaptureMove(move, board)
+
+        originalPiece = board.fields[move.toField]
+        # find the board next to mine on the right (wrapped)
+        boards = self.metagame.getAllBoards()
+        for i in range(len(boards)):
+            if boards[i].id == board.id:
+                targetBoard = boards[(i+1) % len(boards)]
+                break
+        targetPocket = targetBoard.pockets[originalPiece.color]
+        self._putPieceToPocket(originalPiece, targetPocket, flipColor=False)
+        
+        # we interfered with another games, that sure has implications:
+        targetBoard.game.parsePossibleMoves(force=True) # so that the player can instantly use it
+        #movingPlayer = board.game.getCurrentPlayer()
+        # the pocket needs to be resent for everyone
+        msg = targetBoard.game.getPocketMessage()
+        if not (msg is None):
+            for player in self.metagame.getAllPlayers():
+                player.mq.addMsg(msg)

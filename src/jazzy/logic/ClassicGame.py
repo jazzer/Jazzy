@@ -360,6 +360,15 @@ class ClassicGame():
             slotList.append(playerDict)
         return slotList
     
+    def getPocketMessage(self, onlyNew=True):
+        if onlyNew and not self.board.pockets['white'].dirty and not self.board.pockets['black'].dirty:
+            return None
+        result = {}
+        data = {'board_id': self.board.id}
+        data['pockets'] = ''.join([piece.getShortName() for piece in self.board.pockets['white'].getPieces()]) + ',' + ''.join([piece.getShortName() for piece in self.board.pockets['black'].getPieces()])
+        result['0'] = data
+        return Message('gamesit', result)
+    
     def getSituationMessage(self, mq, force=False, player=None, init=False):
         if player is None:
             subject = mq.subject
@@ -371,10 +380,11 @@ class ClassicGame():
         counter = 0 # this code is prepared for multi-board games, but it is not used
 
         # check boards
-        data = {'board_id': self.board.id,
-                'flipped': subject.flipBoard != self.board.inherentlyFlipped}
+        data = {'board_id': self.board.id}
+        flipTotal = subject.flipBoard != subject.game.board.inherentlyFlipped
         if force or self.board.resend:
             send = True
+            data['flipped'] = flipTotal != self.board.inherentlyFlipped
             data['fen'] = self.getFenPos(self.board, mq.subject)
             data['board_size'] = str(self.board.width) + 'x' + str(self.board.height)
             # add players
@@ -415,9 +425,9 @@ class ClassicGame():
             if force or self.board.resend or pocket.dirty:
                 send = True
                 data['pockets'] = ''.join([piece.getShortName() for piece in self.board.pockets['white'].getPieces()]) + ',' + ''.join([piece.getShortName() for piece in self.board.pockets['black'].getPieces()])
-        for key in self.board.pockets:
-            pocket = self.board.pockets[key]
-            if force or self.board.resend or pocket.dirty:
+        for key in self.board.capturePockets:
+            capturePocket = self.board.capturePockets[key]
+            if force or self.board.resend or capturePocket.dirty:
                 send = True
                 data['capturePockets'] = ''.join([piece.getShortName() for piece in self.board.capturePockets['white'].getPieces()]) + ',' + ''.join([piece.getShortName() for piece in self.board.capturePockets['black'].getPieces()])
                     
@@ -524,9 +534,12 @@ class ClassicGame():
         return self.COLORS[(pos + 1) % len(self.COLORS)]    
         
     def parsePossibleMoves(self, force=False):
+        if force:
+            self.possibleMoves = None
+            
         if self.getCurrentPlayer(self.board) is None:
             return
-        elif not(self.possibleMoves is None) and not force:
+        elif not(self.possibleMoves is None):
             return        
         
         moveSet = self.getPossibleMoves(self.board, checkTest=self.CHECK_FOR_CHECK)

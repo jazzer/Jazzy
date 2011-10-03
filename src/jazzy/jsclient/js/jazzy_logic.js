@@ -297,60 +297,6 @@ function showDetails(game) {
 }
 
 
-function buildClassicBoard(cols, rows, flippedParam) {
-	if (cols == board_cols && rows == board_rows && flippedParam == flipped) {
-		return;
-	}
-
-	// create a new board
-	$("#board").empty();
-	var counter = 0;
-	board_cols = cols;
-	board_rows = rows;
-	flipped = flippedParam;
-	fields = board_cols * board_rows;
-	for (var row = 1; row <= rows; row++) {
-		for (var col = 1; col <= cols; col++) {
-			var field = $("<div>");
-			// color scheme (lower right field is white!)
-			fieldPos = col+row + (flipped ? 0 : (cols+rows) % 2)
-			field.addClass("field");
-			if (fieldPos % 2 == 0) {
-				field.addClass("light");
-			} else {
-				field.addClass("dark");
-			}
-			if (counter % cols == 0) {
-				field.addClass("clear_row");
-			}
-			// id
-			if (!flipped) {
-				field.attr('id', 'field'+counter);
-			} else {
-				field.attr('id', 'field'+(fields-counter-1));
-			}
-			// set events for drag and drop
-			if (!isWatching) {
-				field.mousedown(function() {_dnd_down($(this))});
-				field.mouseup(function() {_dnd_up($(this))});
-			}
-			
-			// append it to the board			
-			$("#board").append(field);
-
-			counter++;
-		}
-	}
-
-	// correct the board div's size
-	var field_width = $("#field0").width();
-	$("#board").css("width", field_width*cols);
-	var field_height = $("#field0").height();
-	$("#board").css("height", field_height*rows);
-	
-	_debug("Created board of size " + board_cols + "x" + board_rows, 3);
-}
-
 
 
 function postMove(from, to, promotion) {
@@ -654,6 +600,7 @@ function _offerDraw() {
 }
 
 function _fillPocket(position, content, board) {
+	var position = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'top':'bottom';
 	var pocketId = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'1':'0';
 	var pocket = $('#' + position + '-pocket-board_' + board.id).empty();
 	for (var i=0; i<content.length; i++) {
@@ -768,7 +715,9 @@ function parseMQ(data) {
 			case "gamesit":
 				var j = -1;
 				// save own IDs
-				selfPlayerIDs = data[i]['playerSelf'];
+				if (data[i]['playerSelf'] !== undefined) {
+					selfPlayerIDs = data[i]['playerSelf'];
+				}
 				while (true) {
 					j++
 					// build the board
@@ -801,19 +750,23 @@ function parseMQ(data) {
 						var msgFlipped = data[i][j]['flipped'];
 						var targetBoard = boardStorage.getBoard(boardId);
 						window.setTimeout(function() {
-							_fillPocket('top', pockets[msgFlipped?0:1], targetBoard);
-							_fillPocket('bottom', pockets[msgFlipped?1:0], targetBoard);
+							_fillPocket('top', pockets[1], targetBoard);
+							_fillPocket('bottom', pockets[0], targetBoard);
 						}, 1000);
 						
 					}
 					if (data[i][j]['capturePockets'] != undefined) {
 						// TODO implement filling (#27 on GitHub)
 					}
-					// check if it's my turn
-					_parseCurrPlayer(data[i][j]['currP'], boardId);
+					if (data[i][j]['currP'] != undefined) {
+						// check if it's my turn
+						_parseCurrPlayer(data[i][j]['currP'], boardId);
+					}
 				}
-				// add the appropriate link to the game's overview page
-				$('#menu_game').children('a').attr('href', 'game.html?' + data[i]['gameId']);
+				if (data[i]['gameId'] !== undefined) {
+					// add the appropriate link to the game's overview page
+					$('#menu_game').children('a').attr('href', 'game.html?' + data[i]['gameId']);
+				}
 				break;
 			case "srvmsg":
 				addServerMessage(data[i]['msg']);
