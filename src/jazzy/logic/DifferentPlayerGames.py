@@ -153,6 +153,7 @@ class _SingleBughouseGame(ClassicGame):
                 break
         targetPocket = targetBoard.pockets[originalPiece.color]
         self._putPieceToPocket(originalPiece, targetPocket, flipColor=False)
+        board.game.distributeToAll(Message('srvmsg', {'msg': "putting it to board %s" % targetBoard.id}))
         
         # we interfered with another games, that sure has implications:
         targetBoard.game.possibleMoves = None # so that the player can instantly use it

@@ -29,7 +29,7 @@ var myTurn = true;
 var noCalls = false;
 var styleNames = 'gray,light-wood,dark-wood,mono';
 
-if (typeof BoardStorage == 'function') {
+if (typeof BoardStorage === 'function') {
 	var boardStorage = new BoardStorage();
 }
 
@@ -591,7 +591,7 @@ function _offerDraw() {
 
 function _fillPocket(position, content, board) {
 	var position = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'top':'bottom';
-	var pocketId = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'1':'0';
+	var pocketId = position=='top'?'1':'0';
 	var pocket = $('#' + position + '-pocket-board_' + board.id).empty();
 	for (var i=0; i<content.length; i++) {
 		var pieceDiv = board.getPieceDiv(content.charAt(i));
@@ -715,39 +715,35 @@ function parseMQ(data) {
 					} catch (e) {
 						break;
 					}
-					boardId = data[i][j]['board_id'];		
-					if (data[i][j]['board_size'] != undefined) {
+					var boardId = data[i][j]['board_id'];		
+					if (data[i][j]['board_size'] !== undefined) {
 						boardSize = data[i][j]['board_size'].split('x');
 						board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[i][j]['flipped']);	
 						// load the position
 						board.loadFEN(data[i][j]['fen']);
 						// fix highlight
 						board.highlight_clear();
-						if (data[i][j]['lmove_from'] != undefined && data[i][j]['lmove_to'] != undefined) {
+						if (data[i][j]['lmove_from'] !== undefined && data[i][j]['lmove_to'] != undefined) {
 							board.highlight_move(lengthenFieldString(data[i][j]['lmove_from']), lengthenFieldString(data[i][j]['lmove_to']));
 						}
 					}
-					if (data[i][j]['players'] != undefined) {
+					if (data[i][j]['players'] !== undefined) {
 						var players = data[i][j]['players'].split('/');						
 						var targetBoard = boardStorage.getBoard(boardId);
 						_parseBoardPlayers(players, targetBoard);
 						_fillPlayers('top', players[1], targetBoard);
 						_fillPlayers('bottom', players[0], targetBoard);
 					}
-					if (data[i][j]['pockets'] != undefined) {
+					if (data[i][j]['pockets'] !== undefined) {
 						pockets = data[i][j]['pockets'].split(',');
-						var msgFlipped = data[i][j]['flipped'];
 						var targetBoard = boardStorage.getBoard(boardId);
-						window.setTimeout(function() {
-							_fillPocket('top', pockets[1], targetBoard);
-							_fillPocket('bottom', pockets[0], targetBoard);
-						}, 1000);
-						
+						_fillPocket('top', pockets[1], targetBoard);
+						_fillPocket('bottom', pockets[0], targetBoard);
 					}
-					if (data[i][j]['capturePockets'] != undefined) {
+					if (data[i][j]['capturePockets'] !== undefined) {
 						// TODO implement filling (#27 on GitHub)
 					}
-					if (data[i][j]['currP'] != undefined) {
+					if (data[i][j]['currP'] !== undefined) {
 						// check if it's my turn
 						_parseCurrPlayer(data[i][j]['currP'], boardId);
 					}

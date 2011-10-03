@@ -27,7 +27,6 @@ class Message(object):
         self.data = params
         self.data['mtype'] = type
         self.data['mid'] = uuid.uuid4().hex[1:10] # length of 10 should be unique enough
-        print("built msg: " + str(self.data))
         
     def __str__(self):
         return self.__unicode__()

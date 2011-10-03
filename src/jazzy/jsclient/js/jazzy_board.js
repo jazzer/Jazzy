@@ -78,7 +78,6 @@ Board.prototype.build = function() {
 	// create a new board
 	var boardId = "board_" + this.id;
 	var board = this;
-	//console.debug(board);
 
 	$("#" + boardId).parent().remove();
 	boardDiv = $('<div>').attr('id', boardId).addClass('board');
@@ -256,7 +255,6 @@ Board.prototype.highlight_clear = function() {
 
 
 function _dnd_down(thisElement, board) {
-	console.debug('dnd down >> ' + dragSource);
 	// deselect (somewhat against the rules, but can we prevent that fraud
 	// in online gaming?)
 	if (dragSource === thisElement.attr('id')) {
@@ -270,17 +268,12 @@ function _dnd_down(thisElement, board) {
 }
 
 function _dnd_up(thisElement, board) {
-	console.debug("up at " + thisElement.attr('id'));
-	console.debug(dragSource);
-	console.debug(board.isLocked());
-	console.debug(dnd_clicked);
 	if (board.isLocked() || dragSource === undefined) {
 		_dnd_remove();
 		return;
 	}
 
 	dropTarget = thisElement.attr('id');
-	//console.debug(dropTarget);
 	if (dropTarget !== undefined) {
 		if (dragSource === dropTarget) {
 			dnd_clicked = true;
