@@ -58,6 +58,7 @@ function Board(id, width, height, flipped) {
 	this.flipped = flipped;
 	this.isWatching = false;
 	this.locked = false;
+	this.animated = false;
 
 	this.build();
 }
@@ -179,27 +180,34 @@ Board.prototype.getPieceDiv = function(pieceType) {
 
 
 Board.prototype.move = function(from, to, toPiece, silent) {
+	// wait!
+	//while (this.animated) {	}
+
 	if (from == -1) {
 		return;
 	}
 	if (silent === undefined) { var silent = false; } // default
 
-
+	this.animated = true;
+	
 	var fromField = $("#" + from);
 	var toField = $("#" + to);	
 	var isPiece = (fromField.children().length > 0);
 	if (!isPiece) {
+		this.animated = false;
 		return;
 	}
+	fromField.children().stop(true, true);
 	var isCapture = (toField.children().length > 0);
 	
 	// animate the move?
 	if (ui_setting_animate_move) {
-		// clear target field
-		toField.children().css({'z-index': '2'}).fadeOut(400, function() {
-			$(this).remove();
-		});
-
+		if (isCapture) {
+			// clear target field
+			toField.children().css({'z-index': '2'}).fadeOut(400, function() {
+				$(this).remove();
+			});
+		}
 		outerThis = this;
 		// move animation
 		fromField.children().css({position: 'relative',
@@ -216,11 +224,13 @@ Board.prototype.move = function(from, to, toPiece, silent) {
 				}
 				// eventually set the piece to new field
 				fromField.children().css({top: 0, left: 0}).detach().prependTo(toField);
+				outerThis.animated = false;
 			});
 	} else {
 		// no animation
 		toField.children().remove();
 		fromField.children().detach().appendTo(toField);
+		this.animated = false;
 	}
 
 

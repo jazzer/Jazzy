@@ -590,8 +590,8 @@ function _offerDraw() {
 }
 
 function _fillPocket(position, content, board) {
-	var position = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'top':'bottom';
 	var pocketId = position=='top'?'1':'0';
+	var position = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'top':'bottom';
 	var pocket = $('#' + position + '-pocket-board_' + board.id).empty();
 	for (var i=0; i<content.length; i++) {
 		var pieceDiv = board.getPieceDiv(content.charAt(i));
