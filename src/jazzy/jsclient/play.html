@@ -27,7 +27,7 @@
 <div class="menu">
 <div class="menu_item head_logo"><img height="50px" src="img/logo.png" alt="Jazzy logo"/></div>
 <div class="menu_item" id="menu_new"><a href="new.html">New Game</a></div>
-<div class="menu_item" id="menu_game"><a href="#game">Game Overview</a></div>
+<div class="menu_item" id="menu_game"><a href="#game">This Game</a></div>
 <div class="menu_item" id="menu_settings"><a href="#settings">Settings</a></div>
 </div>
 
@@ -75,7 +75,7 @@
 <div id="chat_input">
 <form onsubmit="sendChat();return false;">
 <input name="chatmsg" type="text" style="width: 99%" maxlength="250">
-<input type="submit" value="Send" style="width: 100%">
+<button type="button" class="btn" style="width: 100%">Send</button>
 </form>
 </div>
 </div>
@@ -105,9 +105,9 @@
 <!-- server connection -->
 <div class="box">
 <h1>Server</h1>
-Current connection status: <div id="conn_status" class="roundbutton conn_bad">not connected</div>
-<div class="roundbutton" onclick="_playInit();">Refresh</div>
-<div id="btnDisconnect" class="roundbutton">Disconnect</div>
+Current connection status: <div id="conn_status" class="conn_bad">not connected</div><br />
+<button type="button" class="btn" onclick="_playInit();">Refresh</button>
+<button id="btnDisconnect" type="button" class="btn">Disconnect</button>
 
 <form onsubmit="return false;">Debug level: 
 <select name="debugLevel" size="1" onChange="_changeDebugLevel();">

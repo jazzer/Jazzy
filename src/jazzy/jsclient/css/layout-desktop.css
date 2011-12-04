@@ -84,7 +84,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* form elements */
+/* form elements 
 .roundbutton, input[type=submit] {
 	padding: 3px;
 	font-weight: bold;
@@ -92,6 +92,79 @@ h1, h2, h3, h4, h5, h6 {
 .roundbutton {
 	display: inline-block;
 	width: 100px;
+}*/
+
+/* great buttons from  http://www.webkrauts.de/2011/12/03/one-button-to-rule-them-all/ */
+/* nervige Abstände auch im Firefox auf Null setzen */
+.btn::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/* das Buttonstyling */
+.btn {
+	min-width: 100px;
+    display: inline-block;
+    overflow: visible;
+    position: relative;
+    height: 1.8em;
+    margin: 0;
+    border-radius: 4px;
+    -o-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border: 0;
+    padding: 0;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    -o-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    color: #000;
+    background-color: #66f;
+    background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.1));
+    background-image: -o-linear-gradient(transparent, rgba(0, 0, 0, 0.1));
+    background-image: -moz-linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+    background-image: -webkit-linear-gradient(transparent, rgba(0, 0, 0, 0.1));
+    transition: background linear 0.2s;
+    -o-transition: background linear 0.2s;
+    -moz-transition: background linear 0.2s;
+    -webkit-transition: background linear 0.2s;
+    cursor: pointer;
+}
+
+/* Typodefinition */
+.btn span {
+    display: block;
+    position: relative;
+    padding: 0 12px 0 35px;
+    font-family: arial, helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 31px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+}
+
+/* Pseudoklassen und Pseudoelemente definieren */
+.btn:focus,
+.btn:hover,
+.btn:active {
+    outline: 0 none;
+    background-color: #ffc600;
+}
+
+.btn:active {
+    top: 1px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.btn:before,
+.btn span:before,
+.btn span:after {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    content: "";
 }
 
 

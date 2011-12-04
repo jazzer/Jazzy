@@ -136,7 +136,7 @@ Board.prototype.build = function() {
 }
 
 function getBoardControls(boardId) {
-	return '<div class="roundbutton" onclick="_shortCastling(\'' + boardId + '\');">O-O</div> <div class="roundbutton" onclick="_longCastling(\'' + boardId + '\');">O-O-O</div><br /><br />' + '<div id="btn_offer_draw" class="roundbutton" onclick="_offerDraw(\'' + boardId + '\');">Offer draw</div>' + '<div id="btn_repetition" class="roundbutton" onclick="_repetition(\'' + boardId + '\');">Claim Repetition</div>' + '<div id="btn_x_move_rule" class="roundbutton" onclick="_xMoveRule(\'' + boardId + '\');">Claim x Move rule</div>&nbsp;' + '<div id="btn_resign" class="roundbutton" onclick="_resign(\'' + boardId + '\');">Resign</div>';
+	return '<button type="button" class="btn" onclick="_shortCastling(\'' + boardId + '\');">O-O</button> <button type="button" class="btn" onclick="_longCastling(\'' + boardId + '\');">O-O-O</button><br /><br />' + '<button type="button" class="btn" id="btn_offer_draw" onclick="_offerDraw(\'' + boardId + '\');">Offer draw</button> ' + '<button type="button" class="btn" id="btn_repetition" onclick="_repetition(\'' + boardId + '\');">Claim Repetition</button> ' + '<button type="button" class="btn" id="btn_x_move_rule" onclick="_xMoveRule(\'' + boardId + '\');">Claim x Move rule</button> ' + '<button type="button" class="btn" id="btn_resign" onclick="_resign(\'' + boardId + '\');">Resign</button>';
 }
 
 
