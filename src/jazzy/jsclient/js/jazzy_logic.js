@@ -632,7 +632,7 @@ function _fillPlayers(position, content, board) {
 	var playerSplit = content.split(',');
 	for (var i=0; i<playerSplit.length; i++) {
 		var playerData = playerSplit[i].split(':');
-		var playerDiv = $('<div>').addClass('player').attr('id', board.id + '_p' + playerData[1]).html(playerData[0]).attr('title', playerData[1]); // [0] = name, [1] = ID
+		var playerDiv = $('<div>').addClass('btn player').attr('id', board.id + '_p' + playerData[1]).html(playerData[0]).attr('title', playerData[1]); // [0] = name, [1] = ID
 		// add click events
 		playerHostDiv.append(playerDiv);
 		// highlight if it's yourself

@@ -120,8 +120,8 @@ Board.prototype.build = function() {
 	topPocket = $('<div>').attr('id', 'top-pocket-' + boardId).addClass('pocket').addClass('top-pocket');
 	bottomPocket = $('<div>').attr('id', 'bottom-pocket-' + boardId).addClass('pocket').addClass('bottom-pocket');
 	// players
-	topPlayers = $('<div>').attr('id', 'top-players-' + boardId).addClass('players').addClass('top-players');
-	bottomPlayers = $('<div>').attr('id', 'bottom-players-' + boardId).addClass('players').addClass('bottom-players');
+	topPlayers = $('<div>').attr('id', 'top-players-' + boardId).addClass('players top-players');
+	bottomPlayers = $('<div>').attr('id', 'bottom-players-' + boardId).addClass('players bottom-players');
 
 	// buttons for castling
 	outerDiv = $('<div>').attr('id', boardId + '-frame').append(topPocket).append(topPlayers).append(boardDiv).append(bottomPlayers).append(bottomPocket).append($('<div>').attr('id', boardId + '-controls').append(getBoardControls(boardId)));

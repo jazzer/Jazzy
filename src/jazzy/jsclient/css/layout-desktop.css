@@ -112,6 +112,7 @@ h1, h2, h3, h4, h5, h6 {
     overflow: visible;
     position: relative;
     height: 1.8em;
+    line-height: 1.8em;
     margin: 0;
     border-radius: 4px;
     -o-border-radius: 4px;
@@ -241,7 +242,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .top-players {
-	margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 .bottom-players {
 	margin-bottom: 15px;
@@ -251,8 +252,8 @@ h1, h2, h3, h4, h5, h6 {
 	padding: 2px;
 }
 .player-me {
-	padding: 20px;
-	border: 2px dashed yellow;
+	padding-left: 3em;
+	padding-right: 3em;
 }
 
 .promotion_piece {
