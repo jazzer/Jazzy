@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 */
 
+@import 'mixins';
 
 
 /* LESS variables */
@@ -27,22 +28,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 @darker: darken(@dark, 15%);
 @light: lighten(@base, 30%);
 @lighter: lighten(@light, 15%);
-
-/* mixins */
-.border-radius (@radius) {
-	border-radius: @radius;
-	-moz-border-radius: @radius;
-	-webkit-border-radius: @radius;
-}
-.box-shadow (@x: 0, @y: 0, @blur: 1px, @color: #000) {
-	box-shadow: @arguments;
-	-moz-box-shadow: @arguments;
-	-webkit-box-shadow: @arguments;
-}
-.text-shadow (@a: 0px, @b: 0px, @c: 3px, @d: #555) {
-	text-shadow: @arguments;
-}
-
 
 /* general */
 body {

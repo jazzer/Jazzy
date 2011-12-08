@@ -21,18 +21,22 @@ dir=$(dirname $MY_PATH)
 #     JavaScript
 # ====================
 #rhino "$dir/jshint.js" "$dir/../jsclient/js/jazzy_logic.js" > "$dir/../jsclient/js/jazzy_logic.min.js"
-yui-compressor "$dir/../jsclient/js/jazzy_board.js" > "$dir/../jsclient/js/jazzy_board.min.js"
-yui-compressor "$dir/../jsclient/js/jazzy_logic.js" > "$dir/../jsclient/js/jazzy_logic.min.js" # current fails, therefore:
-cp "$dir/../jsclient/js/jazzy_logic.js" "$dir/../jsclient/js/jazzy_logic.min.js"
-yui-compressor "$dir/../jsclient/js/jazzy_admin.js" > "$dir/../jsclient/js/jazzy_admin.min.js"
+cd "$dir/../jsclient/js/"
+yui-compressor "jazzy_board.js" > "jazzy_board.min.js"
+yui-compressor "jazzy_logic.js" > "jazzy_logic.min.js" # currently fails, therefore:
+cp "jazzy_logic.js" "jazzy_logic.min.js"
+yui-compressor "jazzy_admin.js" > "jazzy_admin.min.js"
 
 # ====================
 #     CSS
 # ====================
 # loop all less files
-for file in $( find "$dir/../jsclient/css" -iname "*.less" )
+cd "$dir/../jsclient/css"
+for file in $( find . -iname "*.less" )
 do
 	filename=$(basename $file)
 	filename=${filename%.*}
-	lessc "$file" > "$dir/../jsclient/css/$filename.css"
+	lessc "$file" > "$filename.css"
 done
+
+cd $dir
