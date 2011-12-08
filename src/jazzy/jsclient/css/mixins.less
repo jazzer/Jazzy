@@ -1,0 +1,66 @@
+/*
+Copyright (c) 2011 Johannes Mitlmeier
+
+This file is part of Jazzy.
+
+Jazzy is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
+*/
+
+
+
+// round corners for all modern browsers
+.rounded-corners (@radius: 5px) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  -ms-border-radius: @radius;
+  -o-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.border-radius (@radius) {
+	-webkit-border-radius: @radius;
+	-moz-border-radius: @radius;
+	-ms-border-radius: @radius;
+	-o-border-radius: @radius;
+	border-radius: @radius;
+}
+
+.text-shadow (@a: 0px, @b: 0px, @c: 3px, @d: #555) {
+	text-shadow: @arguments;
+}
+
+// box shadow for all modern browsers
+.box-shadow (@x: 0, @y: 0, @blur: 1px, @color: #000) {
+  -webkit-box-shadow: @arguments;
+  -moz-box-shadow: @arguments;
+  -ms-box-shadow: @arguments;
+  -o-box-shadow: @arguments;
+  box-shadow: @arguments;
+}
+
+
+.background-3d (@strength: 0.25) {
+    background-image: -webkit-linear-gradient(transparent, rgba(0, 0, 0, @strength));
+    background-image: -moz-linear-gradient(transparent, rgba(0, 0, 0, @strength));
+    background-image: -ms-linear-gradient(transparent, rgba(0, 0, 0, @strength));
+    background-image: -o-linear-gradient(transparent, rgba(0, 0, 0, @strength));
+    background-image: linear-gradient(transparent, rgba(0, 0, 0, @strength));
+}
+.background-3d-inv (@strength: 0.25) {
+    background-image: -webkit-linear-gradient(rgba(0, 0, 0, @strength), transparent);
+    background-image: -moz-linear-gradient(rgba(0, 0, 0, @strength), transparent);
+    background-image: -ms-linear-gradient(rgba(0, 0, 0, @strength), transparent);
+    background-image: -o-linear-gradient(rgba(0, 0, 0, @strength), transparent);
+    background-image: linear-gradient(rgba(0, 0, 0, @strength), transparent);
+}
