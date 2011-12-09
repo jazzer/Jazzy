@@ -37,22 +37,13 @@ h1, h2, h3, h4, h5, h6 {
 	margin-bottom: 10px;
 	float: left;
 	margin: 5px;
+	background-color: rgba(0,0,0,0.5);
+}
+.box:hover {
+	background-color: rgba(255,255,0,0.5);
 }
 .box > h1, .box > h2 {
 	margin-top: 0px;
-}
-.boxcontainer .box {
-    clear: both;
-    float: none;
-}
-.boxcontainer {
-    clear: both;
-    width: 100%;
-    -webkit-column-width: 320px;
-    -moz-column-width: 320px;
-    -ms-column-width: 320px;
-    -o-column-width: 320px;
-    column-width: 320px;
 }
 .full-width {
 	width: 95%;
@@ -84,16 +75,7 @@ h1, h2, h3, h4, h5, h6 {
     .text-shadow();
     background: #404040;
     .background-3d();
-	-o-transition-property: background-color;
-	-o-transition-duration: 1000ms;
-	-ms-transition-property: background-color;
-	-ms-transition-duration: 1000ms;
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 1000ms;
-	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 1000ms;
-	transition-property: background-color;
-	transition-duration: 1000ms;
+	.background-transition(1000ms);
     
     a {
         text-decoration: none;

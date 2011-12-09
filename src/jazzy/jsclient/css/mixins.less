@@ -64,3 +64,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
     background-image: -o-linear-gradient(rgba(0, 0, 0, @strength), transparent);
     background-image: linear-gradient(rgba(0, 0, 0, @strength), transparent);
 }
+
+
+.background-transition(@duration: 1000ms) {
+    -o-transition-property: background-color;
+	-o-transition-duration: @duration;
+	-ms-transition-property: background-color;
+	-ms-transition-duration: @duration;
+	-moz-transition-property: background-color;
+	-moz-transition-duration: @duration;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: @duration;
+	transition-property: background-color;
+	transition-duration: @duration;
+}

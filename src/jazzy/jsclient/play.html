@@ -32,7 +32,7 @@
 </div>
 
 <!-- chessboard -->
-<div class="box centered">
+<div class="box centered" id="box-boards">
 <h1>Game</h1>
 <div id="boards">
 </div>
@@ -40,7 +40,7 @@
 </div>
 
 <!-- data display -->
-<div class="box">
+<div class="box" id="box-details">
 <h1>Details</h1>
 <div id="data">
 <div id="data__game_type">
@@ -66,9 +66,8 @@
 </div>
 </div>
 
-<div class="boxcontainer">
 <!-- chat box -->
-<div class="box">
+<div class="box" id="box-chat">
 <h1>Chat</h1>
 <div id="chat">
 <div id="chat_history">
@@ -83,14 +82,14 @@
 </div>
 
 <!-- message box -->
-<div class="box">
+<div class="box" id="box-messages">
 <h1>Messages</h1>
 <div id="messages">
 </div>
 </div>
 
 <!-- style box -->
-<div class="box">
+<div class="box" id="box-style">
 <h1>Style</h1>
 <div id="style-box">
 	<form>Main: 
@@ -104,7 +103,7 @@
 </div>
 
 <!-- server connection -->
-<div class="box">
+<div class="box" id="box-server">
 <h1>Server</h1>
 Current connection status: <div id="conn_status" class="conn_bad">not connected</div><br />
 <button type="button" class="btn" onclick="_playInit();">Refresh</button>
