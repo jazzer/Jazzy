@@ -29,18 +29,91 @@ body {
 h1, h2, h3, h4, h5, h6 {
 	font-family: 'Ubuntu', arial, serif;
 }
+
+/* from http://www.webdesignshock.com/css3-box-shadow/, absolutely stunning
+ work! */
 .box {
-	display: inline-block;
-	min-width: 320px;
-	vertical-align: top;
-	padding: 15px 5px;
-	margin-bottom: 10px;
-	float: left;
-	margin: 5px;
-	background-color: rgba(0,0,0,0.5);
+    display: inline-block;
+    min-width: 320px;
+    vertical-align: top;
+    padding: 15px 5px;
+    margin-bottom: 10px;
+    float: left;
+    margin: 5px;
+    min-height: 150px;
+    color: #000;
+    padding: 10px 10px 40px 10px;
+    position:relative;
+    background: #f3f3f3;
+    background: -webkit-gradient(linear, 0% 20%, 0% 92%, from(#f3f3f3), to(#fff), color-stop(.1,#f3f3f3));
+    background: -moz-linear-gradient(0 0 270deg, #f3f3f3, #f3f3f3 10%, #fff);
+    border-top: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    -webkit-border-bottom-right-radius: 60px 60px;
+    -moz-border-radius-bottomright: 60px 60px;
+    border-bottom-right-radius: 60px 60px;
+    -webkit-box-shadow: -1px 2px 2px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: -1px 2px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: -1px 2px 2px rgba(0, 0, 0, 0.2);
 }
+
+.box:before{
+    content:'';
+    width: 25px;
+    height: 20px;
+    position: absolute;
+    bottom:0;
+    right:0;
+    -webkit-border-bottom-right-radius: 30px;
+    -moz-border-radius-bottomright: 30px;
+    border-bottom-right-radius: 30px;
+    -webkit-box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.3);
+    box-shadow:-2px -2px 5px rgba(0, 0, 0, 0.3);
+    -webkit-transform:  rotate(-20deg)
+                        skew(-40deg,-3deg)
+                        translate(-13px,-13px);
+    -moz-transform: rotate(-20deg)
+                    skew(-40deg,-3deg)
+                    translate(-13px,-13px);
+    -o-transform:   rotate(-20deg)
+                    skew(-40deg,-3deg)
+                    translate(-13px,-13px);
+                    transform:
+                    rotate(-20deg)
+                    skew(-40deg,-3deg)
+                    translate(-13px,-13px);
+}
+ 
+/* Here's where we make the shading of the folds*/
+.box:after{
+    content: '';
+    z-index: -1;
+    width: 100px;
+    height: 100px;
+    position:absolute;
+    bottom:0;
+    right:0;
+    background: rgba(0, 0, 0, 0.2);
+    display: inline-block;
+    -webkit-box-shadow: 20px 20px 8px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 20px 20px 18px rgba(0, 0, 0, 0.2);
+    box-shadow: 20px 20px 8px rgba(0,0,0,0.2);
+    -webkit-transform: rotate(0deg)
+                        translate(-45px,-20px)
+                        skew(20deg);
+    -moz-transform: rotate(0deg)
+                    translate(-45px,-20px)
+                       skew(20deg);
+    -o-transform: rotate(0deg)
+                    translate(-45px,-20px)
+                       skew(20deg);
+    transform: rotate(0deg)
+                translate(-45px,-20px)
+                skew(20deg);
+}
+
 .box:hover {
-	background-color: rgba(255,255,0,0.5);
 }
 .box > h1, .box > h2 {
 	margin-top: 0px;
@@ -95,6 +168,21 @@ h1, h2, h3, h4, h5, h6 {
 .head_logo {
 	padding: 0px 0px;
 }
+
+.box h1 {
+   background-color: rgb(150, 150, 150);
+}
+.box h1:after {
+    border-top-color: rgb(150, 150, 150);
+}
+
+.box:hover h1 {
+   background-color: rgb(255, 89, 0);
+}
+.box:hover h1:after {
+    border-top-color: rgb(255, 89, 0);
+}
+
 
 
 /* form elements 
@@ -307,7 +395,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .message {
-	color: white;
+	color: #333;
 }
 
 .time {
@@ -334,7 +422,7 @@ h1, h2, h3, h4, h5, h6 {
 	padding: 0px 2px 2px 2px;
 }
 .chat_username {
-	color: #50CC7E;
+	color: #000;
 	padding-right: 10px;
 }
 .chat_other {
