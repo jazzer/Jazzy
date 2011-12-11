@@ -148,7 +148,7 @@ h1, h2, h3, h4, h5, h6 {
     .text-shadow();
     background: #404040;
     .background-3d();
-	.background-transition(1000ms);
+	.transition(1000ms);
     
     a {
         text-decoration: none;
@@ -177,6 +177,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .box:hover h1 {
+   border: 3px solid #000;
    background-color: rgb(255, 89, 0);
 }
 .box:hover h1:after {
@@ -219,11 +220,7 @@ h1, h2, h3, h4, h5, h6 {
     color: #000;
     background-color: #66f;
     .background-3d();
-    transition: background linear 0.2s;
-    -o-transition: background linear 0.2s;
-    -ms-transition: background linear 0.2s;
-    -moz-transition: background linear 0.2s;
-    -webkit-transition: background linear 0.2s;
+    .transition(0.2s);
     cursor: pointer;
 }
 
@@ -293,16 +290,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .board .dark, .board .dark:hover, .board .light, .board .light:hover {
-	-o-transition-property: background-color;
-	-o-transition-duration: 300ms;
-	-ms-transition-property: background-color;
-	-ms-transition-duration: 300ms;
-	-moz-transition-property: background-color;
-	-moz-transition-duration: 300ms;
-	-webkit-transition-property: background-color;
-	-webkit-transition-duration: 300ms;
-	transition-property: background-color;
-	transition-duration: 300ms;
+	.transition(300ms);
 }
 
 .board .clear_row {
