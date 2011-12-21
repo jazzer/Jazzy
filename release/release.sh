@@ -20,8 +20,13 @@ dir=$(dirname $MY_PATH)
 # ====================
 #     JavaScript
 # ====================
-#rhino "$dir/jshint.js" "$dir/../jsclient/js/jazzy_logic.js" > "$dir/../jsclient/js/jazzy_logic.min.js"
-cd "$dir/../jsclient/js/"
+# generate from coffee-script
+cd "$dir/coffee-script/"
+#java -jar jcoffeescript.jar < "$dir/../src/jsclient/js/jazzy_board.coffee" > "$dir/../src/jsclient/js/jazzy_board.js"
+#java -jar jcoffeescript.jar < "$dir/../src/jsclient/js/jazzy_board.coffee" > "$dir/../src/jsclient/js/jazzy_board.js"
+#java -jar jcoffeescript.jar < "$dir/../src/jsclient/js/jazzy_board.coffee" > "$dir/../src/jsclient/js/jazzy_board.js"
+# minify
+cd "$dir/../src/jsclient/js/"
 yui-compressor "jazzy_board.js" > "jazzy_board.min.js"
 yui-compressor "jazzy_logic.js" > "jazzy_logic.min.js" # currently fails, therefore:
 cp "jazzy_logic.js" "jazzy_logic.min.js"
@@ -31,7 +36,7 @@ yui-compressor "jazzy_admin.js" > "jazzy_admin.min.js"
 #     CSS
 # ====================
 # loop all less files
-cd "$dir/../jsclient/css"
+cd "$dir/../src/jsclient/css"
 for file in $( find . -iname "*.less" )
 do
 	filename=$(basename $file)
