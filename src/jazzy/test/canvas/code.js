@@ -66,7 +66,12 @@ BoardStorage.prototype.getBoard = function(id) {
 
 /* Board class */
 function Board(id, numXFields, numYFields, flipped) {
-	this.id = id;
+    var elem = document.createElement('canvas');    
+    if (!elem.getContext && elem.getContext('2d')) {
+        alert('No canvas support :-(');
+    }
+
+    this.id = id;
 	this.numXFields = numXFields;
 	this.numYFields = numYFields;
 	this.flipped = flipped;
@@ -75,6 +80,8 @@ function Board(id, numXFields, numYFields, flipped) {
 	this.animated = false;
     this.fenString = "";
     this.numFields = numXFields * numYFields;
+
+    this.pieceImg = $('#pieceImage').get(0);
     
     // prepare highlighting information
     this.highlightArray = new Array(this.numFields);
@@ -85,16 +92,26 @@ function Board(id, numXFields, numYFields, flipped) {
     // jQuery caching
     this.divId = "#board_" + this.id;
     this.div = $("#board_" + this.id);
+    // create all the canvases if necessary
     this.jqcanvas = this.div.find('canvas');
-    this.canvas = this.jqcanvas[0];
+    if (this.jqcanvas.length == 0) {
+        $("<canvas>").attr('id', 'board_' + this.id + '-canvas-board').css('position', 'absolute').css('z-index', 0).appendTo(this.div);        
+        $("<canvas>").attr('id', 'board_' + this.id + '-canvas-highlight').css('position', 'absolute').css('z-index', 1).appendTo(this.div);        
+        $("<canvas>").attr('id', 'board_' + this.id + '-canvas-pieces').css('position', 'absolute').css('z-index', 2).appendTo(this.div);        
+        $("<canvas>").attr('id', 'board_' + this.id + '-canvas-dragging').css('position', 'absolute').css('z-index', 3).appendTo(this.div);        
 
-    // TODO cache board (background)
+        this.jqcanvas = this.div.find('canvas');
+    }
+    this.canvasBoard = this.jqcanvas[0];
+    this.canvasHighlight = this.jqcanvas[1];
+    this.canvasPieces = this.jqcanvas[2];
+    this.canvasDragging = this.jqcanvas[3];
 
 	this.build();
     var board = this;
     var pieceImg = $('#pieceImage')[0];
     pieceImg.onload = function(){
-        board.repaint();
+        board.repaintFull();
     };
 }
 
@@ -132,121 +149,215 @@ Board.prototype.build = function() {
 	//$("#boards").append(outerDiv);
 }
 
+Board.prototype.sizeChanged = function() {
+    var canvas = this.canvasBoard;
+    var width = this.div.width();
+    var height = this.div.height();
+    if (Math.abs(canvas.width - width * globalScalingFactor) > 10 || Math.abs(canvas.height - height * globalScalingFactor) > 10) { // cache usable?
+        //this.canvasBoard.width = width * globalScalingFactor;
+        //this.canvasBoard.height = height * globalScalingFactor;
+        //this.canvasHighlight.width = width * globalScalingFactor;
+        //this.canvasHighlight.height = height * globalScalingFactor;
+        //this.canvasPieces.width = width * globalScalingFactor;
+        //this.canvasPieces.height = height * globalScalingFactor;
+        //this.canvasDragging.width = width * globalScalingFactor;
+        //this.canvasDragging.height = height * globalScalingFactor;
+        var canvases = $('[id^="board_' + this.id + '-canvas-"]');
+        console.debug(canvases);
+        canvases.css('width', width).css('height', height);    
+        canvases.each(function() {
+            this.width = width * globalScalingFactor;   
+            this.height = height * globalScalingFactor;
+        });
 
-Board.prototype.repaint = function() {
-    var canvas = this.canvas;
-    if (canvas.getContext) {
-        var c = canvas.getContext('2d');
-        // calculate sizes dynamically (if size did change, otherwise use cached values)
-        var width = this.div.width();
-        var height = this.div.height();
-        if (canvas.width !== width * globalScalingFactor || canvas.height !== height * globalScalingFactor) { // cache usable?
-            canvas.width = width * globalScalingFactor;
-            canvas.height = height * globalScalingFactor;
-            c = canvas.getContext('2d'); // a new context because of size change
-            // calculate space availible for board (respect borders)            
-            this.boardWidth = canvas.width - 2*borderXSize;
-            this.boardHeight = canvas.height - 2*borderYSize;
-            this.fieldWidth = this.boardWidth/this.numXFields;
-            this.fieldHeight = this.boardHeight/this.numYFields;
-             // force square fields
-            this.fieldSize = Math.floor(Math.min(this.fieldWidth, this.fieldHeight));
-            this.fieldWidth = this.fieldSize;
-            this.fieldHeight = this.fieldSize;
-            // center board
-            this.xOffset = borderXSize + (this.boardWidth - this.fieldWidth*this.numXFields)/2;
-            this.yOffset = borderYSize + (this.boardHeight - this.fieldHeight*this.numYFields)/2;
-            this.boardWidth = this.fieldWidth*this.numXFields;
-            this.boardHeight = this.fieldHeight*this.numYFields;
-        }
+        // calculate space availible for board (respect borders)            
+        this.boardWidth = canvas.width - 2*borderXSize;
+        this.boardHeight = canvas.height - 2*borderYSize;
+        this.fieldWidth = this.boardWidth/this.numXFields;
+        this.fieldHeight = this.boardHeight/this.numYFields;
+         // force square fields
+        this.fieldSize = Math.floor(Math.min(this.fieldWidth, this.fieldHeight));
+        this.fieldWidth = this.fieldSize;
+        this.fieldHeight = this.fieldSize;
+        // center board
+        this.xOffset = borderXSize + (this.boardWidth - this.fieldWidth*this.numXFields)/2;
+        this.yOffset = borderYSize + (this.boardHeight - this.fieldHeight*this.numYFields)/2;
+        this.boardWidth = this.fieldWidth*this.numXFields;
+        this.boardHeight = this.fieldHeight*this.numYFields;
+        return true;
+    }
+    return false;
+}
 
-        // clear
-        c.clearRect(0,0,canvas.width,canvas.height);
 
-        // draw board border (with a little shadow)
-        c.rect(this.xOffset, this.yOffset, this.boardWidth, this.boardHeight);
-        c.shadowOffsetX = 0;
-        c.shadowOffsetY = 0;
-        c.shadowBlur = canvas.width/40;
-        c.shadowColor = "gray";
-        c.strokeStyle = "black";
-        c.fillStyle = "black";
-        c.fill();
-        c.shadowBlur = 0;
-            
-        // draw board (with respect to highlighted fields!)
-        var nextDark = false;
-        var fieldId = 0;
-        var step = 1;
-        if (this.flipped) {
-            nextDark = (this.numFields % 2 == 0) ? nextDark : !nextDark;
-            fieldId = this.numFields - 1;
-            step = -step;
-        }
+Board.prototype.repaintFull = function() {
+    this.repaintBoard();
+    this.repaintHighlight();
+    this.repaintPieces();
+    this.repaintDragging();
+}
+
+Board.prototype.repaintBoard = function() {
+    if (this.sizeChanged()) {
+        this.repaintFull();
+        return;
+    }
+
+    var canvas = this.canvasBoard;
+    var c = canvas.getContext('2d');
+    // calculate sizes dynamically (if size did change, otherwise use cached values)
+    
+
+    // clear
+    c.clearRect(0,0,canvas.width,canvas.height);
+
+    // draw board border (with a little shadow)
+    c.rect(this.xOffset, this.yOffset, this.boardWidth, this.boardHeight);
+    c.shadowOffsetX = 0;
+    c.shadowOffsetY = 0;
+    c.shadowBlur = canvas.width/40;
+    c.shadowColor = "gray";
+    c.strokeStyle = "black";
+    c.fillStyle = "black";
+    c.fill();
+    c.shadowBlur = 0;
         
-        var pieceImg = $('#pieceImage').get(0);
-        var cleanFen = _lengthenFen(this.fenString, this.numXFields).replace(/\//g, "");
-	    var fenChars = cleanFen.split("");
-
-        for (var row=0; row<this.numYFields ; row++) {
-            for (var col=0; col<this.numXFields ; col++) {
-                // TODO check fieldId in highlighting color list
-                if (this.highlightArray[fieldId] > 0) {
-                    if (this.highlightArray[fieldId] >= highlightType.SELECTION) {
-                        if (nextDark) {
-                            c.fillStyle = "#4A8F63";
-                        } else {
-                            c.fillStyle = "#2AF775";
-                        }
-                    } else if (this.highlightArray[fieldId] >= highlightType.LAST_MOVE) {
-                        if (nextDark) {
-                            c.fillStyle = "#DBBE00";
-                        } else {
-                            c.fillStyle = "#E2FA6B";
-                        }
-                    }
-                } else {
-                    if (nextDark) {
-                        c.fillStyle = "#1A12A6";
-                    } else {
-                        c.fillStyle = "#C0BEED";
-                    }
-                }
-                // draw single field's background (TODO: use images!)    
-                c.fillRect(this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
-
-                // draw piece if applicable
-                if (fenChars[fieldId] !== '_' && (this.moveFrom === undefined || this.moveFrom !== fieldId)) {
-                    var pieceType = fenChars[fieldId];
-                    var pieceIndex = getPieceIndex(pieceType);
-                    //c.fillText(fenChars[fieldId], xOffset + col*fieldWidth, yOffset + row*fieldHeight);
-                    c.drawImage(pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
-                                this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
-                }
-
-                // prepare for next field
-                nextDark = !nextDark;
-                fieldId += step;
+    // draw board (with respect to highlighted fields!)
+    var nextDark = false;
+    var fieldId = 0;
+    var step = 1;
+    if (this.flipped) {
+        nextDark = (this.numFields % 2 == 0) ? nextDark : !nextDark;
+        fieldId = this.numFields - 1;
+        step = -step;
+    }
+    
+    for (var row=0; row<this.numYFields ; row++) {
+        for (var col=0; col<this.numXFields ; col++) {
+            if (nextDark) {
+                c.fillStyle = "#1A12A6";
+            } else {
+                c.fillStyle = "#C0BEED";
             }
-            nextDark = (this.numXFields % 2 == 0) ? !nextDark : nextDark;
+            // draw single field's background (TODO: use images!)    
+            c.fillRect(this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
+
+            // prepare for next field
+            nextDark = !nextDark;
+            fieldId += step;
         }
+        nextDark = (this.numXFields % 2 == 0) ? !nextDark : nextDark;
+    }
 
-        // draw side texts
-        // TODO later
+    // draw side texts
+    // TODO later
+}
 
-        // draw dragged piece (zoom it a little!)
-        if (this.moveFrom !== undefined) {
-            var pieceType = fenChars[this.moveFrom];
-            var pieceIndex = getPieceIndex(pieceType);
-            var zoomedWidth = this.fieldWidth*dragZoomFactor;
-            var zoomedHeight = this.fieldHeight*dragZoomFactor;
-            c.drawImage(pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
-                this.mouseX*globalScalingFactor-zoomedWidth/2, this.mouseY*globalScalingFactor-zoomedHeight/2, zoomedWidth, zoomedHeight);
-        }  
-    } else {
-        alert('No canvas support :-(');
+
+Board.prototype.repaintHighlight = function() {
+    var canvas = this.canvasHighlight;
+    var c = canvas.getContext('2d');
+
+    // clear
+    c.clearRect(0,0,canvas.width,canvas.height);
+
+    // draw board (with respect to highlighted fields!)
+    var nextDark = false;
+    var fieldId = 0;
+    var step = 1;
+    if (this.flipped) {
+        nextDark = (this.numFields % 2 == 0) ? nextDark : !nextDark;
+        fieldId = this.numFields - 1;
+        step = -step;
+    }
+    
+    for (var row=0; row<this.numYFields ; row++) {
+        for (var col=0; col<this.numXFields ; col++) {
+            // TODO use parts of sprite image?
+            if (this.highlightArray[fieldId] > 0) {
+                if (this.highlightArray[fieldId] >= highlightType.SELECTION) {
+                    if (nextDark) {
+                        c.fillStyle = "#4A8F63";
+                    } else {
+                        c.fillStyle = "#2AF775";
+                    }
+                } else if (this.highlightArray[fieldId] >= highlightType.LAST_MOVE) {
+                    if (nextDark) {
+                        c.fillStyle = "#DBBE00";
+                    } else {
+                        c.fillStyle = "#E2FA6B";
+                    }
+                }
+                c.fillRect(this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
+            }
+               
+            // prepare for next field
+            nextDark = !nextDark;
+            fieldId += step;
+        }
+        nextDark = (this.numXFields % 2 == 0) ? !nextDark : nextDark;
+    }    
+}
+
+
+Board.prototype.repaintPieces = function() {
+    var canvas = this.canvasPieces;
+    var c = canvas.getContext('2d');
+
+    // clear
+    c.clearRect(0,0,canvas.width,canvas.height);
+
+    // draw board (with respect to highlighted fields!)
+    var nextDark = false;
+    var fieldId = 0;
+    var step = 1;
+    if (this.flipped) {
+        nextDark = (this.numFields % 2 == 0) ? nextDark : !nextDark;
+        fieldId = this.numFields - 1;
+        step = -step;
+    }
+    
+    for (var row=0; row<this.numYFields ; row++) {
+        for (var col=0; col<this.numXFields ; col++) {
+            // draw piece if applicable
+            if (this.fenChars[fieldId] !== '_' && (this.moveFrom === undefined || this.moveFrom !== fieldId)) {
+                var pieceType = this.fenChars[fieldId];
+                var pieceIndex = getPieceIndex(pieceType);
+                //c.fillText(this.fenChars[fieldId], xOffset + col*fieldWidth, yOffset + row*fieldHeight);
+                c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
+                            this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
+            }
+               
+            // prepare for next field
+            nextDark = !nextDark;
+            fieldId += step;
+        }
+        nextDark = (this.numXFields % 2 == 0) ? !nextDark : nextDark;
+    }    
+}
+
+
+
+Board.prototype.repaintDragging = function() {
+    var canvas = this.canvasDragging;
+    var c = canvas.getContext('2d');
+    
+    // clear
+    c.clearRect(0,0,canvas.width,canvas.height);
+
+    // draw dragged piece (zoom it a little!)
+    if (this.moveFrom !== undefined) {
+        var pieceType = this.fenChars[this.moveFrom];
+        var pieceIndex = getPieceIndex(pieceType);
+        var zoomedWidth = this.fieldWidth*dragZoomFactor;
+        var zoomedHeight = this.fieldHeight*dragZoomFactor;
+        c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
+            this.mouseX*globalScalingFactor-zoomedWidth/2, this.mouseY*globalScalingFactor-zoomedHeight/2, zoomedWidth, zoomedHeight);
     }
 }
+
+
+
 
 
 function getPieceIndex(pieceType) {
@@ -271,8 +382,8 @@ Board.prototype.addMouseEvents = function() {
             board.moveFrom = field;
             board.highlight(field, highlightType.SELECTION);
 
-            board.mouseX = e.pageX - board.canvas.offsetLeft;
-	        board.mouseY = e.pageY - board.canvas.offsetTop;
+            board.mouseX = e.pageX - board.canvasBoard.offsetLeft;
+	        board.mouseY = e.pageY - board.canvasBoard.offsetTop;
         } else {
             board.moveTo = field;
             board.highlight(field, highlightType.SELECTION);
@@ -284,7 +395,9 @@ Board.prototype.addMouseEvents = function() {
         board.jqcanvas.css('cursor', 'none');
    
         // repaint (for highlight field and piece zoom)
-        board.repaint();
+        board.repaintHighlight();
+        board.repaintPieces();
+        board.repaintDragging();
     });
     this.jqcanvas.mouseup(function(e) {
         console.debug('mouseup');
@@ -304,16 +417,18 @@ Board.prototype.addMouseEvents = function() {
         }
         
         // repaint (for resetting highlight field and piece zoom, possibly a move)
-        board.repaint();
+        board.repaintHighlight();
+        board.repaintPieces();
+        board.repaintDragging();
     });
 
     this.jqcanvas.mousemove(function(e) {
         // do a repaint, if a) mouse is down b)
         if (board.moveFrom !== undefined) {
-            board.mouseX = e.pageX - board.canvas.offsetLeft;
-	        board.mouseY = e.pageY - board.canvas.offsetTop;
+            board.mouseX = e.pageX - board.canvasBoard.offsetLeft;
+	        board.mouseY = e.pageY - board.canvasBoard.offsetTop;
 
-            board.repaint();
+            board.repaintDragging();
         } 
     });
 
@@ -321,14 +436,19 @@ Board.prototype.addMouseEvents = function() {
     this.jqcanvas.mouseout(function(e) {
         board.resetMoveInput();
         // repaint
-        board.repaint();
+        board.repaintHighlight();
+        board.repaintPieces();
+        board.repaintDragging();
     });
 
     // TODO: does not seem to ever fire :(
     this.div.resize(function(e) {
         console.debug('resized');
         // repaint
-        board.repaint();
+        board.repaintBoard();
+        board.repaintHighlight();
+        board.repaintPieces();
+        board.repaintDragging();
     });
 }
 
@@ -368,8 +488,10 @@ Board.prototype.getBoardControls = function(boardId) {
 
 Board.prototype.loadFen = function(fenString) {
     this.fenString = fenString;
-
-	this.repaint();
+    var cleanFen = _lengthenFen(this.fenString, this.numXFields).replace(/\//g, "");
+    this.fenChars = cleanFen.split("");
+    
+	this.repaintPieces();
 }
 
 
