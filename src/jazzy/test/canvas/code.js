@@ -20,7 +20,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 var borderXSize = 50;
 var borderYSize = 50;
+
 var globalScalingFactor = 4;
+var dragZoomFactor = 1.3;
 
 var spriteOrder = "kqrbnpcih";
 var spriteBaseSize = 48;
@@ -214,18 +216,12 @@ Board.prototype.repaint = function() {
                 c.fillRect(this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
 
                 // draw piece if applicable
-                if (fenChars[fieldId] !== undefined) {
+                if (fenChars[fieldId] !== '_' && (this.moveFrom === undefined || this.moveFrom !== fieldId)) {
                     var pieceType = fenChars[fieldId];
-                    var pieceIndex = spriteOrder.indexOf(pieceType.toLowerCase())*2;
-                    if (pieceIndex >= 0) {
-                        if (pieceType == pieceType.toLowerCase()) {
-	                        // black piece
-	                        pieceIndex = pieceIndex + 1;
-                        }
-                        //c.fillText(fenChars[fieldId], xOffset + col*fieldWidth, yOffset + row*fieldHeight);
-                        c.drawImage(pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
-                                    this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
-                    }
+                    var pieceIndex = getPieceIndex(pieceType);
+                    //c.fillText(fenChars[fieldId], xOffset + col*fieldWidth, yOffset + row*fieldHeight);
+                    c.drawImage(pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
+                                this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
                 }
 
                 // prepare for next field
@@ -239,12 +235,30 @@ Board.prototype.repaint = function() {
         // TODO later
 
         // draw dragged piece (zoom it a little!)
-        //};  
+        if (this.moveFrom !== undefined) {
+            var pieceType = fenChars[this.moveFrom];
+            var pieceIndex = getPieceIndex(pieceType);
+            var zoomedWidth = this.fieldWidth*dragZoomFactor;
+            var zoomedHeight = this.fieldHeight*dragZoomFactor;
+            c.drawImage(pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
+                this.mouseX*globalScalingFactor-zoomedWidth/2, this.mouseY*globalScalingFactor-zoomedHeight/2, zoomedWidth, zoomedHeight);
+        }  
     } else {
         alert('No canvas support :-(');
     }
 }
 
+
+function getPieceIndex(pieceType) {
+    var pieceIndex = spriteOrder.indexOf(pieceType.toLowerCase())*2;
+    if (pieceIndex >= 0) {
+        if (pieceType == pieceType.toLowerCase()) {
+            // black piece
+            pieceIndex = pieceIndex + 1;
+        }
+    }
+    return pieceIndex;
+}
 
 Board.prototype.addMouseEvents = function() {
     var board = this;
@@ -256,6 +270,9 @@ Board.prototype.addMouseEvents = function() {
         if (board.moveFrom === undefined) {
             board.moveFrom = field;
             board.highlight(field, highlightType.SELECTION);
+
+            board.mouseX = e.pageX - board.canvas.offsetLeft;
+	        board.mouseY = e.pageY - board.canvas.offsetTop;
         } else {
             board.moveTo = field;
             board.highlight(field, highlightType.SELECTION);
@@ -264,8 +281,8 @@ Board.prototype.addMouseEvents = function() {
             console.debug("moving " + board.moveFrom + " to " + board.moveTo);
             board.resetMoveInput();
         }
-        // set highlighting flag for field
-        
+        board.jqcanvas.css('cursor', 'none');
+   
         // repaint (for highlight field and piece zoom)
         board.repaint();
     });
@@ -291,13 +308,17 @@ Board.prototype.addMouseEvents = function() {
     });
 
     this.jqcanvas.mousemove(function(e) {
-        //console.debug('mousemove');
-        // do a repaint, if a) mouse is down b) 
+        // do a repaint, if a) mouse is down b)
+        if (board.moveFrom !== undefined) {
+            board.mouseX = e.pageX - board.canvas.offsetLeft;
+	        board.mouseY = e.pageY - board.canvas.offsetTop;
+
+            board.repaint();
+        } 
     });
 
 
     this.jqcanvas.mouseout(function(e) {
-        console.debug('mouseout. resetting.');
         board.resetMoveInput();
         // repaint
         board.repaint();
@@ -315,6 +336,8 @@ Board.prototype.resetMoveInput = function() {
     this.moveFrom = undefined;
     this.moveTo = undefined;
     this.highlightClear(highlightType.SELECTION);
+
+    this.jqcanvas.css('cursor', 'pointer');
 }
 
 
@@ -328,7 +351,7 @@ Board.prototype.getField = function(e, elem) {
     
     var col = Math.floor((x*globalScalingFactor-this.xOffset) / this.fieldWidth);
     var row = Math.floor((y*globalScalingFactor-this.yOffset) / this.fieldHeight);
-    console.debug("Zeile " + row + "\nSpalte:" + col);
+    //console.debug("Zeile " + row + "\nSpalte:" + col);
     var pos = row*this.numXFields + col;
     // flipped?
     if (this.flipped) {
