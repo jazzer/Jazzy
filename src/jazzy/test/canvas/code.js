@@ -249,10 +249,21 @@ Board.prototype.repaint = function() {
 Board.prototype.addMouseEvents = function() {
     var board = this;
     this.jqcanvas.mousedown(function(e) {
-        console.debug('mousedown');
+        //console.debug('mousedown');
         // find field
-        board.highlight(board.getField(e, this), highlightType.SELECTION);
+        var field = board.getField(e, this);
         // source or target field clicked?
+        if (board.moveFrom === undefined) {
+            board.moveFrom = field;
+            board.highlight(field, highlightType.SELECTION);
+        } else {
+            board.moveTo = field;
+            board.highlight(field, highlightType.SELECTION);
+
+            // TODO use old move posting logic here            
+            console.debug("moving " + board.moveFrom + " to " + board.moveTo);
+            board.resetMoveInput();
+        }
         // set highlighting flag for field
         
         // repaint (for highlight field and piece zoom)
@@ -260,7 +271,23 @@ Board.prototype.addMouseEvents = function() {
     });
     this.jqcanvas.mouseup(function(e) {
         console.debug('mouseup');
+        var field = board.getField(e, this);
+        if (board.moveFrom === undefined) {
+            return;
+        }
+        
+        var dragged = (field !== board.moveFrom); 
+        if (dragged) {
+            board.moveTo = field;
+            board.highlight(field, highlightType.SELECTION);
+            
+            // TODO use old move posting logic here            
+            console.debug("moving " + board.moveFrom + " to " + board.moveTo);
+            board.resetMoveInput();
+        }
+        
         // repaint (for resetting highlight field and piece zoom, possibly a move)
+        board.repaint();
     });
 
     this.jqcanvas.mousemove(function(e) {
@@ -271,8 +298,7 @@ Board.prototype.addMouseEvents = function() {
 
     this.jqcanvas.mouseout(function(e) {
         console.debug('mouseout. resetting.');
-        board.highlightClear(highlightType.SELECTION);
-        // reset highlight flag, if active
+        board.resetMoveInput();
         // repaint
         board.repaint();
     });
@@ -284,6 +310,13 @@ Board.prototype.addMouseEvents = function() {
         board.repaint();
     });
 }
+
+Board.prototype.resetMoveInput = function() {
+    this.moveFrom = undefined;
+    this.moveTo = undefined;
+    this.highlightClear(highlightType.SELECTION);
+}
+
 
 Board.prototype.addKeyboardEvents = function() {
 }
@@ -318,7 +351,7 @@ Board.prototype.loadFen = function(fenString) {
 
 
 Board.prototype.move = function(from, to, toPiece, silent) {
-	
+
 }
 
 Board.prototype.highlight = function(fieldId, type) {
