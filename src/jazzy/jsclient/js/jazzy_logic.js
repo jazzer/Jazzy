@@ -720,11 +720,11 @@ function parseMQ(data) {
 						boardSize = data[i][j]['board_size'].split('x');
 						board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[i][j]['flipped']);	
 						// load the position
-						board.loadFEN(data[i][j]['fen']);
+						board.loadFen(data[i][j]['fen']);
 						// fix highlight
-						board.highlight_clear();
+						board.highlightClear();
 						if (data[i][j]['lmove_from'] !== undefined && data[i][j]['lmove_to'] != undefined) {
-							board.highlight_move(lengthenFieldString(data[i][j]['lmove_from']), lengthenFieldString(data[i][j]['lmove_to']));
+							board.highlightMove(lengthenFieldString(data[i][j]['lmove_from']), lengthenFieldString(data[i][j]['lmove_to']));
 						}
 					}
 					if (data[i][j]['players'] !== undefined) {

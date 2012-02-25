@@ -1,4 +1,4 @@
-.board{box-shadow:0 0 5px 5px #cccccc;-moz-box-shadow:0 0 5px 5px #cccccc;-webkit-box-shadow:0 0 5px 5px #cccccc;}
+
 .board .dark{background-color:#0000cc;}
 .board .dark:hover{background-color:#000080;}
 .board .light{background-color:#9999ff;}

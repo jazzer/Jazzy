@@ -37,13 +37,6 @@ var highlightType = {
 
 
 
-$(document).ready(function() {
-    b1 = new Board(1, 8, 8, false);
-    b1.loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-});
-
-
-
 /* BoardStorage class */
 function BoardStorage() {
 	this.boards = new Object();
@@ -94,8 +87,10 @@ function Board(id, numXFields, numYFields, flipped) {
     this.build();
     
     var board = this;
+    this.pieceImageReady = false;
     var pieceImg = $('#pieceImage')[0];
     pieceImg.onload = function(){
+        board.pieceImageReady = true;
         board.repaintFull();
     };
 }
@@ -126,10 +121,10 @@ Board.prototype.build = function() {
     this.divCanvas = divCanvas;
     
     // create all the canvases
-    $("<canvas>").attr('id', boardName + '-canvas-board').css('position', 'absolute').css('z-index', 0).appendTo(this.divCanvas);        
-    $("<canvas>").attr('id', boardName + '-canvas-highlight').css('position', 'absolute').css('z-index', 1).appendTo(this.divCanvas);        
-    $("<canvas>").attr('id', boardName + '-canvas-pieces').css('position', 'absolute').css('z-index', 2).appendTo(this.divCanvas);        
-    $("<canvas>").attr('id', boardName + '-canvas-dragging').css('position', 'absolute').css('z-index', 3).appendTo(this.divCanvas);        
+    $("<canvas>").attr('id', boardName + '-canvas-board').css('z-index', 0).appendTo(this.divCanvas);        
+    $("<canvas>").attr('id', boardName + '-canvas-highlight').css('z-index', 1).appendTo(this.divCanvas);        
+    $("<canvas>").attr('id', boardName + '-canvas-pieces').css('z-index', 2).appendTo(this.divCanvas);        
+    $("<canvas>").attr('id', boardName + '-canvas-dragging').css('z-index', 3).appendTo(this.divCanvas);        
 
     var jqcanvas = this.divCanvas.find('canvas');
     this.canvasBoard = jqcanvas[0];
@@ -164,8 +159,7 @@ Board.prototype.sizeChanged = function() {
     var height = this.divCanvas.height();
     if (Math.abs(canvas.width - width * globalScalingFactor) > 10 || Math.abs(canvas.height - height * globalScalingFactor) > 10) { // cache usable?
         var canvases = $('[id^="board_' + this.id + '-canvas-"]');
-        console.debug(canvases);
-        canvases.css('width', width).css('height', height);    
+        canvases.css('width', width).css('height', height);
         canvases.each(function() {
             this.width = width * globalScalingFactor;   
             this.height = height * globalScalingFactor;
@@ -210,7 +204,7 @@ Board.prototype.repaintBoard = function() {
     
 
     // clear
-    c.clearRect(0,0,canvas.width,canvas.height);
+    c.clearRect(0, 0, canvas.width, canvas.height);
 
     // draw board border (with a little shadow)
     c.rect(this.xOffset, this.yOffset, this.boardWidth, this.boardHeight);
@@ -256,6 +250,7 @@ Board.prototype.repaintBoard = function() {
 
 
 Board.prototype.repaintHighlight = function() {
+
     var canvas = this.canvasHighlight;
     var c = canvas.getContext('2d');
 
@@ -302,13 +297,14 @@ Board.prototype.repaintHighlight = function() {
 
 
 Board.prototype.repaintPieces = function() {
+    if (!this.pieceImageReady) { return; }
     if (this.fenString === "") { return; }
 
     var canvas = this.canvasPieces;
     var c = canvas.getContext('2d');
 
     // clear
-    c.clearRect(0,0,canvas.width,canvas.height);
+    c.clearRect(0, 0, canvas.width, canvas.height);
 
     // draw board (with respect to highlighted fields!)
     var nextDark = false;
@@ -323,9 +319,12 @@ Board.prototype.repaintPieces = function() {
     for (var row=0; row<this.numYFields ; row++) {
         for (var col=0; col<this.numXFields ; col++) {
             // draw piece if applicable
-            if (this.fenChars[fieldId] !== '_' && (this.moveFrom === undefined || this.moveFrom !== fieldId)) {
-                var pieceType = this.fenChars[fieldId];
+            var pieceType = this.fenChars[fieldId];
+            if (pieceType !== '_' && (this.moveFrom === undefined || this.moveFrom !== fieldId)) {
                 var pieceIndex = getPieceIndex(pieceType);
+                //console.debug(pieceType);
+                //console.debug(pieceIndex);
+                if (pieceIndex === -1) { continue; }                
                 //c.fillText(this.fenChars[fieldId], xOffset + col*fieldWidth, yOffset + row*fieldHeight);
                 c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
                             this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
@@ -342,6 +341,8 @@ Board.prototype.repaintPieces = function() {
 
 
 Board.prototype.repaintDragging = function() {
+    if (!this.pieceImageReady) { return; }
+
     var canvas = this.canvasDragging;
     var c = canvas.getContext('2d');
     
@@ -378,7 +379,7 @@ function getPieceIndex(pieceType) {
 
 Board.prototype.addMouseEvents = function() {
     var board = this;
-    return;
+return;
 
     this.canvasFront.mousedown(function(e) {
         // find field
@@ -519,6 +520,7 @@ Board.prototype.highlightMove = function(from, to) {
 }
 
 Board.prototype.highlightClear = function(type) {
+    if (type === undefined) { type = ~0; } // TODO check for correctness!
     for (var i=0; i<this.highlightArray.length; i++) {
 	    this.highlightArray[i] &= ~type; // bit-wise NAND!
     }

@@ -24,7 +24,9 @@ h1,h2,h3,h4,h5,h6{font-family:'Ubuntu',arial,serif;}
 .btn:before,.btn span:before,.btn span:after{position:absolute;top:50%;left:0;content:"";}
 #boards{width:100%;margin:0 auto;vertical-align:top;}
 #boards>div{display:-moz-inline-stack;display:inline-block;*display:inline;}
-.board{position:relative;top:0;left:0;width:300px;height:300px;}
+.board{position:relative;top:0;left:0;}
+.canvas-container>canvas{position:absolute;top:0;left:0;}
+.canvas-container{width:300px;height:300px;}
 .top-players{margin-bottom:15px;}
 .bottom-players{margin-bottom:15px;}
 .player{display:inline-block;padding:2px;}
