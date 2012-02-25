@@ -18,8 +18,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 */
 
 
+// settings
 var borderXSize = 50;
 var borderYSize = 50;
+var fontWidth = 100;
 
 var globalScalingFactor = 4;
 var dragZoomFactor = 1.3;
@@ -106,6 +108,7 @@ function Board(id, numXFields, numYFields, flipped) {
     this.canvasHighlight = this.jqcanvas[1];
     this.canvasPieces = this.jqcanvas[2];
     this.canvasDragging = this.jqcanvas[3];
+    this.div.css('cursor', 'pointer');
 
 	this.build();
     var board = this;
@@ -154,14 +157,6 @@ Board.prototype.sizeChanged = function() {
     var width = this.div.width();
     var height = this.div.height();
     if (Math.abs(canvas.width - width * globalScalingFactor) > 10 || Math.abs(canvas.height - height * globalScalingFactor) > 10) { // cache usable?
-        //this.canvasBoard.width = width * globalScalingFactor;
-        //this.canvasBoard.height = height * globalScalingFactor;
-        //this.canvasHighlight.width = width * globalScalingFactor;
-        //this.canvasHighlight.height = height * globalScalingFactor;
-        //this.canvasPieces.width = width * globalScalingFactor;
-        //this.canvasPieces.height = height * globalScalingFactor;
-        //this.canvasDragging.width = width * globalScalingFactor;
-        //this.canvasDragging.height = height * globalScalingFactor;
         var canvases = $('[id^="board_' + this.id + '-canvas-"]');
         console.debug(canvases);
         canvases.css('width', width).css('height', height);    
@@ -348,11 +343,13 @@ Board.prototype.repaintDragging = function() {
     // draw dragged piece (zoom it a little!)
     if (this.moveFrom !== undefined) {
         var pieceType = this.fenChars[this.moveFrom];
-        var pieceIndex = getPieceIndex(pieceType);
-        var zoomedWidth = this.fieldWidth*dragZoomFactor;
-        var zoomedHeight = this.fieldHeight*dragZoomFactor;
-        c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
-            this.mouseX*globalScalingFactor-zoomedWidth/2, this.mouseY*globalScalingFactor-zoomedHeight/2, zoomedWidth, zoomedHeight);
+        if (pieceType !== '_') {
+            var pieceIndex = getPieceIndex(pieceType);
+            var zoomedWidth = this.fieldWidth*dragZoomFactor;
+            var zoomedHeight = this.fieldHeight*dragZoomFactor;
+            c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
+                this.mouseX*globalScalingFactor-zoomedWidth/2, this.mouseY*globalScalingFactor-zoomedHeight/2, zoomedWidth, zoomedHeight);
+        }
     }
 }
 
@@ -374,7 +371,6 @@ function getPieceIndex(pieceType) {
 Board.prototype.addMouseEvents = function() {
     var board = this;
     this.jqcanvas.mousedown(function(e) {
-        //console.debug('mousedown');
         // find field
         var field = board.getField(e, this);
         // source or target field clicked?
@@ -384,6 +380,12 @@ Board.prototype.addMouseEvents = function() {
 
             board.mouseX = e.pageX - board.canvasBoard.offsetLeft;
 	        board.mouseY = e.pageY - board.canvasBoard.offsetTop;
+            
+            // hide cursor if we drag something visible
+            var pieceType = board.fenChars[board.moveFrom];
+            if (pieceType !== '_') {
+                board.div.css('cursor', 'none');
+            }
         } else {
             board.moveTo = field;
             board.highlight(field, highlightType.SELECTION);
@@ -392,15 +394,13 @@ Board.prototype.addMouseEvents = function() {
             console.debug("moving " + board.moveFrom + " to " + board.moveTo);
             board.resetMoveInput();
         }
-        board.jqcanvas.css('cursor', 'none');
-   
+        
         // repaint (for highlight field and piece zoom)
         board.repaintHighlight();
         board.repaintPieces();
         board.repaintDragging();
     });
     this.jqcanvas.mouseup(function(e) {
-        console.debug('mouseup');
         var field = board.getField(e, this);
         if (board.moveFrom === undefined) {
             return;
@@ -457,7 +457,7 @@ Board.prototype.resetMoveInput = function() {
     this.moveTo = undefined;
     this.highlightClear(highlightType.SELECTION);
 
-    this.jqcanvas.css('cursor', 'pointer');
+    this.div.css('cursor', 'pointer');
 }
 
 
