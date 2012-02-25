@@ -17,6 +17,7 @@ fi
 dir=$(dirname $MY_PATH)
 
 
+
 # ====================
 #     JavaScript
 # ====================
@@ -26,7 +27,7 @@ cd "$dir/coffee-script/"
 #java -jar jcoffeescript.jar < "$dir/../src/jsclient/js/jazzy_board.coffee" > "$dir/../src/jsclient/js/jazzy_board.js"
 #java -jar jcoffeescript.jar < "$dir/../src/jsclient/js/jazzy_board.coffee" > "$dir/../src/jsclient/js/jazzy_board.js"
 # minify
-cd "$dir/../src/jsclient/js/"
+cd "$dir/../src/jazzy/jsclient/js/"
 yui-compressor "jazzy_board.js" > "jazzy_board.min.js"
 yui-compressor "jazzy_logic.js" > "jazzy_logic.min.js" # currently fails, therefore:
 cp "jazzy_logic.js" "jazzy_logic.min.js"
@@ -36,7 +37,7 @@ yui-compressor "jazzy_admin.js" > "jazzy_admin.min.js"
 #     CSS
 # ====================
 # loop all less files
-cd "$dir/../src/jsclient/css"
+cd "$dir/../src/jazzy/jsclient/css"
 for file in $( find . -iname "*.less" )
 do
 	filename=$(basename $file)

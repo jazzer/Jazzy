@@ -30,6 +30,11 @@ h1, h2, h3, h4, h5, h6 {
 	font-family: 'Ubuntu', arial, serif;
 }
 
+.hidden {
+    display: none;
+}
+
+
 /* from http://www.webdesignshock.com/css3-box-shadow/, absolutely stunning
  work! */
 .box {
@@ -277,43 +282,8 @@ h1, h2, h3, h4, h5, h6 {
 	position: relative;
 	top: 0;
 	left: 0;
-	text-align: center;
-	margin-left: 50px;
-	margin-right: 50px;
-	margin-bottom: 15px;
-}
-
-.board .field {
-	width: 48px;
-	height: 48px;
-	float: left;
-}
-
-.board .dark, .board .dark:hover, .board .light, .board .light:hover {
-	.transition(300ms);
-}
-
-.board .clear_row {
-	clear: left;
-}
-
-.board-mine {
-}
-.board-notmine > div {
-	zoom: 70%;
-}
-
-.pocket {
-	min-height: 48px;
-}
-.top-pocket {
-	margin-bottom: 15px;
-}
-.bottom-pocket {
-	margin-bottom: 15px;
-}
-.pocket > div {
-	display: inline-block;
+    width: 300px;
+    height: 300px;
 }
 
 .top-players {

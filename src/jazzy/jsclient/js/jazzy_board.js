@@ -17,18 +17,31 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 */
 
-/* sprites generated using http://csssprites.com/ */
-var piece_sprite_url = "img/pieces/48px/sprite48.png";
-var piece_order = "kqrbnpcih";
-var piece_width = 48;
-var server_url = self.location.protocol + "//" + self.location.host + "/";
-var board_cols = 0;
-var board_rows = 0;
-var flipped = false;
-var dnd_clicked = false;
-var dragSource = undefined;
 
-var ui_setting_animate_move = true;
+// settings
+var borderXSize = 50;
+var borderYSize = 50;
+var fontWidth = 100;
+
+var globalScalingFactor = 4;
+var dragZoomFactor = 1.3;
+
+var spriteOrder = "kqrbnpcih";
+var spriteBaseSize = 48;
+
+
+var highlightType = {
+    LAST_MOVE : 1,
+    SELECTION : 2
+}
+
+
+
+$(document).ready(function() {
+    b1 = new Board(1, 8, 8, false);
+    b1.loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+});
+
 
 
 /* BoardStorage class */
@@ -36,8 +49,8 @@ function BoardStorage() {
 	this.boards = new Object();
 }
 
-BoardStorage.prototype.newBoard = function(id, width, height, flipped) {
-	myboard = new Board(id, width, height, flipped);
+BoardStorage.prototype.newBoard = function(id, numXFields, numYFields, flipped) {
+	var myboard = new Board(id, numXFields, numYFields, flipped);
 	this.boards[id] = myboard;
 	return myboard;
 }
@@ -50,17 +63,41 @@ BoardStorage.prototype.getBoard = function(id) {
 }
 
 
+
+
+
 /* Board class */
-function Board(id, width, height, flipped) {
-	this.id = id;
-	this.width = width;
-	this.height = height;
+function Board(id, numXFields, numYFields, flipped) {
+    var elem = document.createElement('canvas');    
+    if (!elem.getContext && elem.getContext('2d')) {
+        alert('No canvas support :-(');
+    }
+
+    this.id = id;
+	this.numXFields = numXFields;
+	this.numYFields = numYFields;
 	this.flipped = flipped;
 	this.isWatching = false;
 	this.locked = false;
 	this.animated = false;
+    this.fenString = "";
+    this.numFields = numXFields * numYFields;
 
-	this.build();
+    this.pieceImg = $('#pieceImage').get(0);
+    
+    // prepare highlighting information
+    this.highlightArray = new Array(this.numFields);
+    for (var i=0; i < this.highlightArray.length; i++) {
+        this.highlightArray[i] = 0;
+    }
+
+    this.build();
+    
+    var board = this;
+    var pieceImg = $('#pieceImage')[0];
+    pieceImg.onload = function(){
+        board.repaintFull();
+    };
 }
 
 
@@ -77,230 +114,416 @@ Board.prototype.isLocked = function() {
 
 Board.prototype.build = function() {
 	// create a new board
-	var boardId = "board_" + this.id;
 	var board = this;
+    var boardName = 'board_' + this.id;	
 
-	$("#" + boardId).parent().remove();
-	boardDiv = $('<div>').attr('id', boardId).addClass('board');
-	var counter = 0;
-	var rows = this.height;
-	var cols = this.width;
-	var fields = cols*rows;
-	for (var row = 1; row <= rows; row++) {
-		for (var col = 1; col <= cols; col++) {
-			var field = $("<div>");
-			// color scheme (lower right field is white!)
-			fieldPos = col+row + (this.flipped ? 0 : (cols+rows) % 2)
-			field.addClass("field");
-			if (fieldPos % 2 == 0) {
-				field.addClass("light");
-			} else {
-				field.addClass("dark");
-			}
-			if (counter % cols == 0) {
-				field.addClass("clear_row");
-			}
-			// id
-			if (!this.flipped) {
-				field.attr('id', boardId + '_field' + counter);
-			} else {
-				field.attr('id', boardId + '_field' + (fields-counter-1));
-			}
-			// set events for drag and drop
-			_addEvents(field, board);
-			
-			// append it to the board
-			boardDiv.append(field);
+    // remove old board with same ID
+    $("#" + boardName).remove();
+    // generate the div and canvas elements
+    var boardFrameDiv = $('<div>').attr({'id': boardName, 'class': 'board'});
+    
+    var divCanvas = $('<div>').attr({'id': boardName + '-container-canvas', 'class': 'canvas-container'});
+    this.divCanvas = divCanvas;
+    
+    // create all the canvases
+    $("<canvas>").attr('id', boardName + '-canvas-board').css('position', 'absolute').css('z-index', 0).appendTo(this.divCanvas);        
+    $("<canvas>").attr('id', boardName + '-canvas-highlight').css('position', 'absolute').css('z-index', 1).appendTo(this.divCanvas);        
+    $("<canvas>").attr('id', boardName + '-canvas-pieces').css('position', 'absolute').css('z-index', 2).appendTo(this.divCanvas);        
+    $("<canvas>").attr('id', boardName + '-canvas-dragging').css('position', 'absolute').css('z-index', 3).appendTo(this.divCanvas);        
 
-			counter++;
-		}
-	}
+    var jqcanvas = this.divCanvas.find('canvas');
+    this.canvasBoard = jqcanvas[0];
+    this.canvasHighlight = jqcanvas[1];
+    this.canvasPieces = jqcanvas[2];
+    this.canvasDragging = jqcanvas[3];
 
+    this.canvasFront = this.canvasDragging; // which one is top-most?
+    this.divCanvas.css('cursor', 'pointer');
+
+
+	// set events for drag and drop
+	this.addMouseEvents();
+	this.addKeyboardEvents();
+		
 	// pockets
-	topPocket = $('<div>').attr('id', 'top-pocket-' + boardId).addClass('pocket').addClass('top-pocket');
-	bottomPocket = $('<div>').attr('id', 'bottom-pocket-' + boardId).addClass('pocket').addClass('bottom-pocket');
+	topPocket = $('<div>').attr('id', 'top-pocket-' + this.id).addClass('pocket').addClass('top-pocket');
+	bottomPocket = $('<div>').attr('id', 'bottom-pocket-' + this.id).addClass('pocket').addClass('bottom-pocket');
 	// players
-	topPlayers = $('<div>').attr('id', 'top-players-' + boardId).addClass('players top-players');
-	bottomPlayers = $('<div>').attr('id', 'bottom-players-' + boardId).addClass('players bottom-players');
+	topPlayers = $('<div>').attr('id', 'top-players-' + this.id).addClass('players top-players');
+	bottomPlayers = $('<div>').attr('id', 'bottom-players-' + this.id).addClass('players bottom-players');
 
 	// buttons for castling
-	outerDiv = $('<div>').attr('id', boardId + '-frame').append(topPocket).append(topPlayers).append(boardDiv).append(bottomPlayers).append(bottomPocket).append($('<div>').attr('id', boardId + '-controls').append(getBoardControls(boardId)));
+	//outerDiv = $('<div>').attr('id', boardId + '-frame').append(topPocket).append(topPlayers).append(boardDiv).append(bottomPlayers).append(bottomPocket).append($('<div>').attr('id', boardId + '-controls').append(this.getBoardControls()));
 			
-	$("#boards").append(outerDiv);
-
-	// correct the board div's size
-	var field_width = $("#" + boardId + "_field0").width();
-	boardDiv.css("width", field_width*cols);
-	var field_height = $("#" + boardId + "_field0").height();
-	boardDiv.css("height", field_height*rows);
+	$("#boards").append(boardFrameDiv.append(divCanvas));
 }
 
-function getBoardControls(boardId) {
+Board.prototype.sizeChanged = function() {
+    var canvas = this.canvasBoard;
+    var width = this.divCanvas.width();
+    var height = this.divCanvas.height();
+    if (Math.abs(canvas.width - width * globalScalingFactor) > 10 || Math.abs(canvas.height - height * globalScalingFactor) > 10) { // cache usable?
+        var canvases = $('[id^="board_' + this.id + '-canvas-"]');
+        console.debug(canvases);
+        canvases.css('width', width).css('height', height);    
+        canvases.each(function() {
+            this.width = width * globalScalingFactor;   
+            this.height = height * globalScalingFactor;
+        });
+
+        // calculate space availible for board (respect borders)            
+        this.boardWidth = canvas.width - 2*borderXSize;
+        this.boardHeight = canvas.height - 2*borderYSize;
+        this.fieldWidth = this.boardWidth/this.numXFields;
+        this.fieldHeight = this.boardHeight/this.numYFields;
+         // force square fields
+        this.fieldSize = Math.floor(Math.min(this.fieldWidth, this.fieldHeight));
+        this.fieldWidth = this.fieldSize;
+        this.fieldHeight = this.fieldSize;
+        // center board
+        this.xOffset = borderXSize + (this.boardWidth - this.fieldWidth*this.numXFields)/2;
+        this.yOffset = borderYSize + (this.boardHeight - this.fieldHeight*this.numYFields)/2;
+        this.boardWidth = this.fieldWidth*this.numXFields;
+        this.boardHeight = this.fieldHeight*this.numYFields;
+        return true;
+    }
+    return false;
+}
+
+
+Board.prototype.repaintFull = function() {
+    this.repaintBoard();
+    this.repaintHighlight();
+    this.repaintPieces();
+    this.repaintDragging();
+}
+
+Board.prototype.repaintBoard = function() {
+    if (this.sizeChanged()) {
+        this.repaintFull();
+        return;
+    }
+
+    var canvas = this.canvasBoard;
+    var c = canvas.getContext('2d');
+    // calculate sizes dynamically (if size did change, otherwise use cached values)
+    
+
+    // clear
+    c.clearRect(0,0,canvas.width,canvas.height);
+
+    // draw board border (with a little shadow)
+    c.rect(this.xOffset, this.yOffset, this.boardWidth, this.boardHeight);
+    c.shadowOffsetX = 0;
+    c.shadowOffsetY = 0;
+    c.shadowBlur = canvas.width/40;
+    c.shadowColor = "gray";
+    c.strokeStyle = "black";
+    c.fillStyle = "black";
+    c.fill();
+    c.shadowBlur = 0;
+        
+    // draw board (with respect to highlighted fields!)
+    var nextDark = false;
+    var fieldId = 0;
+    var step = 1;
+    if (this.flipped) {
+        nextDark = (this.numFields % 2 == 0) ? nextDark : !nextDark;
+        fieldId = this.numFields - 1;
+        step = -step;
+    }
+    
+    for (var row=0; row<this.numYFields ; row++) {
+        for (var col=0; col<this.numXFields ; col++) {
+            if (nextDark) {
+                c.fillStyle = "#1A12A6";
+            } else {
+                c.fillStyle = "#C0BEED";
+            }
+            // draw single field's background (TODO: use images!)    
+            c.fillRect(this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
+
+            // prepare for next field
+            nextDark = !nextDark;
+            fieldId += step;
+        }
+        nextDark = (this.numXFields % 2 == 0) ? !nextDark : nextDark;
+    }
+
+    // draw side texts
+    // TODO later
+}
+
+
+Board.prototype.repaintHighlight = function() {
+    var canvas = this.canvasHighlight;
+    var c = canvas.getContext('2d');
+
+    // clear
+    c.clearRect(0,0,canvas.width,canvas.height);
+
+    // draw board (with respect to highlighted fields!)
+    var nextDark = false;
+    var fieldId = 0;
+    var step = 1;
+    if (this.flipped) {
+        nextDark = (this.numFields % 2 == 0) ? nextDark : !nextDark;
+        fieldId = this.numFields - 1;
+        step = -step;
+    }
+    
+    for (var row=0; row<this.numYFields ; row++) {
+        for (var col=0; col<this.numXFields ; col++) {
+            // TODO use parts of sprite image?
+            if (this.highlightArray[fieldId] > 0) {
+                if (this.highlightArray[fieldId] >= highlightType.SELECTION) {
+                    if (nextDark) {
+                        c.fillStyle = "#4A8F63";
+                    } else {
+                        c.fillStyle = "#2AF775";
+                    }
+                } else if (this.highlightArray[fieldId] >= highlightType.LAST_MOVE) {
+                    if (nextDark) {
+                        c.fillStyle = "#DBBE00";
+                    } else {
+                        c.fillStyle = "#E2FA6B";
+                    }
+                }
+                c.fillRect(this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
+            }
+               
+            // prepare for next field
+            nextDark = !nextDark;
+            fieldId += step;
+        }
+        nextDark = (this.numXFields % 2 == 0) ? !nextDark : nextDark;
+    }    
+}
+
+
+Board.prototype.repaintPieces = function() {
+    if (this.fenString === "") { return; }
+
+    var canvas = this.canvasPieces;
+    var c = canvas.getContext('2d');
+
+    // clear
+    c.clearRect(0,0,canvas.width,canvas.height);
+
+    // draw board (with respect to highlighted fields!)
+    var nextDark = false;
+    var fieldId = 0;
+    var step = 1;
+    if (this.flipped) {
+        nextDark = (this.numFields % 2 == 0) ? nextDark : !nextDark;
+        fieldId = this.numFields - 1;
+        step = -step;
+    }
+    
+    for (var row=0; row<this.numYFields ; row++) {
+        for (var col=0; col<this.numXFields ; col++) {
+            // draw piece if applicable
+            if (this.fenChars[fieldId] !== '_' && (this.moveFrom === undefined || this.moveFrom !== fieldId)) {
+                var pieceType = this.fenChars[fieldId];
+                var pieceIndex = getPieceIndex(pieceType);
+                //c.fillText(this.fenChars[fieldId], xOffset + col*fieldWidth, yOffset + row*fieldHeight);
+                c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
+                            this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
+            }
+               
+            // prepare for next field
+            nextDark = !nextDark;
+            fieldId += step;
+        }
+        nextDark = (this.numXFields % 2 == 0) ? !nextDark : nextDark;
+    }    
+}
+
+
+
+Board.prototype.repaintDragging = function() {
+    var canvas = this.canvasDragging;
+    var c = canvas.getContext('2d');
+    
+    // clear
+    c.clearRect(0,0,canvas.width,canvas.height);
+
+    // draw dragged piece (zoom it a little!)
+    if (this.moveFrom !== undefined) {
+        var pieceType = this.fenChars[this.moveFrom];
+        if (pieceType !== '_') {
+            var pieceIndex = getPieceIndex(pieceType);
+            var zoomedWidth = this.fieldWidth*dragZoomFactor;
+            var zoomedHeight = this.fieldHeight*dragZoomFactor;
+            c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
+                this.mouseX*globalScalingFactor-zoomedWidth/2, this.mouseY*globalScalingFactor-zoomedHeight/2, zoomedWidth, zoomedHeight);
+        }
+    }
+}
+
+
+
+
+
+function getPieceIndex(pieceType) {
+    var pieceIndex = spriteOrder.indexOf(pieceType.toLowerCase())*2;
+    if (pieceIndex >= 0) {
+        if (pieceType == pieceType.toLowerCase()) {
+            // black piece
+            pieceIndex = pieceIndex + 1;
+        }
+    }
+    return pieceIndex;
+}
+
+Board.prototype.addMouseEvents = function() {
+    var board = this;
+    return;
+
+    this.canvasFront.mousedown(function(e) {
+        // find field
+        var field = board.getField(e, this);
+        // source or target field clicked?
+        if (board.moveFrom === undefined) {
+            board.moveFrom = field;
+            board.highlight(field, highlightType.SELECTION);
+
+            board.mouseX = e.pageX - board.canvasFront.offsetLeft;
+	        board.mouseY = e.pageY - board.canvasFront.offsetTop;
+            
+            // hide cursor if we drag something visible
+            var pieceType = board.fenChars[board.moveFrom];
+            if (pieceType !== '_') {
+                board.div.css('cursor', 'none');
+            }
+        } else {
+            board.moveTo = field;
+            board.highlight(field, highlightType.SELECTION);
+
+            // TODO use old move posting logic here            
+            console.debug("moving " + board.moveFrom + " to " + board.moveTo);
+            board.resetMoveInput();
+        }
+        
+        // repaint (for highlight field and piece zoom)
+        board.repaintHighlight();
+        board.repaintPieces();
+        board.repaintDragging();
+    });
+    this.canvasFront.mouseup(function(e) {
+        var field = board.getField(e, this);
+        if (board.moveFrom === undefined) {
+            return;
+        }
+        
+        var dragged = (field !== board.moveFrom); 
+        if (dragged) {
+            board.moveTo = field;
+            board.highlight(field, highlightType.SELECTION);
+            
+            // TODO use old move posting logic here            
+            console.debug("moving " + board.moveFrom + " to " + board.moveTo);
+            board.resetMoveInput();
+        }
+        
+        // repaint (for resetting highlight field and piece zoom, possibly a move)
+        board.repaintHighlight();
+        board.repaintPieces();
+        board.repaintDragging();
+    });
+
+    this.canvasFront.mousemove(function(e) {
+        // do a repaint, if a) mouse is down b)
+        if (board.moveFrom !== undefined) {
+            board.mouseX = e.pageX - board.canvasFront.offsetLeft;
+	        board.mouseY = e.pageY - board.canvasFront.offsetTop;
+
+            board.repaintDragging();
+        } 
+    });
+
+
+    this.canvasFront.mouseout(function(e) {
+        board.resetMoveInput();
+        // repaint
+        board.repaintHighlight();
+        board.repaintPieces();
+        board.repaintDragging();
+    });
+
+    // TODO: does not seem to ever fire :(
+    this.divCanvas.resize(function(e) {
+        console.debug('resized');
+        // repaint
+        board.repaintBoard();
+        board.repaintHighlight();
+        board.repaintPieces();
+        board.repaintDragging();
+    });
+}
+
+Board.prototype.resetMoveInput = function() {
+    this.moveFrom = undefined;
+    this.moveTo = undefined;
+    this.highlightClear(highlightType.SELECTION);
+
+    this.divCanvas.css('cursor', 'pointer');
+}
+
+
+Board.prototype.addKeyboardEvents = function() {
+}
+
+
+Board.prototype.getField = function(e, elem) {
+    var x = e.pageX - elem.offsetLeft;
+	var y = e.pageY - elem.offsetTop;
+    
+    var col = Math.floor((x*globalScalingFactor-this.xOffset) / this.fieldWidth);
+    var row = Math.floor((y*globalScalingFactor-this.yOffset) / this.fieldHeight);
+    //console.debug("Zeile " + row + "\nSpalte:" + col);
+    var pos = row*this.numXFields + col;
+    // flipped?
+    if (this.flipped) {
+        pos = this.numFields - 1 - pos;
+    }
+    return pos;
+}
+
+
+Board.prototype.getBoardControls = function(boardId) {
 	return '<button type="button" class="btn" onclick="_shortCastling(\'' + boardId + '\');">O-O</button> <button type="button" class="btn" onclick="_longCastling(\'' + boardId + '\');">O-O-O</button><br /><br />' + '<button type="button" class="btn" id="btn_offer_draw" onclick="_offerDraw(\'' + boardId + '\');">Offer draw</button> ' + '<button type="button" class="btn" id="btn_repetition" onclick="_repetition(\'' + boardId + '\');">Claim Repetition</button> ' + '<button type="button" class="btn" id="btn_x_move_rule" onclick="_xMoveRule(\'' + boardId + '\');">Claim x Move rule</button> ' + '<button type="button" class="btn" id="btn_resign" onclick="_resign(\'' + boardId + '\');">Resign</button>';
 }
 
 
-Board.prototype.loadFEN = function(fenString) {
-	var boardId = "board_" + this.id;
-	
-	// clear board
-	$("div[id^='" + boardId + "_field']").children().remove();
-
-	// create new pieces
-	cleanFen = _lengthenFen(fenString, this.width).replace(/\//g, "");
-	chars = cleanFen.split("");
-
-	for (var i = 0; i < chars.length; i++) {
-		$("#" + boardId + "_field"+i).append(this.getPieceDiv(chars[i]));
-	}
-}
-
-Board.prototype.getPieceDiv = function(pieceType) {
-	if (pieceType == '') {
-		return '';
-	}
-
-	// find right sprite and display it
-	var pos = piece_order.indexOf(pieceType.toLowerCase())*2;
-	// filter empty fields
-	if (pos < 0) {
-		return '';
-	}
-
-	if (pieceType == pieceType.toLowerCase()) {
-		// black piece
-		pos = pos + 1;
-	}
-
-	var pieceDiv = $("<div>");
-	var url = server_url == 'file:///' ? piece_sprite_url:server_url + piece_sprite_url;
-	pieceDiv.css({'background-image': "url(" + url + ")", 'background-color': "transparent", 'background-repeat': "no-repeat", 'height': piece_width, 'width': piece_width, 'background-position': "-0px -" + (pos*piece_width) + "px" });
-	return pieceDiv
+Board.prototype.loadFen = function(fenString) {
+    this.fenString = fenString;
+    var cleanFen = _lengthenFen(this.fenString, this.numXFields).replace(/\//g, "");
+    this.fenChars = cleanFen.split("");
+    
+	this.repaintPieces();
 }
 
 
 Board.prototype.move = function(from, to, toPiece, silent) {
-	// wait!
-	//while (this.animated) {	}
 
-	if (from == -1) {
-		return;
-	}
-	if (silent === undefined) { var silent = false; } // default
-
-	this.animated = true;
-	
-	var fromField = $("#" + from);
-	var toField = $("#" + to);	
-	var isPiece = (fromField.children().length > 0);
-	if (!isPiece) {
-		this.animated = false;
-		return;
-	}
-	fromField.children().stop(true, true);
-	var isCapture = (toField.children().length > 0);
-	
-	// animate the move?
-	if (ui_setting_animate_move) {
-		if (isCapture) {
-			// clear target field
-			toField.children().css({'z-index': '2'}).fadeOut(400, function() {
-				$(this).remove();
-			});
-		}
-		outerThis = this;
-		// move animation
-		fromField.children().css({position: 'relative',
-					'z-index': 1,
-					left: 0,
-					top: 0})
-			.animate({ 
-					left: toField.offset().left-fromField.offset().left,
-					top: toField.offset().top-fromField.offset().top
-		    	}, 400, "swing", function() {
-				// finished the move action, now do the promotion if requested
-				if (toPiece != undefined) {
-					$(this).fadeOut(400).parent().append(outerThis.getPieceDiv(toPiece)).fadeIn(400);
-				}
-				// eventually set the piece to new field
-				fromField.children().css({top: 0, left: 0}).detach().prependTo(toField);
-				outerThis.animated = false;
-			});
-	} else {
-		// no animation
-		toField.children().remove();
-		fromField.children().detach().appendTo(toField);
-		this.animated = false;
-	}
-
-
-	if (!silent) {
-		// highlight
-		this.highlight_move(from, to);
-		// sound
-		if (isCapture) {
-			playSound('media/capture');
-		} else {
-			playSound('media/move');
-		}
-	}
-
-	// reset click event memory
-	_dnd_remove();
 }
 
-Board.prototype.highlight_move = function(from, to) {
-	this.highlight_clear();	
-	highlight(from, 'move_from');
-	highlight(to, 'move_to');
+Board.prototype.highlight = function(fieldId, type) {
+    this.highlightArray[fieldId] |= type; // bit-wise OR!
 }
 
-Board.prototype.highlight_clear = function() {
-	var boardId = "board_" + this.id;
-	$("#" + boardId).find('div[id*="field"]').each(function() {
-		$(this)[0].className = $(this)[0].className.replace(/highlight_[^ ]*/, "");
-	});
+Board.prototype.highlightMove = function(from, to) {
+	this.highlight(from, highlightType.LAST_MOVE);
+	this.highlight(to, highlightType.LAST_MOVE);
 }
 
-
-
-function _dnd_down(thisElement, board) {
-	// deselect (somewhat against the rules, but can we prevent that fraud
-	// in online gaming?)
-	if (dragSource === thisElement.attr('id')) {
-		dragSource = undefined; // will remove in up event
-	}
-
-	if (!board.isLocked() && myTurn[board.id] && thisElement.children().length > 0 && !dnd_clicked) {	
-		dragSource = thisElement.attr('id');
-		thisElement.addClass('highlight_input_move_from');
-	}
+Board.prototype.highlightClear = function(type) {
+    for (var i=0; i<this.highlightArray.length; i++) {
+	    this.highlightArray[i] &= ~type; // bit-wise NAND!
+    }
 }
 
-function _dnd_up(thisElement, board) {
-	if (board.isLocked() || dragSource === undefined) {
-		_dnd_remove();
-		return;
-	}
-
-	dropTarget = thisElement.attr('id');
-	if (dropTarget !== undefined) {
-		if (dragSource === dropTarget) {
-			dnd_clicked = true;
-		} else {
-			postMove(dragSource, dropTarget);
-			_dnd_remove(); // this operation has been handled
-			dnd_clicked = false;
-		}
-	}
-}
-
-
-function _dnd_remove() {
-	dragSource = undefined;
-	$('[class*="highlight_input_move_from"]').removeClass('highlight_input_move_from');
-	dnd_clicked = false;
-}
 
 
 function _lengthenFen(fenString, maxVal) {
@@ -338,17 +561,6 @@ function playSound(url) {
 
 
 
-function highlight(fieldId, descr) {
-	$("#" + fieldId).addClass("highlight_" + descr);
-}
-
-function _addEvents(object, board) {
-	if (!board.isWatching) {
-		object.mousedown(function() {_dnd_down($(this), board)});
-		object.mouseup(function() {_dnd_up($(this), board)});
-	}
-}
-
 
 
 function _debug(msg, level) {
@@ -362,16 +574,6 @@ String.prototype.startsWith = function (str){
     return data.substring(0, input.length) === input;
 };
 
-
-
-$(document).ready(function() {
-		// prevent auto-dragging in Firefox
-		$(document).bind("dragstart", function(e) {
-    		if (e.target.nodeName.toLowerCase() == "div") {
-				return false;
-			}
-		});
-});
 
 
 
