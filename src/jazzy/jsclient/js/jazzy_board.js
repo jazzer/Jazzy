@@ -319,11 +319,11 @@ Board.prototype.repaintPieces = function() {
     for (var row=0; row<this.numYFields ; row++) {
         for (var col=0; col<this.numXFields ; col++) {
             // draw piece if applicable
-            var pieceType = this.fenChars[fieldId];
+            var pieceType = this.fields[fieldId];
             if (pieceType !== '_' && (this.moveFrom === undefined || this.moveFrom !== fieldId)) {
                 var pieceIndex = getPieceIndex(pieceType);
                 if (pieceIndex === -1) { continue; }                
-                //c.fillText(this.fenChars[fieldId], xOffset + col*fieldWidth, yOffset + row*fieldHeight);
+                //c.fillText(this.fields[fieldId], xOffset + col*fieldWidth, yOffset + row*fieldHeight);
                 c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
                             this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
             }
@@ -350,7 +350,7 @@ Board.prototype.repaintDragging = function() {
 
     // draw dragged piece (zoom it a little!)
     if (this.moveFrom !== undefined) {
-        var pieceType = this.fenChars[this.moveFrom];
+        var pieceType = this.fields[this.moveFrom];
         if (pieceType !== undefined && pieceType !== '_') {
             var pieceIndex = getPieceIndex(pieceType);
             var zoomedWidth = this.fieldWidth*dragZoomFactor;
@@ -390,23 +390,32 @@ Board.prototype.addMouseEvents = function() {
             board.mousePos = board.getRelativePos(e);
             
             // hide cursor if we drag something visible
-            var pieceType = board.fenChars[board.moveFrom];
+            var pieceType = board.fields[board.moveFrom];
             if (pieceType !== '_') {
                 board.divCanvas.css('cursor', 'none');
             }
-        } else {
+
+            // repaint (for highlight field and piece zoom)
+            board.repaintHighlight();
+            board.repaintPieces();
+            board.repaintDragging();
+         } else {
             board.moveTo = field;
             board.highlight(field, highlightType.SELECTION);
 
-            // TODO use old move posting logic here            
-            console.debug("moving " + board.moveFrom + " to " + board.moveTo);
+            var postFrom = board.moveFrom;
+            var postTo = board.moveTo;
             board.resetMoveInput();
+
+            // repaint (for highlight field and piece zoom)
+            board.repaintHighlight();
+            board.repaintPieces();
+            board.repaintDragging();
+
+            // TODO use old move posting logic here            
+            postMove('board_' + board.id + '_field' + postFrom, 'board_' + board.id + '_field' + postTo);
         }
-        
-        // repaint (for highlight field and piece zoom)
-        board.repaintHighlight();
-        board.repaintPieces();
-        board.repaintDragging();
+     
     });
     this.divCanvas.mouseup(function(e) {
        var field = board.getField(e, this);
@@ -418,16 +427,19 @@ Board.prototype.addMouseEvents = function() {
         if (dragged) {
             board.moveTo = field;
             board.highlight(field, highlightType.SELECTION);
+
+            var postFrom = board.moveFrom;
+            var postTo = board.moveTo;
+            board.resetMoveInput();
+
+            // repaint (for resetting highlight field and piece zoom, possibly a move)
+            board.repaintHighlight();
+            board.repaintPieces();
+            board.repaintDragging();
             
             // TODO use old move posting logic here            
-            console.debug("moving " + board.moveFrom + " to " + board.moveTo);
-            board.resetMoveInput();
+            postMove('board_' + board.id + '_field' + postFrom, 'board_' + board.id + '_field' + postTo);
         }
-        
-        // repaint (for resetting highlight field and piece zoom, possibly a move)
-        board.repaintHighlight();
-        board.repaintPieces();
-        board.repaintDragging();
     });
 
     this.divCanvas.mousemove(function(e) {
@@ -494,19 +506,6 @@ Board.prototype.getField = function(e) {
     return pos;
 }
 
-function findPos(obj){
-var posX = obj.offsetLeft;var posY = obj.offsetTop;
-while(obj.offsetParent){
-if(obj==document.getElementsByTagName('body')[0]){break}
-else{
-posX=posX+obj.offsetParent.offsetLeft;
-posY=posY+obj.offsetParent.offsetTop;
-obj=obj.offsetParent;
-}
-}
-var posArray=[posX,posY]
-return posArray;
-}
 
 
 Board.prototype.getBoardControls = function(boardId) {
@@ -517,14 +516,31 @@ Board.prototype.getBoardControls = function(boardId) {
 Board.prototype.loadFen = function(fenString) {
     this.fenString = fenString;
     var cleanFen = _lengthenFen(this.fenString, this.numXFields).replace(/\//g, "");
-    this.fenChars = cleanFen.split("");
+    this.fields = cleanFen.split("");
     
 	this.repaintPieces();
 }
 
 
 Board.prototype.move = function(from, to, toPiece, silent) {
+    // TODO animation
+    var from = from.replace(/.*field/, '');    
+    var to = to.replace(/.*field/, '');    
 
+    this.fields[to] = this.fields[from];
+    if (toPiece !== undefined) {
+        this.fields[to] = toPiece;
+    }
+    this.fields[from] = '_';
+
+    // highlight move
+    this.highlightClear(highlightType.LAST_MOVE);
+    this.highlight(from, highlightType.LAST_MOVE);
+    this.highlight(to, highlightType.LAST_MOVE);
+
+    // repaint
+    this.repaintHighlight();
+    this.repaintPieces();
 }
 
 Board.prototype.highlight = function(fieldId, type) {

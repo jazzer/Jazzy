@@ -724,7 +724,8 @@ function parseMQ(data) {
 						// fix highlight
 						board.highlightClear();
 						if (data[i][j]['lmove_from'] !== undefined && data[i][j]['lmove_to'] != undefined) {
-							board.highlightMove(lengthenFieldString(data[i][j]['lmove_from']), lengthenFieldString(data[i][j]['lmove_to']));
+							board.highlight(lengthenFieldString(data[i][j]['lmove_from']), highlightType.LAST_MOVE);
+							board.highlight(lengthenFieldString(data[i][j]['lmove_to']), highlightType.LAST_MOVE);
 						}
 					}
 					if (data[i][j]['players'] !== undefined) {
