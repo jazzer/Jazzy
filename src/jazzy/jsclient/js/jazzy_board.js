@@ -127,10 +127,10 @@ Board.prototype.build = function() {
     $("<canvas>").attr('id', boardName + '-canvas-dragging').css('z-index', 3).appendTo(this.divCanvas);        
 
     var jqcanvas = this.divCanvas.find('canvas');
-    this.canvasBoard = jqcanvas[0];
-    this.canvasHighlight = jqcanvas[1];
-    this.canvasPieces = jqcanvas[2];
-    this.canvasDragging = jqcanvas[3];
+    this.canvasBoard = jqcanvas.get(0);
+    this.canvasHighlight = jqcanvas.get(1);
+    this.canvasPieces = jqcanvas.get(2);
+    this.canvasDragging = jqcanvas.get(3);
 
     this.canvasFront = this.canvasDragging; // which one is top-most?
     this.divCanvas.css('cursor', 'pointer');
@@ -322,8 +322,6 @@ Board.prototype.repaintPieces = function() {
             var pieceType = this.fenChars[fieldId];
             if (pieceType !== '_' && (this.moveFrom === undefined || this.moveFrom !== fieldId)) {
                 var pieceIndex = getPieceIndex(pieceType);
-                //console.debug(pieceType);
-                //console.debug(pieceIndex);
                 if (pieceIndex === -1) { continue; }                
                 //c.fillText(this.fenChars[fieldId], xOffset + col*fieldWidth, yOffset + row*fieldHeight);
                 c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
@@ -342,22 +340,23 @@ Board.prototype.repaintPieces = function() {
 
 Board.prototype.repaintDragging = function() {
     if (!this.pieceImageReady) { return; }
+    if (this.fenString === "") { return; }
 
     var canvas = this.canvasDragging;
     var c = canvas.getContext('2d');
     
     // clear
-    c.clearRect(0,0,canvas.width,canvas.height);
+    c.clearRect(0, 0, canvas.width, canvas.height);
 
     // draw dragged piece (zoom it a little!)
     if (this.moveFrom !== undefined) {
         var pieceType = this.fenChars[this.moveFrom];
-        if (pieceType !== '_') {
+        if (pieceType !== undefined && pieceType !== '_') {
             var pieceIndex = getPieceIndex(pieceType);
             var zoomedWidth = this.fieldWidth*dragZoomFactor;
             var zoomedHeight = this.fieldHeight*dragZoomFactor;
             c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
-                this.mouseX*globalScalingFactor-zoomedWidth/2, this.mouseY*globalScalingFactor-zoomedHeight/2, zoomedWidth, zoomedHeight);
+                this.mousePos[0]*globalScalingFactor-zoomedWidth/2, this.mousePos[1]*globalScalingFactor-zoomedHeight/2, zoomedWidth, zoomedHeight);
         }
     }
 }
@@ -379,9 +378,8 @@ function getPieceIndex(pieceType) {
 
 Board.prototype.addMouseEvents = function() {
     var board = this;
-return;
 
-    this.canvasFront.mousedown(function(e) {
+    this.divCanvas.mousedown(function(e) {
         // find field
         var field = board.getField(e, this);
         // source or target field clicked?
@@ -389,13 +387,12 @@ return;
             board.moveFrom = field;
             board.highlight(field, highlightType.SELECTION);
 
-            board.mouseX = e.pageX - board.canvasFront.offsetLeft;
-	        board.mouseY = e.pageY - board.canvasFront.offsetTop;
+            board.mousePos = board.getRelativePos(e);
             
             // hide cursor if we drag something visible
             var pieceType = board.fenChars[board.moveFrom];
             if (pieceType !== '_') {
-                board.div.css('cursor', 'none');
+                board.divCanvas.css('cursor', 'none');
             }
         } else {
             board.moveTo = field;
@@ -411,8 +408,8 @@ return;
         board.repaintPieces();
         board.repaintDragging();
     });
-    this.canvasFront.mouseup(function(e) {
-        var field = board.getField(e, this);
+    this.divCanvas.mouseup(function(e) {
+       var field = board.getField(e, this);
         if (board.moveFrom === undefined) {
             return;
         }
@@ -433,18 +430,17 @@ return;
         board.repaintDragging();
     });
 
-    this.canvasFront.mousemove(function(e) {
+    this.divCanvas.mousemove(function(e) {
         // do a repaint, if a) mouse is down b)
         if (board.moveFrom !== undefined) {
-            board.mouseX = e.pageX - board.canvasFront.offsetLeft;
-	        board.mouseY = e.pageY - board.canvasFront.offsetTop;
+            board.mousePos = board.getRelativePos(e);
 
             board.repaintDragging();
         } 
     });
 
 
-    this.canvasFront.mouseout(function(e) {
+    this.divCanvas.mouseout(function(e) {
         board.resetMoveInput();
         // repaint
         board.repaintHighlight();
@@ -454,7 +450,6 @@ return;
 
     // TODO: does not seem to ever fire :(
     this.divCanvas.resize(function(e) {
-        console.debug('resized');
         // repaint
         board.repaintBoard();
         board.repaintHighlight();
@@ -475,20 +470,42 @@ Board.prototype.resetMoveInput = function() {
 Board.prototype.addKeyboardEvents = function() {
 }
 
+Board.prototype.getRelativePos = function(e) {
+    var elem = jQuery(this.canvasFront)
+    var x = e.pageX - elem.offset().left;
+	var y = e.pageY - elem.offset().top;
+    
+    var posArray=[x, y]
+    return posArray;
+}
 
-Board.prototype.getField = function(e, elem) {
-    var x = e.pageX - elem.offsetLeft;
-	var y = e.pageY - elem.offsetTop;
+Board.prototype.getField = function(e) {
+    var elemPos = this.getRelativePos(e);
+    var x = elemPos[0];
+	var y = elemPos[1];
     
     var col = Math.floor((x*globalScalingFactor-this.xOffset) / this.fieldWidth);
     var row = Math.floor((y*globalScalingFactor-this.yOffset) / this.fieldHeight);
-    //console.debug("Zeile " + row + "\nSpalte:" + col);
     var pos = row*this.numXFields + col;
     // flipped?
     if (this.flipped) {
         pos = this.numFields - 1 - pos;
     }
     return pos;
+}
+
+function findPos(obj){
+var posX = obj.offsetLeft;var posY = obj.offsetTop;
+while(obj.offsetParent){
+if(obj==document.getElementsByTagName('body')[0]){break}
+else{
+posX=posX+obj.offsetParent.offsetLeft;
+posY=posY+obj.offsetParent.offsetTop;
+obj=obj.offsetParent;
+}
+}
+var posArray=[posX,posY]
+return posArray;
 }
 
 
