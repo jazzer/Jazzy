@@ -92,7 +92,7 @@ function Board(id, numXFields, numYFields, flipped) {
         the piece set used with pure CSS.
     */
     var pieceImageInterval = window.setInterval(function() {
-        var url = $('#pieceImage').css('background-image');
+        var url = ($('#pieceImage-board_' + board.id).length>0?$('#pieceImage-board_' + board.id):$('#pieceImage')).css('background-image');
         if (url == '') { return; }
         window.clearInterval(pieceImageInterval);
         url = url.replace(/^url\(["']?(.*?)["']?\)$/, "$1");
@@ -101,6 +101,12 @@ function Board(id, numXFields, numYFields, flipped) {
             board.pieceImageReady = true;
             board.repaintFull();
         };
+
+        /* pull the relevant DOM elements for styling */
+        backgroundStyle = ($('#backgroundColors-board_' + board.id).length>0?$('#backgroundColors-board_' + board.id):$('#backgroundColors'));
+        higlightStyles = new Array();
+        higlightStyles[highlightType.LAST_MOVE] = ($('#highlightColors-1-board_' + board.id).length>0?$('#highlightColors-1-board_' + board.id):$('#highlightColors-1'));
+        higlightStyles[highlightType.SELECTION] = ($('#highlightColors-2-board_' + board.id).length>0?$('#highlightColors-2-board_' + board.id):$('#highlightColors-2'));
     }, 200);
 }
 
@@ -239,9 +245,9 @@ Board.prototype.repaintBoard = function() {
     for (var row=0; row<this.numYFields ; row++) {
         for (var col=0; col<this.numXFields ; col++) {
             if (nextDark) {
-                c.fillStyle = "#1A12A6";
+                c.fillStyle = backgroundStyle.css('background-color');
             } else {
-                c.fillStyle = "#C0BEED";
+                c.fillStyle = backgroundStyle.css('color');
             }
             // draw single field's background (TODO: use images!)    
             c.fillRect(this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
@@ -282,15 +288,15 @@ Board.prototype.repaintHighlight = function() {
             if (this.highlightArray[fieldId] > 0) {
                 if (this.highlightArray[fieldId] >= highlightType.SELECTION) {
                     if (nextDark) {
-                        c.fillStyle = "#4A8F63";
+                        c.fillStyle = higlightStyles[highlightType.SELECTION].css('background-color');
                     } else {
-                        c.fillStyle = "#2AF775";
+                        c.fillStyle = higlightStyles[highlightType.SELECTION].css('color');
                     }
                 } else if (this.highlightArray[fieldId] >= highlightType.LAST_MOVE) {
                     if (nextDark) {
-                        c.fillStyle = "#DBBE00";
+                        c.fillStyle = higlightStyles[highlightType.LAST_MOVE].css('background-color');
                     } else {
-                        c.fillStyle = "#E2FA6B";
+                        c.fillStyle = higlightStyles[highlightType.LAST_MOVE].css('color');
                     }
                 }
                 c.fillRect(this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
@@ -392,6 +398,7 @@ Board.prototype.addMouseEvents = function() {
     this.divCanvas.mousedown(function(e) {
         // find field
         var field = board.getField(e, this);
+        if (field == -1) { return; }
         // source or target field clicked?
         if (board.moveFrom === undefined) {
             board.moveFrom = field;
@@ -428,7 +435,9 @@ Board.prototype.addMouseEvents = function() {
      
     });
     this.divCanvas.mouseup(function(e) {
-       var field = board.getField(e, this);
+        var field = board.getField(e, this);
+        if (field == -1) { return; }
+
         if (board.moveFrom === undefined) {
             return;
         }
@@ -508,6 +517,11 @@ Board.prototype.getField = function(e) {
     
     var col = Math.floor((x*globalScalingFactor-this.xOffset) / this.fieldWidth);
     var row = Math.floor((y*globalScalingFactor-this.yOffset) / this.fieldHeight);
+    
+    if (col < 0 || col >= this.numXFields || row < 0 || row >= this.numYFields) {
+        return -1;
+    }    
+    
     var pos = row*this.numXFields + col;
     // flipped?
     if (this.flipped) {

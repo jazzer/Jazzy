@@ -1,8 +1,4 @@
 #board-style>#pieceImage{background-image:url(../img/pieces/maurizio-monge-fantasy/pieces.png);}
-.board .dark{background-color:#0000cc;}
-.board .dark:hover{background-color:#000080;}
-.board .light{background-color:#9999ff;}
-.board .light:hover{background-color:#e6e6ff;}
-.highlight_move_to{background:none !important;background-color:#ffff66 !important;}
-.highlight_move_from{background:none !important;background-color:#ffffb3 !important;}
-.highlight_input_move_from{background:none !important;background-color:#ff6666 !important;}
+#board-style>#backgroundColors{color:#ffffff;background-color:#3333ff;}
+#board-style>#highlightColors-1{color:#ffffb3;background-color:#ffff66;}
+#board-style>#highlightColors-2{color:#ff8080;background-color:#ff3333;}

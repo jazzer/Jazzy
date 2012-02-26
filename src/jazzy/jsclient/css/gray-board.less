@@ -20,7 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 /* LESS variables */
 /* board colors */
-@board-base: #00f;
+@board-base: #66f;
 /* highlighting colors */
 @highlight: #ff9;
 /* selection color */
@@ -52,32 +52,20 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
     background-image: url(../img/pieces/maurizio-monge-fantasy/pieces.png);
 }
 
-.board .dark {
+#board-style > #backgroundColors {
+    color: @board-light;
 	background-color: @board-dark;
 }
 
-.board .dark:hover {
-	background-color: @board-dark-highlight;
+/* 1 stands for last move */
+#board-style > #highlightColors-1 {
+	color: lighten(@highlight, 5%);
+	background-color: darken(@highlight, 10%);
 }
 
-.board .light {
-	background-color: @board-light;
-}
-.board .light:hover {
-	background-color: @board-light-highlight;
-}
-
-
-.highlight_move_to {
-	background: none !important;
-	background-color: darken(@highlight, 10%) !important;
-}
-.highlight_move_from {
-	background: none !important;
-	background-color: lighten(@highlight, 5%) !important;
-}
-.highlight_input_move_from {
-	background: none !important;
-	background-color: @selection !important;
+/* 2 stands for selection */
+#board-style > #highlightColors-2 {
+	color: lighten(@selection, 5%);
+	background-color: darken(@selection, 10%);
 }
 
