@@ -1,5 +1,5 @@
 '''
-Copyright (c) 2011 Johannes Mitlmeier
+Copyright (c) 2011-2012 Johannes Mitlmeier
 
 This file is part of Jazzy.
 

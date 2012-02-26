@@ -46,3 +46,9 @@ do
 done
 
 cd $dir
+
+# update copyright info
+#find . -name '*.js' | xargs perl -pi -e 's/Copyright \(c\) 2011/Copyright (c) 2011-2012/g'
+#find . -name '*.py' | xargs perl -pi -e 's/Copyright \(c\) 2011/Copyright (c) 2011-2012/g'
+#find . -name '*.html' | xargs perl -pi -e 's/Copyright \(c\) 2011/Copyright (c) 2011-2012/g'
+
