@@ -1,4 +1,14 @@
 ========================
+  Installing
+========================
+Valid for Ubuntu Oneiric Ocelot (11.10).
+
+Get Autobahn (for WebSocket):
+sudo apt-get install python3-dev
+sudo easy_install Autobahn
+
+
+========================
   Running from Eclipse
 ========================
 

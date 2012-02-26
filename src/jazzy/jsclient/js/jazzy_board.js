@@ -23,11 +23,10 @@ var borderXSize = 50;
 var borderYSize = 50;
 var fontWidth = 100;
 
-var globalScalingFactor = 4;
-var dragZoomFactor = 1.3;
+var globalScalingFactor = 2;
+var dragZoomFactor = 1.5;
 
 var spriteOrder = "kqrbnpcih";
-var spriteBaseSize = 48;
 
 
 var highlightType = {
@@ -76,8 +75,6 @@ function Board(id, numXFields, numYFields, flipped) {
     this.fenString = "";
     this.numFields = numXFields * numYFields;
 
-    this.pieceImg = $('#pieceImage').get(0);
-    
     // prepare highlighting information
     this.highlightArray = new Array(this.numFields);
     for (var i=0; i < this.highlightArray.length; i++) {
@@ -93,6 +90,7 @@ function Board(id, numXFields, numYFields, flipped) {
         board.pieceImageReady = true;
         board.repaintFull();
     };
+    this.pieceImg = pieceImg;
 }
 
 
@@ -316,6 +314,7 @@ Board.prototype.repaintPieces = function() {
         step = -step;
     }
     
+    var spriteWidth = this.pieceImg.width;
     for (var row=0; row<this.numYFields ; row++) {
         for (var col=0; col<this.numXFields ; col++) {
             // draw piece if applicable
@@ -323,8 +322,7 @@ Board.prototype.repaintPieces = function() {
             if (pieceType !== '_' && (this.moveFrom === undefined || this.moveFrom !== fieldId)) {
                 var pieceIndex = getPieceIndex(pieceType);
                 if (pieceIndex === -1) { continue; }                
-                //c.fillText(this.fields[fieldId], xOffset + col*fieldWidth, yOffset + row*fieldHeight);
-                c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
+                c.drawImage(this.pieceImg, 0, pieceIndex*spriteWidth, spriteWidth, spriteWidth,
                             this.xOffset + col*this.fieldWidth, this.yOffset + row*this.fieldHeight, this.fieldWidth, this.fieldHeight);
             }
                
@@ -355,7 +353,8 @@ Board.prototype.repaintDragging = function() {
             var pieceIndex = getPieceIndex(pieceType);
             var zoomedWidth = this.fieldWidth*dragZoomFactor;
             var zoomedHeight = this.fieldHeight*dragZoomFactor;
-            c.drawImage(this.pieceImg, 0, pieceIndex*spriteBaseSize, spriteBaseSize, spriteBaseSize,
+            var spriteWidth = this.pieceImg.width;
+            c.drawImage(this.pieceImg, 0, pieceIndex*spriteWidth, spriteWidth, spriteWidth,
                 this.mousePos[0]*globalScalingFactor-zoomedWidth/2, this.mousePos[1]*globalScalingFactor-zoomedHeight/2, zoomedWidth, zoomedHeight);
         }
     }
@@ -563,10 +562,10 @@ Board.prototype.highlightClear = function(type) {
 
 function _lengthenFen(fenString, maxVal) {
 	var replacement = "__";
-	for (var i=2; i <= maxVal; i++) {
+	for (var i=1; i <= maxVal; i++) {
 		replacement = replacement + "_";
 	}
-	for (var i=maxVal; i >= 2; i--) {
+	for (var i=maxVal; i >= 1; i--) {
 		var re = new RegExp(i, "g");
 		fenString = fenString.replace(re, replacement.substring(0,i));
 	}
@@ -575,10 +574,10 @@ function _lengthenFen(fenString, maxVal) {
 
 function _shortenFen(fenString, maxVal) {
 	var searchString = "_"
-	for (var i=2; i <= maxVal; i++) {
+	for (var i=1; i <= maxVal; i++) {
 		searchString = searchString + "_"
 	}
-	for (var i=maxVal; i >= 2; i--) {
+	for (var i=maxVal; i >= 1; i--) {
 		var re = new RegExp(searchString.substring(0, i), "g");
 		fenString = fenString.replace(re, i);
 	}
