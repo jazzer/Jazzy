@@ -85,12 +85,23 @@ function Board(id, numXFields, numYFields, flipped) {
     
     var board = this;
     this.pieceImageReady = false;
-    var pieceImg = $('#pieceImage')[0];
-    pieceImg.onload = function(){
-        board.pieceImageReady = true;
-        board.repaintFull();
-    };
-    this.pieceImg = pieceImg;
+    this.pieceImg = new Image();
+
+    /* wait for the piece image to load, then draw board
+        using the CSS property background-image enables changing
+        the piece set used with pure CSS.
+    */
+    var pieceImageInterval = window.setInterval(function() {
+        var url = $('#pieceImage').css('background-image');
+        if (url == '') { return; }
+        window.clearInterval(pieceImageInterval);
+        url = url.replace(/^url\(["']?(.*?)["']?\)$/, "$1");
+        board.pieceImg.src = url;
+        board.pieceImg.onload = function(){
+            board.pieceImageReady = true;
+            board.repaintFull();
+        };
+    }, 200);
 }
 
 

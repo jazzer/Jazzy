@@ -1,4 +1,4 @@
-
+#board-style>#pieceImage{background-image:url(../img/pieces/maurizio-monge-fantasy/pieces.png);}
 .board .dark{background-color:#0000cc;}
 .board .dark:hover{background-color:#000080;}
 .board .light{background-color:#9999ff;}
