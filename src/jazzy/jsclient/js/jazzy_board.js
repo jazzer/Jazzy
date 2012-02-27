@@ -157,22 +157,30 @@ Board.prototype.build = function() {
     this.canvasFront = this.canvasDragging; // which one is top-most?
     this.divCanvas.css('cursor', 'pointer');
 
-
 	// set events for drag and drop
 	this.addMouseEvents();
 	this.addKeyboardEvents();
-		
-	// pockets
-	topPocket = $('<div>').attr('id', 'top-pocket-' + this.id).addClass('pocket').addClass('top-pocket');
-	bottomPocket = $('<div>').attr('id', 'bottom-pocket-' + this.id).addClass('pocket').addClass('bottom-pocket');
-	// players
-	topPlayers = $('<div>').attr('id', 'top-players-' + this.id).addClass('players top-players');
-	bottomPlayers = $('<div>').attr('id', 'bottom-players-' + this.id).addClass('players bottom-players');
 
-	// buttons for castling
-	//outerDiv = $('<div>').attr('id', boardId + '-frame').append(topPocket).append(topPlayers).append(boardDiv).append(bottomPlayers).append(bottomPocket).append($('<div>').attr('id', boardId + '-controls').append(this.getBoardControls()));
+    boardFrameDiv.append(divCanvas);
+
+    var templateSource = $('#board-templates');
+    // player names
+    var templateContent = templateSource.find('#top-players').html();
+    templateContent = templateContent.replace(/boardId/g, this.id);
+    boardFrameDiv.prepend(templateContent);
+    // bottom
+    templateContent = templateSource.find('#bottom-players').html();
+    templateContent = templateContent.replace(/boardId/g, this.id);
+    boardFrameDiv.append(templateContent);
+
+    // board controls
+    templateContent = templateSource.find('#board-controls').html();
+    var boardControls = $('<div>').attr('id', 'board-controls-' + this.id);
+    templateContent = templateContent.replace(/boardId/g, this.id);
+    boardControls.html(templateContent);
+    boardFrameDiv.append(boardControls);
 			
-	$("#boards").append(boardFrameDiv.append(divCanvas));
+	$("#boards").append(boardFrameDiv);
 }
 
 Board.prototype.sizeChanged = function() {
@@ -544,11 +552,6 @@ Board.prototype.getField = function(e) {
     return pos;
 }
 
-
-
-Board.prototype.getBoardControls = function(boardId) {
-	return '<button type="button" class="btn" onclick="_shortCastling(\'' + boardId + '\');">O-O</button> <button type="button" class="btn" onclick="_longCastling(\'' + boardId + '\');">O-O-O</button><br /><br />' + '<button type="button" class="btn" id="btn_offer_draw" onclick="_offerDraw(\'' + boardId + '\');">Offer draw</button> ' + '<button type="button" class="btn" id="btn_repetition" onclick="_repetition(\'' + boardId + '\');">Claim Repetition</button> ' + '<button type="button" class="btn" id="btn_x_move_rule" onclick="_xMoveRule(\'' + boardId + '\');">Claim x Move rule</button> ' + '<button type="button" class="btn" id="btn_resign" onclick="_resign(\'' + boardId + '\');">Resign</button>';
-}
 
 
 Board.prototype.loadFen = function(fenString) {

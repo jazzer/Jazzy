@@ -286,7 +286,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .canvas-container > canvas {
     position: absolute;
-    top: 0;
+    top: 50;
     left: 0;
 }
 
@@ -299,16 +299,34 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 15px;
 }
 .bottom-players {
-	margin-bottom: 15px;
+	margin-top: 15px;
+	margin-bottom: 30px;
 }
 .player {
 	display: inline-block;
 	padding: 2px;
+    background-color: #ccc;
+    background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+    background-image: -o-linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+    background-image: -ms-linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+    background-image: -moz-linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+    background-image: -webkit-linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+    color: black;
 }
 .player-me {
 	padding-left: 3em;
 	padding-right: 3em;
 }
+.player-curr {
+    background: #1EBD6B;
+    background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+    background-image: -o-linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+    background-image: -ms-linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+    background-image: -moz-linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+    background-image: -webkit-linear-gradient(transparent, rgba(0, 0, 0, 0.25));
+    color: black;
+}
+
 
 .promotion_piece {
 	float: left;

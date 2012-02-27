@@ -45,6 +45,22 @@
         <div id="highlightColors-1"></div>
         <div id="highlightColors-2"></div>
     </div>
+    <div id="board-templates" class="hidden">
+        <div id="board-controls">
+            <button type="button" class="btn" id="castle-short-boardId" onclick="_shortCastling('boardId');">O-O</button>
+            <button type="button" class="btn" id="castle-long-boardId" onclick="_longCastling('boardId');">O-O-O</button><br /><br />
+            <button type="button" class="btn" id="offer-draw-boardId" onclick="_offerDraw('boardId');">Offer draw</button>
+            <button type="button" class="btn" id="repetition-boardId" onclick="_repetition('boardId');">Claim Repetition</button>
+            <button type="button" class="btn" id="x-move-rule-boardId" onclick="_xMoveRule('boardId');">Claim x Move rule</button>
+            <button type="button" class="btn" id="resign-boardId" onclick="_resign('boardId');">Resign</button>
+        </div>
+        <div id="top-players">
+            <div id="top-players-boardId" class="players top-players"></div>
+        </div>
+        <div id="bottom-players">
+            <div id="bottom-players-boardId" class="players bottom-players"></div>
+        </div>
+    </div>
 </div>
 
 <!-- data display -->

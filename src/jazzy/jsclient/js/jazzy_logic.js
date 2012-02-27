@@ -646,7 +646,7 @@ function _parseBoardPlayers(players, targetBoard) {
 
 function _fillPlayers(position, content, board) {
 	var position = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'top':'bottom';
-	var playerHostDiv = $('#' + position + '-players-board_' + board.id).empty();
+	var playerHostDiv = $('#' + position + '-players-' + board.id).empty();
 	var playerSplit = content.split(',');
 	for (var i=0; i<playerSplit.length; i++) {
 		var playerData = playerSplit[i].split(':');
