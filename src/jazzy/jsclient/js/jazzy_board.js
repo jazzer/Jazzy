@@ -292,7 +292,7 @@ Board.prototype.repaintHighlight = function() {
     var c = canvas.getContext('2d');
 
     // clear
-    c.clearRect(0,0,canvas.width,canvas.height);
+    c.clearRect(0, 0, canvas.width, canvas.height);
 
     // draw board (with respect to highlighted fields!)
     var nextDark = false;
@@ -591,6 +591,18 @@ Board.prototype.move = function(from, to, toPiece, silent) {
     // repaint
     this.repaintHighlight();
     this.repaintPieces();
+}
+
+Board.prototype.getPieceDiv = function(pieceType) {
+    var pos = getPieceIndex(pieceType);    
+    if (pos == -1) {
+        return '';
+    }
+
+    var pieceDiv = $("<div>");
+    var url = ($('#pieceImage-board_' + board.id).length>0?$('#pieceImage-board_' + board.id):$('#pieceImage')).css('background-image');
+    pieceDiv.css({'background-image': url, 'background-color': "transparent", 'background-repeat': "no-repeat", 'height': this.pieceImg.width, 'width': this.pieceImg.width, 'background-position': "-0px -" + (pos*this.pieceImg.width) + "px" });
+    return pieceDiv
 }
 
 Board.prototype.highlight = function(fieldId, type) {
