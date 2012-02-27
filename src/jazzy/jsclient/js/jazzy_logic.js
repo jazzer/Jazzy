@@ -28,6 +28,7 @@ var interval_factor = 1.4;
 var myTurn = true;
 var noCalls = false;
 var styleNames = 'gray,light-wood,dark-wood,mono';
+var globalTurn = false;
 
 if (typeof BoardStorage === 'function') {
 	var boardStorage = new BoardStorage();
@@ -504,7 +505,6 @@ function recalcInterval(success) {
 }
 
 function _parseCurrPlayer(currPlayerValue, boardId) {
-	var mark = '{!}'
 	if (currPlayerValue == undefined) {
 		return;
 	}
@@ -528,21 +528,26 @@ function _parseCurrPlayer(currPlayerValue, boardId) {
 	$('[id$="_p' + currPlayerValue +'"]').addClass('player-curr');
 
 	// nowhere current player?
-	var turn = false;
+	var globalTurn = false;
 	for (thisBoardTurn in myTurn) {
 		if (myTurn[thisBoardTurn]) {
-			turn = true;
+			globalTurn = true;
 			break;
 		}
 	}
-	// set title accordingly
-	if (turn) {
-		if (document.title.substr(0, mark.length) !== mark) {
-			document.title = mark + ' ' + document.title;
-		}		
+	// set favicon accordingly
+	if (globalTurn) {
+		_setFavicon('red');		
 	} else {
-		document.title = document.title.replace(/^[^a-zA-Z0-9]+ /, '');
+		_setFavicon('green');		
 	}
+}
+
+function _setFavicon(name) {
+    // update
+    result = $('link[rel="icon"]').remove();
+    result.attr('href', 'img/favicon/' + name + '.gif');
+    $('head').append(result);
 }
 
 function _changeDebugLevel() {

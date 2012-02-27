@@ -551,11 +551,20 @@ Board.prototype.move = function(from, to, toPiece, silent) {
     var from = from.replace(/.*field/, '');    
     var to = to.replace(/.*field/, '');    
 
+    var isCapture = (this.fields[to] == '_');
+    
     this.fields[to] = this.fields[from];
     if (toPiece !== undefined) {
         this.fields[to] = toPiece;
     }
     this.fields[from] = '_';
+
+    // play sound
+    if (isCapture) {
+        playSound('media/capture');
+    } else {
+        playSound('media/move');
+    }
 
     // highlight move
     this.highlightClear(highlightType.LAST_MOVE);
