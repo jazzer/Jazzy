@@ -27,7 +27,8 @@ var max_interval = 15000;
 var interval_factor = 1.4;
 var myTurn = true;
 var noCalls = false;
-var styleNames = 'gray,light-wood,dark-wood,mono';
+var styleNames = 'light-wood,dark-wood,gray';
+var boardStyleNames = 'classic,color';
 var globalTurn = false;
 
 if (typeof BoardStorage === 'function') {
@@ -47,6 +48,7 @@ var mqId, lastParsedMsg, availible_games, currSelectedGame, playerName
 var activeJSONCall = false;
 var unsuccessfulServerCallCounter = -1;
 var styleNameArray = styleNames.split(",");
+var boardStyleNameArray = boardStyleNames.split(",");
 var selfPlayerIDs = '';
 var currPlayer = new Object();
 var myTurn = new Object();
@@ -105,9 +107,13 @@ function _playInit() {
 			});
 
 		// setup style chooser
-		var targets = $('[name^="style-chooser-"]');
+		var targets = $('[name="style-chooser-main"]');
 		for (styleIndex in styleNameArray) {
 			targets.append($('<option>').text(styleNameArray[styleIndex]));
+		}
+        targets = $('[name="style-chooser-board"]');
+		for (styleIndex in boardStyleNameArray) {
+			targets.append($('<option>').text(boardStyleNameArray[styleIndex]));
 		}
 		$('select[name="style-chooser-main"]').change(function() {_changeStyle('main');});
 		$('select[name="style-chooser-board"]').change(function() {_changeStyle('board');});
@@ -163,10 +169,17 @@ function _changeStyle(type, value) {
 	// set new style
 	$('head').append($('<link>').attr({'type': 'text/css', 'rel': 'stylesheet', 'href': newStyleFile}));
 	
-	// changing main changes to according board
-	if (type == 'main') {
-		_changeStyle('board', value);
-	}
+	// repaint boards if style changed
+    var boards = $('.board');
+    boards.each(function() {
+        var boardId = $(this).attr('id').replace(/^board_/, '');
+        var thisBoard = boardStorage.getBoard(boardId);
+
+        thisBoard.pullStyles();
+        window.setTimeout(function() {
+            thisBoard.repaintFull();
+        }, 300);
+    });
 }
 
 
@@ -651,6 +664,7 @@ function _fillPlayers(position, content, board) {
 function parseMQ(data) {
 	// did we receive messages? if so, keep checking frequently
 	recalcInterval(data !== null && data.length > 0);
+    if (data === null) {return;}
 
 	if (data.length > 0) {
 		_debug("Received message queue: " + JSON.stringify(data, null, '\t'), 2);

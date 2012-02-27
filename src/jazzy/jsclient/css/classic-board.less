@@ -1,0 +1,53 @@
+/*
+Copyright (c) 2011 Johannes Mitlmeier
+
+This file is part of Jazzy.
+
+Jazzy is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
+*/
+
+
+/* LESS variables */
+/* board colors */
+@board-light: #EAEAEA;
+@board-dark: #9063FF;
+/* highlighting colors */
+@highlight: #ff6;
+/* selection color */
+@selection: #f99;
+
+
+/* board specific */
+#board-style > #pieceImage {
+    /* relative to the css file! */
+    background-image: url(../img/pieces/maurizio-monge-fantasy/pieces.png);
+}
+
+#board-style > #backgroundColors {
+    color: @board-light;
+	background-color: @board-dark;
+}
+
+/* 1 stands for last move */
+#board-style > #highlightColors-1 {
+	color: lighten(@highlight, 5%);
+	background-color: darken(@highlight, 5%);
+}
+
+/* 2 stands for selection */
+#board-style > #highlightColors-2 {
+	color: lighten(@selection, 5%);
+	background-color: darken(@selection, 5%);
+}
+

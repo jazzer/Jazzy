@@ -1,16 +1,16 @@
-body{color:#000000;background-image:url(../img/styles/light-wood.jpg);background-repeat:repeat;}
+body{color:#1a0d00;background-image:url(../img/styles/light-wood.jpg);background-repeat:repeat;}
 h1,h2,h3,h4,h5,h6{color:white;text-shadow:;}
 a,a:hover,a:visited{color:white;}
-.menu{background:#000000;}.menu a{text-decoration:none;}
+.menu{background:#1a0d00;}.menu a{text-decoration:none;}
 .menu_item{text-shadow:;color:white;}
 .menu_item:hover{background:#ff8000;}
 .head_logo:hover{background:black;}
 .hl_text{text-shadow:;}
 .roundbutton,input[type=submit]{background:#331a00;color:#ff8000;border:0.1px solid #ff8000;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;box-shadow:0 1px 3px rgba(0, 0, 0, 0.5);-moz-box-shadow:0 1px 3px rgba(0, 0, 0, 0.5);-webkit-box-shadow:0 1px 3px rgba(0, 0, 0, 0.5);text-align:center;min-width:100px;}
-.roundbutton:hover,input[type=submit]:hover{background:#ff8000;color:#000000;cursor:pointer;}
-select{background:#ff8000;color:#000000;}
+.roundbutton:hover,input[type=submit]:hover{background:#ff8000;color:#1a0d00;cursor:pointer;}
+select{background:#ff8000;color:#1a0d00;}
 #data{color:white;}
-#data .data_header{background-color:#000000;text-align:left;border-top:1px dashed black;}
+#data .data_header{background-color:#ff8000;color:black;text-align:left;border-top:1px dashed black;}
 #data .data_header .data_header_title{text-shadow:;}
 #data .data_content{background-color:#ffa64d;color:black;}
 .message{color:white;}

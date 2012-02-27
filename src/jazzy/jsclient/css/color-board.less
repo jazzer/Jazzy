@@ -20,36 +20,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 /* LESS variables */
 /* board colors */
-@board-base: #66f;
+@board-light: #3ED685;
+@board-dark: #0B7D40;
 /* highlighting colors */
-@highlight: #ff9;
+@highlight: #C9742E;
 /* selection color */
-@selection: #f66;
+@selection: #937BDB;
 
-/* derived colors */
-@board-dark: darken(@board-base, 10%);
-@board-dark-highlight: darken(@board-dark, 15%);
-@board-light: lighten(@board-base, 30%);
-@board-light-highlight: lighten(@board-light, 15%);
-
-
-/* mixins */
-.box-shadow (@x: 0, @y: 0, @blur: 1px, @color: #000) {
-	box-shadow: @arguments;
-	-moz-box-shadow: @arguments;
-	-webkit-box-shadow: @arguments;
-}
-
-.border-radius (@radius) {
-	border-radius: @radius;
-	-moz-border-radius: @radius;
-	-webkit-border-radius: @radius;
-}
 
 /* board specific */
 #board-style > #pieceImage {
     /* relative to the css file! */
-    background-image: url(../img/pieces/maurizio-monge-fantasy/pieces.png);
+    background-image: url(../img/pieces/wikipedia/pieces.png);
 }
 
 #board-style > #backgroundColors {
@@ -60,12 +42,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 /* 1 stands for last move */
 #board-style > #highlightColors-1 {
 	color: lighten(@highlight, 5%);
-	background-color: darken(@highlight, 10%);
+	background-color: darken(@highlight, 5%);
 }
 
 /* 2 stands for selection */
 #board-style > #highlightColors-2 {
 	color: lighten(@selection, 5%);
-	background-color: darken(@selection, 10%);
+	background-color: darken(@selection, 5%);
 }
 

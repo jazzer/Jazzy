@@ -23,7 +23,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 @base: #663300;
 
 @dark: darken(@base, 10%);
-@darker: darken(@dark, 15%);
+@darker: darken(@dark, 5%);
 @light: lighten(@base, 30%);
 @lighter: lighten(@light, 15%);
 
@@ -111,7 +111,8 @@ select {
 }
 
 #data .data_header {
-	background-color: @darker;
+	background-color: @light;
+    color: black;
 	text-align: left;
 	border-top: 1px dashed black;
 }

@@ -84,6 +84,23 @@ function Board(id, numXFields, numYFields, flipped) {
     this.build();
     
     var board = this;
+    this.pullStyles();
+    this.repaintFull();
+}
+
+
+Board.prototype.lock = function() {
+	this.locked = true;
+}
+Board.prototype.unlock = function() {
+	this.locked = false;
+}
+Board.prototype.isLocked = function() {
+	return this.locked;
+}
+
+
+Board.prototype.pullStyles = function() {
     this.pieceImageReady = false;
     this.pieceImg = new Image();
 
@@ -96,29 +113,19 @@ function Board(id, numXFields, numYFields, flipped) {
         if (url == '') { return; }
         window.clearInterval(pieceImageInterval);
         url = url.replace(/^url\(["']?(.*?)["']?\)$/, "$1");
+        board.pieceImg.src = '';
         board.pieceImg.src = url;
-        board.pieceImg.onload = function(){
-            board.pieceImageReady = true;
-            board.repaintFull();
-        };
 
         /* pull the relevant DOM elements for styling */
         backgroundStyle = ($('#backgroundColors-board_' + board.id).length>0?$('#backgroundColors-board_' + board.id):$('#backgroundColors'));
         higlightStyles = new Array();
         higlightStyles[highlightType.LAST_MOVE] = ($('#highlightColors-1-board_' + board.id).length>0?$('#highlightColors-1-board_' + board.id):$('#highlightColors-1'));
         higlightStyles[highlightType.SELECTION] = ($('#highlightColors-2-board_' + board.id).length>0?$('#highlightColors-2-board_' + board.id):$('#highlightColors-2'));
+
+        board.pieceImg.onload = function(){
+            board.pieceImageReady = true;
+        };
     }, 200);
-}
-
-
-Board.prototype.lock = function() {
-	this.locked = true;
-}
-Board.prototype.unlock = function() {
-	this.locked = false;
-}
-Board.prototype.isLocked = function() {
-	return this.locked;
 }
 
 
@@ -201,6 +208,13 @@ Board.prototype.sizeChanged = function() {
 
 
 Board.prototype.repaintFull = function() {
+    var board = this;
+    // faking a sleep function
+    if (!this.pieceImageReady) {
+        window.setTimeout(function() { board.repaintFull(); }, 200);
+        return;
+    }
+
     this.repaintBoard();
     this.repaintHighlight();
     this.repaintPieces();
@@ -551,7 +565,7 @@ Board.prototype.move = function(from, to, toPiece, silent) {
     var from = from.replace(/.*field/, '');    
     var to = to.replace(/.*field/, '');    
 
-    var isCapture = (this.fields[to] == '_');
+    var isCapture = (this.fields[to] !== '_');
     
     this.fields[to] = this.fields[from];
     if (toPiece !== undefined) {
