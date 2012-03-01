@@ -13,11 +13,11 @@ select{background:#ff8000;color:#1a0d00;}
 #data .data_header{background-color:#ff8000;color:black;text-align:left;border-top:1px dashed black;}
 #data .data_header .data_header_title{text-shadow:;}
 #data .data_content{background-color:#ffa64d;color:black;}
-.message{color:white;}
+.message{color:#333;}
 .time{color:black;}
 #chat_history{padding:2px 2px;}
 .chat_username{color:#ffa64d;}
-.chat_self{color:white;}
+.chat_self{color:#333;}
 .chat_other{color:black;}
 .gameSelection .entry{background-color:#331a00;color:#ffa64d;}
 .gameSelection .entry:hover{background-color:#ffa64d;color:#331a00;}

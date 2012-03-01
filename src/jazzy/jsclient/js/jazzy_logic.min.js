@@ -608,16 +608,17 @@ function _offerDraw() {
 }
 
 function _fillPocket(position, content, board) {
-	var pocketId = position=='top'?'1':'0';
-	var position = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'top':'bottom';
-	var pocket = $('#' + position + '-pocket-board_' + board.id).empty();
-	for (var i=0; i<content.length; i++) {
-		var pieceDiv = board.getPieceDiv(content.charAt(i));
-		var fieldDiv = $('<div>').addClass('field').attr('id', 'board_' + board.id + '_fieldp' + pocketId + i).append(pieceDiv);
-		// add click events
-		_addEvents(fieldDiv, board);
-		pocket.append(fieldDiv);
-	}
+    // TODO reenable
+	//var pocketId = position=='top'?'1':'0';
+	//var position = (position=='top' && !board.flipped) || (position=='bottom' && board.flipped)?'top':'bottom';
+	//var pocket = $('#' + position + '-pocket-board_' + board.id).empty();
+	//for (var i=0; i<content.length; i++) {
+	//	var pieceDiv = board.getPieceDiv(content.charAt(i));
+	//	var fieldDiv = $('<div>').addClass('field').attr('id', 'board_' + board.id + '_fieldp' + pocketId + i).append(pieceDiv);
+	//   add click events
+	//  _addEvents(fieldDiv, board);
+	//	pocket.append(fieldDiv);
+	//}
 }
 
 function _parseBoardPlayers(players, targetBoard) {
@@ -692,11 +693,13 @@ function parseMQ(data) {
 				addServerMessage(data[i]['user'] + " played <b>" + data[i]['str'] + "</b>"); 
 				break;
 			case "promote":
+				boardId = data[i]['from'].replace(/_.*/, '');
 				// get options, offer, get decision and resend move
 				var selectionDiv = $('<div>').html('Select which piece to promote to:<br/><br/>');
+                var counter = 0;
 				for (elem in data[i]['options']) {
 					piece = data[i]['options'][elem];					
-					board = boardStorage.getBoard(boardId);	
+					board = boardStorage.getBoard(boardId);
 					pieceDiv = board.getPieceDiv(piece).addClass('promotion_piece');
 					// add events
 					pieceDiv.bind("click", { Param1: data[i]['from'], Param2: data[i]['to'], Param3: piece }, function(event){
@@ -704,11 +707,12 @@ function parseMQ(data) {
 						// remove dialog
 						$.modal.close();
 					});
+                    counter++;
 					// add to parent div
 					selectionDiv.append(pieceDiv);
 				}
-				// call modally
-				selectionDiv.modal();				
+                // call modally
+				selectionDiv.css('minimum-height', board.pieceImg.width*counter).modal();				
 				break;
 			case "chat":
 				addChatMessage(data[i]['user'], decodeURIComponent(data[i]['msg']));
