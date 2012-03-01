@@ -3,9 +3,20 @@
 ========================
 Valid for Ubuntu Oneiric Ocelot (11.10).
 
-Get Autobahn (for WebSocket):
-sudo apt-get install python3-dev
-sudo easy_install Autobahn
+# tornado
+wget http://github.com/downloads/facebook/tornado/tornado-2.2.tar.gz
+tar xvzf tornado-2.2.tar.gz
+cd tornado-2.2
+python setup.py build
+sudo python setup.py install
+
+# tornadio2
+wget https://github.com/MrJoes/tornadio2/tarball/master
+tar xvzf MrJoes-tornadio2*.tar.gz
+rm MrJoes-tornadio2*.tar.gz
+cd MrJoes-tornadio2*
+python setup.py build
+sudo python setup.py install
 
 
 ========================
@@ -14,7 +25,7 @@ sudo easy_install Autobahn
 
 Import this folder to Eclipse (with PyDev) and run JazzyServer.py from jazzy.server package:
 
-Then point your browser to http://yoururl:8090/new.html to create a game and play.
+Then point your browser to http://yoururl:8090 to create a game and play.
 You can start experimenting with localhost as yoururl and use services like dyndns for usage over the internet. Make sure to forward port 8090 to the server.
 
 
