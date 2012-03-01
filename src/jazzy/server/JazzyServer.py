@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 '''
@@ -22,7 +22,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 
 import time
-import http.server
+#import http.server
 import re
 import inspect
 from MessageHandler import MessageQueuePool
@@ -40,6 +40,11 @@ from jazzy.logic import DifferentSetupGames, DifferentPlayerGames, DifferentBoar
     DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, \
     HandicapGames, ClassicGame, TestGames
 import logging
+from os import path as op
+import datetime
+from tornado import web
+from tornadio2 import SocketConnection, TornadioRouter, SocketServer
+
 
 logger = logging.getLogger('jazzyLog')
 handler = logging.StreamHandler(sys.stdout) 
@@ -49,12 +54,15 @@ logger.addHandler(handler)
 logger.setLevel(logging.ERROR)
 
 
-HOST_NAME = '' # public!
+
 PORT_NUMBER = 8090
-STATIC_SERVE_BASE = "../jsclient"
+ROOT_DIR = op.normpath(op.dirname(__file__) + "/../jsclient")
+print 'root directory: ' + ROOT_DIR
+
 
 # enable garbage collection
 gc.enable()
+
 
 # parse availible games
 games = []
@@ -89,7 +97,23 @@ for module in gameModules.keys():
         
 
 # server part
-class JazzyHandler(http.server.BaseHTTPRequestHandler):
+class IndexHandler(web.RequestHandler):
+    """Serve the index file"""
+    def get(self):
+        self.render(ROOT_DIR + '/new.html')
+
+class RouterConnection(SocketConnection):
+    __endpoints__ = {#'/chat': ChatConnection,
+                     #'/ping': PingConnection
+                     }
+
+    def on_open(self, info):
+        print 'Router', repr(info)
+        
+        
+        
+        
+class JazzyHandler():
     def output(self, myString):
         self.wfile.write(bytes(repr(myString), 'UTF-8'))
 
@@ -110,21 +134,6 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
             return json.dumps([])
         return json.dumps(mq.msgs)
     
-    def serveStaticText(self, file):
-        print("serving " + file + " statically as text from " + os.path.abspath(STATIC_SERVE_BASE + file))
-        real_file = re.sub("\?.*", '', file)
-        try:
-            a_file = open(STATIC_SERVE_BASE + real_file, encoding='utf-8')
-            a_string = a_file.read()
-    
-            self.send_response(200)
-            #self.send_header("Content-type", "text/html")
-            self.end_headers()
-    
-            self.output_raw(a_string)
-        except IOError:
-            print('Could not serve that file. Not found!')
-
     def serveStaticBinary(self, file):
         #print("serving binary " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
         self.send_response(200)
@@ -133,7 +142,7 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
 
         try:
             real_file = file #re.sub("^/", '', file)
-            fo = open(STATIC_SERVE_BASE + real_file, "rb")
+            fo = open(ROOT_DIR + real_file, "rb")
             while True:
                 buffer = fo.read(4096)
                 if buffer:
@@ -483,19 +492,24 @@ class JazzyHandler(http.server.BaseHTTPRequestHandler):
         #print(jsonoutput)
         self.output_raw(jsonoutput)
                        
+
+
+# Create tornadio server
+jazzyRouter = TornadioRouter(RouterConnection)
+
+# Create socket application
+application = web.Application(
+    jazzyRouter.apply_routes([(r"/", IndexHandler),
+                               (r"/(.*\.(js|html|css|ico|gif|jpe?g|png))", web.StaticFileHandler, {"path": ROOT_DIR})]),
+    flash_policy_port = 843,
+    flash_policy_file = op.join(ROOT_DIR, '/other/flashpolicy.xml'),
+    socket_io_port = PORT_NUMBER
+)
         
-if __name__ == '__main__':
+if __name__ == "__main__":
     # prepare for the first games to be started 
     gamePool = GamePool()
     mqPool = MessageQueuePool()
 
-    # start serving    
-    httpd = http.server.HTTPServer((HOST_NAME, PORT_NUMBER), JazzyHandler)
-    print(time.asctime(), "Server Starts - %s:%s" % (HOST_NAME, PORT_NUMBER))
-    
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
-    print(time.asctime(), "Server Stops - %s:%s" % (HOST_NAME, PORT_NUMBER))
+    # create and start tornadio server
+    SocketServer(application)

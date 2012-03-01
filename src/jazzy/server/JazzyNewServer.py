@@ -87,7 +87,7 @@ application = web.Application(
 
 if __name__ == "__main__":
     import logging
-    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)
 
     # Create and start tornadio server
     SocketServer(application)
