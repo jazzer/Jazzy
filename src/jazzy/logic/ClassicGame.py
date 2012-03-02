@@ -82,8 +82,8 @@ class ClassicGame():
         self.BLOCKED_FIELDS = []
         
         # piece settings
-        self.PAWN_PIECE_TYPES = {'p'}
-        self.KING_PIECE_TYPES = {'k'}
+        self.PAWN_PIECE_TYPES = ['p']
+        self.KING_PIECE_TYPES = ['k']
         self.PIECE_MAP = {'k': King, 'q': Queen, 'r': Rook, 'b': Bishop, 'n': Knight, 'p': Pawn}
         self.USED_PIECES = self.PIECE_MAP.keys()
         # end of settings

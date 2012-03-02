@@ -33,7 +33,8 @@ from Player import Player, Watcher
 import json
 from pprint import pprint 
 import os, sys, copy, urllib2
-from collections import OrderedDict
+#from collections import OrderedDict as # p3
+from ordereddict import OrderedDict # p2
 import gc
 from jazzy.logic import DifferentSetupGames, DifferentPlayerGames, DifferentBoardGames, \
     DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, \
@@ -320,7 +321,7 @@ class HTTPJSONHandler(GenericHandler, web.RequestHandler):
         if len(params) > 1:
             mq = mqPool.get(params[1])
             # can't answer if mq is not transferred (e.g. because it is yet unknown)
-            if mq is None and not(params[0] in {'new', 'join', 'watch', 'getgames', 'getslots', 'admin'}):
+            if mq is None and not(params[0] in ['new', 'join', 'watch', 'getgames', 'getslots', 'admin']):
                 return
         # starting a new game (e.g. /new/classic)
         if (params[0] == 'new'):
