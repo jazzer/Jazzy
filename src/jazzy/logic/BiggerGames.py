@@ -18,10 +18,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 from jazzy.logic.ClassicGame import ClassicGame
-from jazzy.logic.Pieces import *
+from jazzy.logic.Pieces import PrimeMinister, Archbishop, Chancellor
 
 
-class ModernGame(ClassicGame):    
+class ModernGame(ClassicGame, object):    
     meta = {'title': 'Modern Chess',
             'desc': "",
             'link': 'http://en.wikipedia.org/wiki/Modern_chess',
@@ -32,7 +32,7 @@ class ModernGame(ClassicGame):
         self.PIECE_MAP['i'] = PrimeMinister
 
 
-class CapablancaGame(ClassicGame):
+class CapablancaGame(ClassicGame, object):
     meta = {'title': 'Capablanca Chess',
            'desc': "",
            'link': 'http://en.wikipedia.org/wiki/Capablanca_chess',
@@ -44,7 +44,7 @@ class CapablancaGame(ClassicGame):
         self.PIECE_MAP['h'] = Chancellor
 
  
-class MilleniumGame(ClassicGame):    
+class MilleniumGame(ClassicGame, object):    
     meta = {'title': 'Millenium Chess',
             'desc': "",
             'link': 'http://en.wikipedia.org/wiki/Chess_variant#Chess_with_different_boards',
@@ -55,7 +55,7 @@ class MilleniumGame(ClassicGame):
         self.CASTLING = False
 
 
-class DoublewideGame(ClassicGame):  
+class DoublewideGame(ClassicGame, object):  
     meta = {'title': 'Doublewide Chess',
             'desc': "",
             'link': 'http://en.wikipedia.org/wiki/Chess_variant#Chess_with_different_boards',
