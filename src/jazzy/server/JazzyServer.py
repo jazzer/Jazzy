@@ -105,12 +105,19 @@ class GenericHandler():
    
 class SocketHandler(GenericHandler):
     @classmethod
-    def handle_input(self, message):
+    def handle_input(self, message, gameConnection):
         print message
         params = message.split("/")
         print params
         if len(params) > 1:
             mq = mqPool.get(params[1])
+        
+        if mq is None:
+            print 'Access to non-existing message queue: %s' % params[1]; 
+            return ''
+            
+        # make sure this socket is tied to the message queue?
+        mq.socket = gameConnection
             
         if (params[0] == 'post' and params[2] == 'move'):            
             # filter watchers attempting to post stuff
@@ -118,8 +125,7 @@ class SocketHandler(GenericHandler):
                 return
             # only allow current player to post his move
             if mq.game.getCurrentPlayer().mq != mq:
-                msg = Message('alert', {'msg': 'Not your turn.'})
-                mq.addMsg(msg)
+                mq.socket.send(Message('alert', {'msg': 'Not your turn.'}).data)
                 return
             
             game = mq.game
@@ -143,7 +149,7 @@ class SocketHandler(GenericHandler):
                 toField = int(shortTo.split('_')[1])
                 postedMove = Move(fromField, toField)
                 # do we have a promotion option set?
-                if len(params) > 5 and params[5] != 'ack':
+                if len(params) > 5:
                     postedMove.toPiece = game.getPieceByString(params[5], game.board) 
 
             
@@ -160,7 +166,7 @@ class SocketHandler(GenericHandler):
                     msg = Message('promote', {'from': originalFrom, 'to': originalTo})
                     # add options
                     msg.data['options'] = game.getPromotionOptions(postedMove.fromPiece.color)
-                    return json.dumps([msg.data])
+                    mq.socket.send(msg.data)
                 else:
                     moves = game.move(postedMove, targetBoard)
                     
@@ -191,9 +197,9 @@ class SocketHandler(GenericHandler):
                                     data['toPiece'] = move.toPiece.getShortName()
                         if not(game.getCurrentPlayer(game.board) is None) and not(game.finished):
                             data['currP'] = game.getCurrentPlayer(game.board).mq.shortenedId
-                        mq.metagame.distributeToAll(Message('move', data))
+                        mq.metagame.broadcastSocket(Message('move', data).data)
                         
-                    mq.metagame.distributeToAll(Message('movehist', {'user': mq.subject.name, 'str': postedMove.str}))
+                    mq.metagame.broadcastSocket(Message('movehist', {'user': mq.subject.name, 'str': postedMove.str}).data)
                     
                     # debug position
                     logger.debug(str(game.board))
@@ -208,20 +214,19 @@ class SocketHandler(GenericHandler):
                     
                     # distribute the game over message if there was one
                     if not(result is None):
-                        mq.metagame.distributeToAll(result)
+                        mq.metagame.broadcastSocket(result.data)
                     
-                    return self.sendMQ(params)
             else: 
                 # not legal move
                 msg = Message('alert', {'msg': 'Illegal move.'})
-                mq.addMsg(msg)
+                mq.socket.send(msg.data)
                 if game.DEBUG_LEGAL_MOVES_ON_ILLEGAL_MOVE:
                     msg = Message('srvmsg', {'msg': 'Possible moves are: ' + str(sorted(mq.game.possibleMoves, key=lambda move: [str(move.fromField), move.toField]))})
-                    mq.addMsg(msg)
-                return self.sendMQ(params)
+                    mq.socket.send(msg.data)
         
         elif (params[0] == 'getsit'):
-            return json.dumps([mq.metagame.getSituationMessage(mq, force=True, init=True).data])
+            print mq.metagame.getSituationMessage(mq, force=True, init=True).data
+            return mq.metagame.getSituationMessage(mq, force=True, init=True).data
         
         # draw claims
         elif params[0] == 'claim':
@@ -231,18 +236,16 @@ class SocketHandler(GenericHandler):
                 
             if params[2] == 'repetition':                    
                 if mq.game.isRepetitionDraw():
-                    mq.metagame.distributeToAll(mq.game._generateGameOverMessage('Draw by repetition upon player\'s request', '0.5-0.5', None))
+                    mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Draw by repetition upon player\'s request', '0.5-0.5', None))
                 else:
                     mq.addMsg(Message('alert', {'msg': 'No draw by repetition. This position has been on board {0} times.'.format(mq.game.getRepetitionCount())})) 
                     
             if params[2] == 'xmoverule':
                 if mq.game.isXMoveDraw():
-                    mq.metagame.distributeToAll(mq.game._generateGameOverMessage('Draw by {0} move rule upon player\'s request'.format(mq.game.DRAW_X_MOVES_VALUE), '0.5-0.5'))
+                    mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Draw by {0} move rule upon player\'s request'.format(mq.game.DRAW_X_MOVES_VALUE), '0.5-0.5'))
                 else:
                     mq.addMsg(Message('alert', {'msg': 'No draw by {0} move rule. Counter is at {1}.'.format(mq.game.DRAW_X_MOVES_VALUE, mq.game.board.drawXMoveCounter)}))
-            
-            return self.sendMQ(params)
-        
+                    
         # messages about game end (resigning, draws) 
         elif (params[0] == 'end'):
             # only players please!
@@ -288,7 +291,7 @@ class SocketHandler(GenericHandler):
             msg = params[3]
             msg = self.sanitizeHTML(msg)
                         
-            mq.metagame.distributeToAll(Message('chat', {'user': mq.subject.name, 'msg': msg}), [mq.subject])
+            mq.metagame.broadcastSocket(Message('chat', {'user': mq.subject.name, 'msg': msg}), [mq.subject])
             
 
 class HTTPJSONHandler(GenericHandler, web.RequestHandler):
@@ -339,11 +342,6 @@ class HTTPJSONHandler(GenericHandler, web.RequestHandler):
                     mqPool.add(player.mq)
                 # generate answer
                 jsonoutput = json.dumps({'link': 'game.html?' + game.id})
-                # nicely say hello (next time)
-                game.distributeToAll(Message('srvmsg', {'msg': 'Welcome to the server!'}))
-                game.distributeToAll(Message('srvmsg', {'msg': 'We are playing ' + selectedGame['title'] + ', see ' + selectedGame['link']}))
-                #except Exception:
-                #    jsonoutput = json.dumps({'msg': 'Invalid game name.'})
                     
         elif (params[0] == 'getslots'):     
             try:    
@@ -409,7 +407,7 @@ class HTTPJSONHandler(GenericHandler, web.RequestHandler):
         # TODO check permissions (via some token output on server startup?)
         elif params[0] == 'admin':
             if params[1] == 'runtests':
-                test = Test();
+                #test = Test();
                 jsonoutput = json.dumps({'log': test.runTestGames()})          
             
         else:
@@ -422,10 +420,10 @@ class HTTPJSONHandler(GenericHandler, web.RequestHandler):
 # server part
 class GameConnection(SocketConnection):
     def on_open(self, info):
-        self.send('Welcome.')
-
+        self.send(Message('srvmsg', {'msg': 'Welcome to the server!'}).data)
+        
     def on_message(self, message):
-        self.send(SocketHandler.handle_input(message))
+        self.send(SocketHandler.handle_input(message, self))
 
     def on_close(self):
         pass

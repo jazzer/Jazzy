@@ -177,6 +177,11 @@ class ClassicGame():
             if not (player in filterPlayers):
                 player.mq.addMsg(msg)
     
+    def broadcastSocket(self, msg, filterPlayers=[]):
+        for player in self.getAllPlayers() + self.getAllWatchers():
+            if not (player in filterPlayers) and not(player.mq.socket is None):
+                player.mq.socket.send(msg)
+    
     def getAllPlayers(self):
         ''' also returns all players from sub-games '''
         return self.players    

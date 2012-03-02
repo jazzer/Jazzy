@@ -559,131 +559,127 @@ function _fillPlayers(position, content, board) {
 
 
 function parseMQ(data) {
-    if (data === undefined || data === null) {return;}
+    if (data === undefined || data === null || data === '') {return;}
+    //console.debug("Received message queue:\n" + JSON.stringify(data, null, '\t'));
 
 	if (data.length > 0) {
 		_debug("Received message queue: " + JSON.stringify(data, null, '\t'), 2);
 	}
-	
-	for (var i=0;i<data.length;i++) {
-		mtype = data[i]['mtype'];
-		switch (mtype) {
-			case "move":
-				silent = data[i]['silent'] == true?true:false;
-				boardId = data[i]['from'].replace(/_.*/, '');
-				board = boardStorage.getBoard(boardId);
-				board.move(lengthenFieldString(data[i]['from']), lengthenFieldString(data[i]['to']), data[i]['toPiece'], silent); 
-				_parseCurrPlayer(data[i]['currP'], boardId);
-				// TODO add ['check'] in server and client -> play sound (don't set when game is finished)
-				break;
-			case "movehist":
-				addServerMessage(data[i]['user'] + " played <b>" + data[i]['str'] + "</b>"); 
-				break;
-			case "promote":
-				boardId = data[i]['from'].replace(/_.*/, '');
-				// get options, offer, get decision and resend move
-				var selectionDiv = $('<div>').html('Select which piece to promote to:<br/><br/>');
-                var counter = 0;
-				for (elem in data[i]['options']) {
-					piece = data[i]['options'][elem];					
-					board = boardStorage.getBoard(boardId);
-					pieceDiv = board.getPieceDiv(piece).addClass('promotion_piece');
-					// add events
-					pieceDiv.bind("click", { Param1: data[i]['from'], Param2: data[i]['to'], Param3: piece }, function(event){
-						postMove(event.data.Param1, event.data.Param2, event.data.Param3);
-						// remove dialog
-						$.modal.close();
-					});
-                    counter++;
-					// add to parent div
-					selectionDiv.append(pieceDiv);
-				}
-                // call modally
-				selectionDiv.css('minimum-height', board.pieceImg.width*counter).modal();				
-				break;
-			case "chat":
-				addChatMessage(data[i]['user'], decodeURIComponent(data[i]['msg']));
-				playSound('media/chat-message');
-				break;
-			case "gameover":
-				goMsg = "Game finished.\nResult: " + data[i]['result'] + "\n" + data[i]['msg'];
-				addServerMessage(goMsg);
-				setTimeout(function () { $.prompt(goMsg); }, 1000);
-				// TODO play sound 
-				break;
-			case "gamesit":
-				var j = -1;
-				// save own IDs
-				if (data[i]['playerSelf'] !== undefined) {
-					selfPlayerIDs = data[i]['playerSelf'];
-				}
-				while (true) {
-					j++
-					// build the board
-					try {
-						var test = data[i][j]['board_id'];
-					} catch (e) {
-						break;
-					}
-					var boardId = data[i][j]['board_id'];		
-					if (data[i][j]['board_size'] !== undefined) {
-						boardSize = data[i][j]['board_size'].split('x');
-						board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[i][j]['flipped']);	
-						// load the position
-						board.loadFen(data[i][j]['fen']);
-						// fix highlight
-						board.highlightClear();
-						if (data[i][j]['lmove_from'] !== undefined && data[i][j]['lmove_to'] != undefined) {
-							board.highlight(lengthenFieldString(data[i][j]['lmove_from']), highlightType.LAST_MOVE);
-							board.highlight(lengthenFieldString(data[i][j]['lmove_to']), highlightType.LAST_MOVE);
-						}
-					}
-					if (data[i][j]['players'] !== undefined) {
-						var players = data[i][j]['players'].split('/');						
-						var targetBoard = boardStorage.getBoard(boardId);
-						_parseBoardPlayers(players, targetBoard);
-						_fillPlayers('top', players[1], targetBoard);
-						_fillPlayers('bottom', players[0], targetBoard);
-					}
-					if (data[i][j]['pockets'] !== undefined) {
-						pockets = data[i][j]['pockets'].split(',');
-						var targetBoard = boardStorage.getBoard(boardId);
-						_fillPocket('top', pockets[1], targetBoard);
-						_fillPocket('bottom', pockets[0], targetBoard);
-					}
-					if (data[i][j]['capturePockets'] !== undefined) {
-						// TODO implement filling (#27 on GitHub)
-					}
-					if (data[i][j]['currP'] !== undefined) {
-						// check if it's my turn
-						_parseCurrPlayer(data[i][j]['currP'], boardId);
-					}
-				}
-				if (data[i]['gameId'] !== undefined) {
-					// add the appropriate link to the game's overview page
-					$('#menu_game').children('a').attr('href', 'game.html?' + data[i]['gameId']);
-				}
-				break;
-			case "srvmsg":
-				addServerMessage(data[i]['msg']);
-				break;
-			case "setname":
-				$('[id$="_p' + data[i]['id'] + '"]').html(data[i]['name']);
-				break;
-			case "draw-offer":
-				var confirmed = confirm("Your opponent is offering a draw. Do you accept?", { buttons: { Yes: true, No: false }, focus: 1 });
-				if (confirmed) {
-					game.send("end/" + mqId + "/draw-offer");
-				}
-				break;
-			case "alert":
-				$.prompt(data[i]['msg']);
-				break; 
-			}		
 
-		lastParsedMsg = data[i]['mid'];
-		_debug("parsed message with id " + lastParsedMsg, 4);
-	}	
+	mtype = data['mtype'];
+    switch (mtype) {
+		case "move":
+			silent = data['silent'] == true?true:false;
+			boardId = data['from'].replace(/_.*/, '');
+			board = boardStorage.getBoard(boardId);
+			board.move(lengthenFieldString(data['from']), lengthenFieldString(data['to']), data['toPiece'], silent); 
+			_parseCurrPlayer(data['currP'], boardId);
+			// TODO add ['check'] in server and client -> play sound (don't set when game is finished)
+			break;
+		case "movehist":
+			addServerMessage(data['user'] + " played <b>" + data['str'] + "</b>"); 
+			break;
+		case "promote":
+			boardId = data['from'].replace(/_.*/, '');
+			// get options, offer, get decision and resend move
+			var selectionDiv = $('<div>').html('Select which piece to promote to:<br/><br/>');
+            var counter = 0;
+			for (elem in data['options']) {
+				piece = data['options'][elem];					
+				board = boardStorage.getBoard(boardId);
+				pieceDiv = board.getPieceDiv(piece).addClass('promotion_piece');
+				// add events
+				pieceDiv.bind("click", { Param1: data['from'], Param2: data['to'], Param3: piece }, function(event){
+					postMove(event.data.Param1, event.data.Param2, event.data.Param3);
+					// remove dialog
+					$.modal.close();
+				});
+                counter++;
+				// add to parent div
+				selectionDiv.append(pieceDiv);
+			}
+            // call modally
+			selectionDiv.css('minimum-height', board.pieceImg.width*counter).modal();				
+			break;
+		case "chat":
+			addChatMessage(data['user'], decodeURIComponent(data['msg']));
+			playSound('media/chat-message');
+			break;
+		case "gameover":
+			goMsg = "Game finished.\nResult: " + data['result'] + "\n" + data['msg'];
+			addServerMessage(goMsg);
+			setTimeout(function () { $.prompt(goMsg); }, 1000);
+			// TODO play sound 
+			break;
+		case "gamesit":
+			var j = -1;
+			// save own IDs
+			if (data['playerSelf'] !== undefined) {
+				selfPlayerIDs = data['playerSelf'];
+			}
+			while (true) {
+				j++
+				// build the board
+				try {
+					var test = data[j]['board_id'];
+				} catch (e) {
+					break;
+				}
+				var boardId = data[j]['board_id'];		
+				if (data[j]['board_size'] !== undefined) {
+					boardSize = data[j]['board_size'].split('x');
+					board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[j]['flipped']);	
+					// load the position
+					board.loadFen(data[j]['fen']);
+					// fix highlight
+					board.highlightClear();
+					if (data[j]['lmove_from'] !== undefined && data[j]['lmove_to'] != undefined) {
+						board.highlight(lengthenFieldString(data[j]['lmove_from']), highlightType.LAST_MOVE);
+						board.highlight(lengthenFieldString(data[j]['lmove_to']), highlightType.LAST_MOVE);
+					}
+				}
+				if (data[j]['players'] !== undefined) {
+					var players = data[j]['players'].split('/');						
+					var targetBoard = boardStorage.getBoard(boardId);
+					_parseBoardPlayers(players, targetBoard);
+					_fillPlayers('top', players[1], targetBoard);
+					_fillPlayers('bottom', players[0], targetBoard);
+				}
+				if (data[j]['pockets'] !== undefined) {
+					pockets = data[j]['pockets'].split(',');
+					var targetBoard = boardStorage.getBoard(boardId);
+					_fillPocket('top', pockets[1], targetBoard);
+					_fillPocket('bottom', pockets[0], targetBoard);
+				}
+				if (data[j]['capturePockets'] !== undefined) {
+					// TODO implement filling (#27 on GitHub)
+				}
+				if (data[j]['currP'] !== undefined) {
+					// check if it's my turn
+					_parseCurrPlayer(data[j]['currP'], boardId);
+				}
+			}
+			if (data['gameId'] !== undefined) {
+				// add the appropriate link to the game's overview page
+				$('#menu_game').children('a').attr('href', 'game.html?' + data['gameId']);
+			}
+			break;
+		case "srvmsg":
+			addServerMessage(data['msg']);
+			break;
+		case "setname":
+			$('[id$="_p' + data['id'] + '"]').html(data['name']);
+			break;
+		case "draw-offer":
+			var confirmed = confirm("Your opponent is offering a draw. Do you accept?", { buttons: { Yes: true, No: false }, focus: 1 });
+			if (confirmed) {
+				game.send("end/" + mqId + "/draw-offer");
+			}
+			break;
+		case "alert":
+			$.prompt(data['msg']);
+			break; 
+		}		
 }
 
 
@@ -758,3 +754,11 @@ String.prototype.format = function(i, safe, arg) {
   // Replace the prototype property
   return format;
 }();
+
+
+if (typeof console.log == "object" && Function.prototype.bind && console) {
+  ["log","info","warn","error","assert","dir","clear","profile","profileEnd"]
+    .forEach(function (method) {
+      console[method] = this.call(console[method], console);
+    }, Function.prototype.bind);
+}
