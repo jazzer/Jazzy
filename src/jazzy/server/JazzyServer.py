@@ -32,7 +32,7 @@ from jazzy.logic.Move import Move, NullMove
 from Player import Player, Watcher
 import json
 from pprint import pprint 
-import os, sys, copy, urllib
+import os, sys, copy, urllib2
 from collections import OrderedDict
 import gc
 from jazzy.test.Test import Test
@@ -113,14 +113,7 @@ class RouterConnection(SocketConnection):
         
         
         
-class JazzyHandler():
-    def output(self, myString):
-        self.wfile.write(bytes(repr(myString), 'UTF-8'))
-
-    def output_raw(self, myString):
-        if isinstance(myString, str):
-            self.wfile.write(bytes(myString, 'UTF-8'))
-    
+class HTTPJSONHandler(web.RequestHandler):
     def sanitizeHTML(self, string):
         # TODO handle urlencoding here! possibly de- and reencode or filter 'bad' escape sequences? 
         result = re.sub(r'(<[^>]*>)', '', string)
@@ -133,25 +126,6 @@ class JazzyHandler():
         if mq is None:
             return json.dumps([])
         return json.dumps(mq.msgs)
-    
-    def serveStaticBinary(self, file):
-        #print("serving binary " + file + " statically from " + os.path.abspath(STATIC_SERVE_BASE + file))
-        self.send_response(200)
-        #self.send_header("Content-type", "text/html")
-        self.end_headers()
-
-        try:
-            real_file = file #re.sub("^/", '', file)
-            fo = open(ROOT_DIR + real_file, "rb")
-            while True:
-                buffer = fo.read(4096)
-                if buffer:
-                    self.wfile.write(buffer)
-                else:
-                    break
-            fo.close()
-        except IOError:
-            print('Could not serve that file. Not found!')
 
     def createWatcher(self, game):
         watcher = Watcher()
@@ -164,30 +138,16 @@ class JazzyHandler():
         mq.game = game
         return mq
     
-    def do_GET(self):
+    def get(self, path):
         """Respond to a GET request."""
         # examine string
-        params = self.path.split("/")[1:]
-        #print(self.path)
+        params = path.split("/")
+        print(path)
         #print(params)
-        
-        # -----------------------
-        # serving static content?
-        #------------------------
-        if not(re.match('.+\.[ico|png|jpg|gif|ogg|mp3](\?[0-9a-fA-F]*)?', self.path) is None):
-            self.serveStaticBinary(self.path)
-            return
-        if not(re.match('.+\.[html|js|css](\?[0-9a-fA-F]*)?', self.path) is None):
-            self.serveStaticText(self.path)
-            return
         
         # -----------------------
         # dynamic content
         # -----------------------
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
-        
         jsonoutput = {}
         if len(params) > 1:
             mq = mqPool.get(params[1])
@@ -394,7 +354,7 @@ class JazzyHandler():
         # starting a new game (e.g. /new/classic)
         elif (params[0] == 'new'):
             # find game
-            input = urllib.parse.unquote(params[1])
+            input = urllib2.unquote(params[1])
             selectedGame = None
             print(input)
             for game in games:
@@ -490,7 +450,7 @@ class JazzyHandler():
         else:
             jsonoutput = json.dumps([])
         #print(jsonoutput)
-        self.output_raw(jsonoutput)
+        self.write(jsonoutput)
                        
 
 
@@ -500,10 +460,12 @@ jazzyRouter = TornadioRouter(RouterConnection)
 # Create socket application
 application = web.Application(
     jazzyRouter.apply_routes([(r"/", IndexHandler),
-                               (r"/(.*\.(js|html|css|ico|gif|jpe?g|png))", web.StaticFileHandler, {"path": ROOT_DIR})]),
+                              (r"/(.*\.(js|html|css|ico|gif|jpe?g|png|ogg|mp3))", web.StaticFileHandler, {"path": ROOT_DIR}),
+                              (r"/(.*)", HTTPJSONHandler)]),
     flash_policy_port = 843,
     flash_policy_file = op.join(ROOT_DIR, '/other/flashpolicy.xml'),
-    socket_io_port = PORT_NUMBER
+    socket_io_port = PORT_NUMBER,
+    debug=True
 )
         
 if __name__ == "__main__":
