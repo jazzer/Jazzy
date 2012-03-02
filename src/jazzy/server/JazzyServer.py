@@ -92,108 +92,27 @@ for module in gameModules.keys():
                 games.append(classMetaInfo)
         except AttributeError:
             pass
-        
-        
-
-# server part
-class GameConnection(SocketConnection):
-    def on_open(self, info):
-        self.send('Welcome.')
-
-    def on_message(self, message):
-        print "GameConnection: " + message
-        self.send(message)
-
-    def on_close(self):
-        pass
-
-
-class PingConnection(SocketConnection):
-    def on_open(self, info):
-        print 'Ping', repr(info)
-
-    def on_message(self, message):
-        pass       
-
-
-
-class IndexHandler(web.RequestHandler):
-    """Serve the index file"""
-    def get(self):
-        self.render(ROOT_DIR + '/new.html')
-
-class RouterConnection(SocketConnection):
-    __endpoints__ = {'/game': GameConnection,
-                     '/ping': PingConnection
-                     }
-
-    def on_open(self, info):
-        print 'Router', repr(info)
    
-        
-class HTTPJSONHandler(web.RequestHandler):
+   
+class GenericHandler():
     def sanitizeHTML(self, string):
         # TODO handle urlencoding here! possibly de- and reencode or filter 'bad' escape sequences? 
         result = re.sub(r'(<[^>]*>)', '', string)
         result = result.replace('%3C', '')
         result = result.replace('%3E', '')
-        return result
-        
-    def sendMQ(self, params):
-        mq = mqPool.get(params[1])
-        if mq is None:
-            return json.dumps([])
-        return json.dumps(mq.msgs)
-
-    def createWatcher(self, game):
-        watcher = Watcher()
-        mq = watcher.mq
-        mqPool.add(mq)            
-        game.addWatcher(watcher)
-        gamePool.add(game)
-        # backlinks for the MQ
-        mq.subject = watcher
-        mq.game = game
-        return mq
-    
-    def get(self, path):
-        """Respond to a GET request."""
-        # examine string
-        params = path.split("/")
-        print(path)
-        #print(params)
-        
-        # -----------------------
-        # dynamic content
-        # -----------------------
-        jsonoutput = {}
+        return result   
+   
+   
+class SocketHandler(GenericHandler):
+    @classmethod
+    def handle_input(self, message):
+        print message
+        params = message.split("/")
+        print params
         if len(params) > 1:
             mq = mqPool.get(params[1])
-            # can't answer if mq is not transferred (e.g. because it is yet unknown)
-            if mq is None and not(params[0] in {'new', 'join', 'watch', 'getgames', 'getslots', 'admin'}):
-                return
-
-        # check if there is an acknowledgement included starting at an arbitrary index
-        for i in range(0, len(params)):
-            if (params[i] == 'ack'):
-                # search for the message
-                found = False
-                for j in range(0, len(mq.msgs)):
-                    #print("comparing " + mq.msgs[i]['mid'] + " to " + params[2])
-                    if mq.msgs[j]['mid'] == params[i + 1]:
-                        #print("found acked msg. at pos " + str(i))
-                        found = True;
-                        break;
-                # delete parsed ones
-                if found:
-                    mq.msgs = list(mq.msgs[j + 1:])
-                
-        
-        # retrieve the MessageQueue (/getmq/191 ...)
-        if (params[0] == 'getmq'):
-            jsonoutput = self.sendMQ(params)
             
-        elif (params[0] == 'post' and params[2] == 'move'):            
+        if (params[0] == 'post' and params[2] == 'move'):            
             # filter watchers attempting to post stuff
             if mq.watching or mq.game.finished == True:
                 return
@@ -241,7 +160,7 @@ class HTTPJSONHandler(web.RequestHandler):
                     msg = Message('promote', {'from': originalFrom, 'to': originalTo})
                     # add options
                     msg.data['options'] = game.getPromotionOptions(postedMove.fromPiece.color)
-                    jsonoutput = json.dumps([msg.data])
+                    return json.dumps([msg.data])
                 else:
                     moves = game.move(postedMove, targetBoard)
                     
@@ -291,7 +210,7 @@ class HTTPJSONHandler(web.RequestHandler):
                     if not(result is None):
                         mq.metagame.distributeToAll(result)
                     
-                    jsonoutput = self.sendMQ(params)
+                    return self.sendMQ(params)
             else: 
                 # not legal move
                 msg = Message('alert', {'msg': 'Illegal move.'})
@@ -299,7 +218,10 @@ class HTTPJSONHandler(web.RequestHandler):
                 if game.DEBUG_LEGAL_MOVES_ON_ILLEGAL_MOVE:
                     msg = Message('srvmsg', {'msg': 'Possible moves are: ' + str(sorted(mq.game.possibleMoves, key=lambda move: [str(move.fromField), move.toField]))})
                     mq.addMsg(msg)
-                jsonoutput = self.sendMQ(params)
+                return self.sendMQ(params)
+        
+        elif (params[0] == 'getsit'):
+            return json.dumps([mq.metagame.getSituationMessage(mq, force=True, init=True).data])
         
         # draw claims
         elif params[0] == 'claim':
@@ -319,7 +241,7 @@ class HTTPJSONHandler(web.RequestHandler):
                 else:
                     mq.addMsg(Message('alert', {'msg': 'No draw by {0} move rule. Counter is at {1}.'.format(mq.game.DRAW_X_MOVES_VALUE, mq.game.board.drawXMoveCounter)}))
             
-            jsonoutput = self.sendMQ(params)
+            return self.sendMQ(params)
         
         # messages about game end (resigning, draws) 
         elif (params[0] == 'end'):
@@ -367,10 +289,38 @@ class HTTPJSONHandler(web.RequestHandler):
             msg = self.sanitizeHTML(msg)
                         
             mq.metagame.distributeToAll(Message('chat', {'user': mq.subject.name, 'msg': msg}), [mq.subject])
-            jsonoutput = self.sendMQ(params)
+            
 
+class HTTPJSONHandler(GenericHandler, web.RequestHandler):
+    def createWatcher(self, game):
+        watcher = Watcher()
+        mq = watcher.mq
+        mqPool.add(mq)            
+        game.addWatcher(watcher)
+        gamePool.add(game)
+        # backlinks for the MQ
+        mq.subject = watcher
+        mq.game = game
+        return mq
+    
+    def get(self, path):
+        """Respond to a GET request."""
+        # examine string
+        params = path.split("/")
+        print(path)
+        #print(params)
+        
+        # -----------------------
+        # dynamic content
+        # -----------------------
+        jsonoutput = {}
+        if len(params) > 1:
+            mq = mqPool.get(params[1])
+            # can't answer if mq is not transferred (e.g. because it is yet unknown)
+            if mq is None and not(params[0] in {'new', 'join', 'watch', 'getgames', 'getslots', 'admin'}):
+                return
         # starting a new game (e.g. /new/classic)
-        elif (params[0] == 'new'):
+        if (params[0] == 'new'):
             # find game
             input = urllib2.unquote(params[1])
             selectedGame = None
@@ -395,9 +345,6 @@ class HTTPJSONHandler(web.RequestHandler):
                 #except Exception:
                 #    jsonoutput = json.dumps({'msg': 'Invalid game name.'})
                     
-        elif (params[0] == 'getsit'):
-            jsonoutput = json.dumps([mq.metagame.getSituationMessage(mq, force=True, init=True).data])
-
         elif (params[0] == 'getslots'):     
             try:    
                 game = gamePool.games[params[1]]
@@ -469,6 +416,44 @@ class HTTPJSONHandler(web.RequestHandler):
             jsonoutput = json.dumps([])
         #print(jsonoutput)
         self.write(jsonoutput)
+
+        
+
+# server part
+class GameConnection(SocketConnection):
+    def on_open(self, info):
+        self.send('Welcome.')
+
+    def on_message(self, message):
+        self.send(SocketHandler.handle_input(message))
+
+    def on_close(self):
+        pass
+
+
+class PingConnection(SocketConnection):
+    def on_open(self, info):
+        print 'Ping', repr(info)
+
+    def on_message(self, message):
+        pass       
+
+
+
+class IndexHandler(web.RequestHandler):
+    """Serve the index file"""
+    def get(self):
+        self.render(ROOT_DIR + '/new.html')
+
+class RouterConnection(SocketConnection):
+    __endpoints__ = {'/game': GameConnection,
+                     '/ping': PingConnection}
+
+    def on_open(self, info):
+        print 'Router', repr(info)
+   
+        
+
                        
 
 

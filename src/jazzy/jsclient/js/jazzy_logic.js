@@ -211,37 +211,7 @@ function load_availible_games() {
 	});
 }
 
-function connFailed() {
-	connChange(0);
-}
-function connSucceeded() {
-	connChange(1);
-}
-function connChange(value) {
-	// calculate
-	var old = qualityBuffer[qualityBufferIndex];
-	qualitySum = qualitySum - old + value;
-	qualityBuffer[qualityBufferIndex] = value;
-	qualityBufferIndex = (qualityBufferIndex + 1) % QUALITY_BUFFER_SIZE;
 
-	// display
-	var percentage = qualitySum / QUALITY_BUFFER_SIZE * 100;
-	showConnectionState(percentage);
-}
-
-function showConnectionState(value) {
-	var text = 'Connected';
-	var clazz = 'conn_good';
-	if (value <= 80) {
-		text = 'Unknown';
-		clazz = 'conn_unknown';
-	}
-	if (value <= 20) {
-		text = 'Not Connected';
-		clazz = 'conn_bad';
-	}
-	$("#conn_status").html(text).removeClass("conn_bad conn_unknown conn_good").addClass(clazz);
-}
 
 function buildCategories() {
 	if (availible_games == undefined) {
@@ -387,7 +357,6 @@ function serverCall(relUrl, successFunc, asnycValue, preventCaching) {
 		dataType: 'json',
 		success: function(input) {
 			successFunc(input);
-			connSucceeded();
 		}
 	});
 }
