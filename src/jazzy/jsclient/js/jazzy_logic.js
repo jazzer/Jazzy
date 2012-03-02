@@ -483,24 +483,32 @@ function lengthenFieldString(fString) {
 
 // handle click to "resign" button in UI
 // send corresponding message to the server
-function _resign() {
+function _resign(boardId) {
 	var confirmed = $.prompt("Do you really want to resign?", { buttons: { Yes: true, No: false }, focus: 1 });
 	if (confirmed) {
-		game.send("end/" + mqId + "/resign");
+		game.send("end/" + mqId + "/resign/" + boardId);
 	}
 }
 
 // handle click to "offer draw" button in UI
 // send corresponding message to the server
-function _offerDraw() {
-	if (myTurn) {
-		$.prompt("You can only offer draw on your opponent's turn.");
+function _offerDraw(boardId) {
+	if (myTurn[boardId]) {
+		_notify("You can only offer draw on your opponent's turn.");
 		return;
 	}
 	var confirmed = confirm("Do you really want to offer a draw?", { buttons: { Yes: true, No: false }, focus: 1 });
 	if (confirmed) {
-		game.send("end/" + mqId + "/draw-offer");
+		game.send("end/" + mqId + "/draw-offer/" + boardId);
 	}
+}
+
+function _notify(message) {
+    console.info(message);
+    $.bar({
+        'message' : message,
+        'position': 'bottom'
+    });
 }
 
 function _fillPocket(position, content, board) {
@@ -677,7 +685,7 @@ function parseMQ(data) {
 			}
 			break;
 		case "alert":
-			$.prompt(data['msg']);
+			_notify(data['msg']);
 			break; 
 		}		
 }
