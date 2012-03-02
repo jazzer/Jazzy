@@ -292,7 +292,7 @@ class SocketHandler(GenericHandler):
             msg = params[3]
             msg = GenericHandler.sanitizeHTML(msg)
                         
-            mq.metagame.broadcastSocket(Message('chat', {'user': mq.subject.name, 'msg': msg}), [mq.subject])
+            mq.metagame.broadcastSocket(Message('chat', {'user': mq.subject.name, 'msg': msg}).data, [mq.subject])
             
 
 class HTTPJSONHandler(GenericHandler, web.RequestHandler):
