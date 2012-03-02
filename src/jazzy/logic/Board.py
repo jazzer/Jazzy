@@ -176,7 +176,7 @@ class Board(object):
             fromField = int(pos)
             return self.fields[fromField]
             
-    def move(self, move, noHandleCapture=False):        
+    def move(self, move, dontHandleCapture=False):        
         if isinstance(move, NullMove):
             return        
 
@@ -190,7 +190,7 @@ class Board(object):
         # standard move
         fromPiece.moveCount = fromPiece.moveCount + 1
         # is it a capturing move?
-        if not noHandleCapture and not(self.fields[move.toField] is None):
+        if not dontHandleCapture and not(self.fields[move.toField] is None):
             self.game.handleCaptureMove(move, self)
         self.fields[move.toField] = fromPiece
         if self.getPiecesPocket(move.fromField) is None:

@@ -18,10 +18,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 from jazzy.logic.ClassicGame import ClassicGame
-from jazzy.logic.Pieces import *
+from jazzy.logic.Pieces import SlowPawn
 
 
-class MicroGame(ClassicGame):    
+class MicroGame(ClassicGame, object):    
     meta = {'title': 'Micro Chess',
             'desc': "",
             'link': 'http://en.wikipedia.org/wiki/Minichess',

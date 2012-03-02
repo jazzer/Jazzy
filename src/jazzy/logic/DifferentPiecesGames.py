@@ -21,11 +21,11 @@ from jazzy.logic.ClassicGame import ClassicGame
 from jazzy.logic.Move import Move
 from jazzy.logic.GameOver import GameOver
 from jazzy.server.MessageHandler import Message
-from jazzy.logic.Pieces import *
+from jazzy.logic.Pieces import BerolinaPawn, StationaryKing, StrongKing, FearPawn, Coin
 
 
 # http://en.wikipedia.org/wiki/Berolina_chess
-class BerolinaGame(ClassicGame):
+class BerolinaGame(ClassicGame, object):
     meta = {'title': 'Berolina Chess',
             'desc': 'Pawns are Berolina Pawns',
             'link': 'http://en.wikipedia.org/wiki/Berolina_chess',
@@ -36,7 +36,7 @@ class BerolinaGame(ClassicGame):
         super(BerolinaGame, self).startInit()
         self.PIECE_MAP['p'] = BerolinaPawn
 
-class StationaryKingGame(ClassicGame):
+class StationaryKingGame(ClassicGame, object):
     meta = {'title': 'Stationary King Chess',
             'desc': "King can't move",
             'link': 'http://en.wikipedia.org/wiki/Chess_variant#Chess_with_unusual_rules',
@@ -48,7 +48,7 @@ class StationaryKingGame(ClassicGame):
         self.PIECE_MAP['k'] = StationaryKing
         self.CASTLING = False
         
-class StrongKingGame(ClassicGame):
+class StrongKingGame(ClassicGame, object):
     meta = {'title': 'Strong King Chess',
             'desc': 'King can move up to two steps in any direction',
             'link': '#own_idea',
@@ -59,7 +59,7 @@ class StrongKingGame(ClassicGame):
         self.PIECE_MAP['k'] = StrongKing
     
 
-class FearGame(ClassicGame):
+class FearGame(ClassicGame, object):
     meta = {'title': 'Fear Chess',
             'desc': 'Pawns can move back',
             'link': '#own_idea',
@@ -71,7 +71,7 @@ class FearGame(ClassicGame):
         self.PIECE_MAP['p'] = FearPawn
     
 
-class CoinGame(ClassicGame):
+class CoinGame(ClassicGame, object):
     meta = {'title': 'Coin Chess',
             'desc': 'A coin must be able to follow your moves',
             'link': 'http://de.wikipedia.org/wiki/Schachvariante#M.C3.BCnzenschach.2FPfennigschach',
@@ -103,7 +103,7 @@ class CoinGame(ClassicGame):
         # normal stuff
         return [coin_move] + super(CoinGame, self).move(move, board)
     
-    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves = False):
+    def filterMovesByRules(self, moveSet, board, player, noCastlingMoves=False):
         moveSet = super(CoinGame, self).filterMovesByRules(moveSet, board, player, noCastlingMoves)
         
         for move in set(moveSet):

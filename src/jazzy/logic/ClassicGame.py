@@ -254,7 +254,7 @@ class ClassicGame():
         
         return True
        
-    def move(self, move, board, preGeneratePossibleMoves=True, noHandleCapture=False):
+    def move(self, move, board, preGeneratePossibleMoves=True, dontHandleCapture=False):
         moves = [move]
 
         # castling moves first
@@ -284,7 +284,7 @@ class ClassicGame():
                 xMove.player = self.getCurrentPlayer(board)
                 xMove.simpleParse(board)
                 xMove.fullParse(board)        
-            board.move(xMove, noHandleCapture)
+            board.move(xMove, dontHandleCapture)
         # TODO parse check here?
         
         # parse additional draw conditions
@@ -738,7 +738,7 @@ class ClassicGame():
             # create a board copy for analysis purposes
             whatIfBoard = copy.deepcopy(self.board)
             logger.debug('board vs. whatIfBoard:\n%s\n\n%s' % (str(board), str(whatIfBoard)))
-            self.move(move, whatIfBoard, noHandleCapture=True)
+            self.move(move, whatIfBoard, dontHandleCapture=True)
             logger.debug('whatIfBoard after:\n%s' % str(whatIfBoard))
             #print("what if? \n" + whatIfBoard.__unicode__())
             # did the player stay in check?            

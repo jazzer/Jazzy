@@ -18,11 +18,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 from jazzy.logic.ClassicGame import ClassicGame
-from jazzy.logic.Pieces import *
+from jazzy.logic.Pieces import LeganPawn
 import random
 
 # http://en.wikipedia.org/wiki/Chess960
-class Chess960Game(ClassicGame):
+class Chess960Game(ClassicGame, object):
     meta = {'title': 'Chess960',
         'desc': 'Playing with a somewhat randomized starting position',
         'link': 'http://en.wikipedia.org/wiki/Chess960',
@@ -77,7 +77,7 @@ class Chess960Game(ClassicGame):
         return text.replace(targetChar, newVal)
 
 # http://en.wikipedia.org/wiki/Legan_chess
-class LeganGame(ClassicGame):
+class LeganGame(ClassicGame, object):
     meta = {'title': 'Legan Chess',
         'desc': 'Playing on a board rotated by 45 degrees',
         'link': 'http://en.wikipedia.org/wiki/Legan_chess',
@@ -90,7 +90,7 @@ class LeganGame(ClassicGame):
         self.promotionFields = [[0, 1, 2, 3, 8, 16, 24], [39, 47, 55, 60, 61, 62, 63]]
         self.CASTLING = False
 
-class PawnGame(ClassicGame):
+class PawnGame(ClassicGame, object):
     meta = {'title': 'Pawn Chess',
             'desc': 'Trying to get pawns promoted',
             'link': '',

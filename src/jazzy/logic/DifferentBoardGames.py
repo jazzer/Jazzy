@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 from jazzy.logic.ClassicGame import ClassicGame
 
-class CylinderGame(ClassicGame):    
+class CylinderGame(ClassicGame, object):    
     meta = {'title': 'Cylinder Chess',
             'desc': 'Playing on a cylindrical board',
             'link': 'http://en.wikipedia.org/wiki/Cylinder_chess',
@@ -32,7 +32,7 @@ class CylinderGame(ClassicGame):
         # change something
         self.board.LIMIT_LEFT_RIGHT = False
 
-class HoleGame(ClassicGame): 
+class HoleGame(ClassicGame, object): 
     meta = {'title': 'Hole Chess',
             'desc': 'Playing on a board without center fields',
             'link': '#own_idea',

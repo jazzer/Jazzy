@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 from jazzy.logic.ClassicGame import ClassicGame
 
-class HandicapPawnAndMoveGame(ClassicGame):
+class HandicapPawnAndMoveGame(ClassicGame, object):
     meta = {'title': 'Handicap Pawn and Move',
             'desc': 'Handicap game where the stronger player plays black and without pawn f7. Otherwise Classic Chess rules as defined by FIDE apply.',
             'link': 'http://en.wikipedia.org/wiki/Chess_handicap',
@@ -29,7 +29,7 @@ class HandicapPawnAndMoveGame(ClassicGame):
     def startInit(self):
         super(HandicapPawnAndMoveGame, self).startInit('rnbqkbnr/ppppp1pp/8/8/8/8/PPPPPPPP/RNBQKBNR')
 
-class HandicapKnightGame(ClassicGame):    
+class HandicapKnightGame(ClassicGame, object):    
     meta = {'title': 'Handicap Knight',
             'desc': 'Handicap game where the stronger player plays white without knight b1. Otherwise Classic Chess rules as defined by FIDE apply.',
             'link': 'http://en.wikipedia.org/wiki/Chess_handicap',
@@ -39,7 +39,7 @@ class HandicapKnightGame(ClassicGame):
     def startInit(self):
         super(HandicapKnightGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R1BQKBNR')
         
-class HandicapRookGame(ClassicGame):    
+class HandicapRookGame(ClassicGame, object):    
     meta = {'title': 'Handicap Rook',
             'desc': 'Handicap game where the stronger player plays white without rook a1. Otherwise Classic Chess rules as defined by FIDE apply.',
             'link': 'http://en.wikipedia.org/wiki/Chess_handicap',
@@ -49,7 +49,7 @@ class HandicapRookGame(ClassicGame):
     def startInit(self):
         super(HandicapRookGame, self).startInit('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1NBQKBNR')
         
-class HandicapQueenGame(ClassicGame):    
+class HandicapQueenGame(ClassicGame, object):    
     meta = {'title': 'Handicap Queen',
             'desc': 'Handicap game where the stronger player plays white without his queen. Otherwise Classic Chess rules as defined by FIDE apply.',
             'link': 'http://en.wikipedia.org/wiki/Chess_handicap',

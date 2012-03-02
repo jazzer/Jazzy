@@ -21,10 +21,9 @@ from jazzy.logic.ClassicGame import ClassicGame
 import math
 from jazzy.logic.GameOver import GameOver
 from jazzy.logic.Move import Move, NullMove
-from jazzy.logic.Pieces import Pawn
 import copy
 
-class ExtinctionGame(ClassicGame):  
+class ExtinctionGame(ClassicGame, object):  
     meta = {'title': 'Extinction Chess',
             'desc': "",
             'link': 'http://en.wikipedia.org/wiki/Extinction_chess',
@@ -48,7 +47,7 @@ class ExtinctionGame(ClassicGame):
         # default stuff
         return super(ExtinctionGame, self)._valueResult(player, msg)
 
-class ForwardGame(ClassicGame):
+class ForwardGame(ClassicGame, object):
     meta = {'title': 'Forward Chess',
             'desc': 'No piece can ever move backwards or sidewards. Forward only!',
             'link': '',
@@ -73,7 +72,7 @@ class ForwardGame(ClassicGame):
 
 
 
-class DarkGame(ClassicGame):
+class DarkGame(ClassicGame, object):
     meta = {'title': 'Dark Chess',
             'desc': "",
             'link': 'http://en.wikipedia.org/wiki/Dark_chess',
@@ -118,7 +117,7 @@ class DarkGame(ClassicGame):
         return super(DarkGame, self).getGameOverMessage()
 
 
-class AtomicGame(ClassicGame):
+class AtomicGame(ClassicGame, object):
     meta = {'title': 'Atomic Chess',
             'desc': "",
             'link': 'http://en.wikipedia.org/wiki/Atomic_chess',
@@ -173,7 +172,7 @@ class AtomicGame(ClassicGame):
         return explosionMoves
 
 
-class MonochromaticGame(ClassicGame):  
+class MonochromaticGame(ClassicGame, object):  
     meta = {'title': 'Monochromatic Chess',
         'desc': "",
         'link': 'http://en.wikipedia.org/wiki/Monochromatic_chess',
@@ -209,7 +208,7 @@ class MonochromaticGame(ClassicGame):
 
 
 
-class BichromaticGame(MonochromaticGame):    
+class BichromaticGame(MonochromaticGame, object):    
     meta = {'title': 'Biochromatic Chess',
         'desc': "",
         'link': 'http://en.wikipedia.org/wiki/Monochromatic_chess',
@@ -222,7 +221,7 @@ class BichromaticGame(MonochromaticGame):
         
  
 
-class ChecklessGame(ClassicGame):    
+class ChecklessGame(ClassicGame, object):    
     meta = {'title': 'Checkless Chess',
         'desc': "",
         'link': 'http://en.wikipedia.org/wiki/Checkless_chess',
@@ -243,7 +242,7 @@ class ChecklessGame(ClassicGame):
         return result
     
 
-class AntiGame(ClassicGame): 
+class AntiGame(ClassicGame, object): 
     meta = {'title': 'Anti Chess',
         'desc': "",
         'link': 'http://en.wikipedia.org/wiki/Antichess',
@@ -291,7 +290,7 @@ class AntiGame(ClassicGame):
         return None
         
 
-class MarseillaisGame(ClassicGame): 
+class MarseillaisGame(ClassicGame, object): 
     meta = {'title': 'Marseillais Chess',
         'desc': "",
         'link': 'http://en.wikipedia.org/wiki/Marseillais_chess',
@@ -325,7 +324,7 @@ class MarseillaisGame(ClassicGame):
         return moveList
 
 
-class AndernachGame(ClassicGame):  
+class AndernachGame(ClassicGame, object):  
     meta = {'title': 'Andernach Chess',
         'desc': "",
         'link': 'http://en.wikipedia.org/wiki/Andernach_chess',
@@ -345,7 +344,7 @@ class AndernachGame(ClassicGame):
             self.parsePossibleMoves()
         return moveList
 
-class CrazyhouseGame(ClassicGame):  
+class CrazyhouseGame(ClassicGame, object):  
     meta = {'title': 'Crazyhouse Chess',
         'desc': "rather Loop Chess (see Wikipedia article) right now",
         'link': 'http://en.wikipedia.org/wiki/Crazyhouse',
