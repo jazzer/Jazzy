@@ -21,12 +21,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 /* server settings */
 var server_url = window.location.protocol + "//" + window.location.host + "/";
-/* timing */
-var base_interval = 1000;
-var max_interval = 15000;
-var interval_factor = 1.4;
 var myTurn = true;
-var noCalls = false;
 var styleNames = 'light-wood,dark-wood,gray';
 var boardStyleNames = 'classic,color';
 var globalTurn = false;
@@ -41,31 +36,15 @@ if (typeof BoardStorage === 'function') {
 	DO NOT CHANGE ANYTHING BELOW HERE 
 	UNLESS YOU KNOW WHAT YOU DO! */
 var debugLevel = 1;
-var refreshInterval = 2;
-var sinceLastRefresh = 0;
 var gameId = undefined;
-var mqId, lastParsedMsg, availible_games, currSelectedGame, playerName
+var mqId, availible_games, currSelectedGame, playerName
 var activeJSONCall = false;
-var unsuccessfulServerCallCounter = -1;
 var styleNameArray = styleNames.split(",");
 var boardStyleNameArray = boardStyleNames.split(",");
 var selfPlayerIDs = '';
 var currPlayer = new Object();
 var myTurn = new Object();
-
-// quality data
-var QUALITY_BUFFER_SIZE = 5;
-var qualityBuffer = new Array(QUALITY_BUFFER_SIZE);
-// initialize it
-var qualitySum = QUALITY_BUFFER_SIZE;
-for (var i=0; i<QUALITY_BUFFER_SIZE; i++) {
-	qualityBuffer[i] = 1;
-}
-var qualityBufferIndex = 0;
-$.ajaxSetup({
-  "error": connFailed
-});
-
+var sock, game, ping;
 
 
 function _debug(msg, level) {
@@ -85,9 +64,9 @@ function _playInit() {
 		$('[name="debugLevel"]').attr('value', debugLevel);		
 
         // setup the SocketIO connection (preferrably WebSocket based)
-        var sock = new io.connect(server_url),
-            game = new io.connect(server_url + 'game'),
-            ping = new io.connect(server_url + 'ping');
+        sock = new io.connect(server_url);
+        game = new io.connect(server_url + 'game');
+        ping = new io.connect(server_url + 'ping');
 
         // Establish event handlers
         sock.on('disconnect', function() {
@@ -95,31 +74,23 @@ function _playInit() {
         });
 
         game.on('message', function(data) {
-            alert("got message: " + data);
+            console.info("got message: " + data);
             parseMQ(data);
         });
 
 		// request current situation (enables returning after problems)
 		game.send("getsit/" + mqId);
-        alert("SENT: " + "getsit/" + mqId);
-		//lastParsedMsg = undefined;
 		// tell about your success
 		addServerMessage("Finished setting up game.");
-
-		// make sure to keep up to date
-		setTimeout("refresh()", base_interval);
-
+		
 		// set button
 		$("#btnDisconnect").toggle(
 			function() {
 				$(this).html('Connect');
-				noCalls = true;
-				showConnectionState(0);
+                // TODO something like sock.disconnect();
 			},function() {
 				$(this).html('Disconnect');
-				noCalls = false;
-				showConnectionState(100);
-				refresh();
+                // TODO something like sock.reconnect();
 			});
 
 		// setup style chooser
@@ -335,7 +306,7 @@ function postMove(from, to, promotion) {
 	if (promotion != undefined) {
 		url += '/' + promotion
 	}
-	serverCall(url, function(data) {parseMQ(data);}, true, true);
+	game.send(url);
 }
 
 function _shortCastling(boardId) {
@@ -373,7 +344,7 @@ function sendChat() {
 	$('input[name="chatmsg"]').attr('value', '');
 	addChatMessage("_", msg);
 	// send the message to the server for distribution
-	serverCall('post/' + mqId + '/chat/' + encodeURIComponent(msg), function(data) {parseMQ(data);}, true, true);
+	game.send('post/' + mqId + '/chat/' + encodeURIComponent(msg));
 }
 
 function _getTime(doShort) {
@@ -399,24 +370,6 @@ function _getTime(doShort) {
 
 
 
-
-// jQuery communication
-function refresh() {
-	if (!noCalls) {
-		sinceLastRefresh++;
-		if (refreshInterval > sinceLastRefresh) {
-			//return;
-		}
-		_debug("Refreshed state.", 5);
-	
-		// do the call here and set changed approprietly
-		//getMQ();
-	
-		//sinceLastRefresh = 0;	
-	}
-}
-
-
 function createGame() {
 	if (currSelectedGame == undefined) { return; }
 	serverCall('new/' + currSelectedGame, function(data) { follow(data); }, true, true);
@@ -424,7 +377,7 @@ function createGame() {
 
 
 function serverCall(relUrl, successFunc, asnycValue, preventCaching) {
-	var callUrl = relUrl + ackString();
+	var callUrl = relUrl;
 	if (preventCaching) {
 		callUrl = callUrl + "/" + new Date().getTime();
 	}
@@ -441,46 +394,11 @@ function serverCall(relUrl, successFunc, asnycValue, preventCaching) {
 
 function _repetition() {
 	// claim threefold repetition
-	serverCall("claim/" + mqId + "/repetition", function(data) { parseMQ(data); }, true, true);
+	game.send("claim/" + mqId + "/repetition");
 }
 function _xMoveRule() {
 	// claim threefold repetition
-	serverCall("claim/" + mqId + "/xmoverule", function(data) { parseMQ(data); }, true, true);
-}
-
-function ackString() {
-	if (lastParsedMsg == undefined) {
-		return '';
-	}
-	var result = "/ack/" + lastParsedMsg;
-	lastParsedMsg = undefined;
-	return result;
-
-}
-
-function getMQ() {
-    return;
-	if (activeJSONCall || mqId == undefined) {
-		_debug("getMQ aborted (" + activeJSONCall + ")", 5);
-		return;
-	}
-	activeJSONCall = true;
-
-	// don't forget to acknowledge!
-	var jsonUrl = server_url + "getmq/" + mqId + ackString() + "/" + new Date().getTime();
-	// retrieve (plus possibly acknowledge last)
-	_debug("now checking url " + jsonUrl, 5);
-			
-	$.getJSON(jsonUrl, function(data) {
-		parseMQ(data);
-		activeJSONCall = false;
-		setTimeout("refresh()", refreshInterval);
-	}).error(function (xhr, ajaxOptions, thrownError){
-			activeJSONCall = false;
-			recalcInterval(false);
-			setTimeout(function(){refresh();}, refreshInterval);
-			_debug("json error: " + xhr.status + " " + ajaxOptions + " " + thrownError, 5);
-		});
+	game.send("claim/" + mqId + "/xmoverule");
 }
 
 
@@ -525,14 +443,6 @@ function follow(data) {
 	}
 }
 
-
-function recalcInterval(success) {
-	if (success) {
-		refreshInterval = base_interval;
-	} else {
-		refreshInterval = Math.min(max_interval, refreshInterval * interval_factor);
-	}
-}
 
 function _parseCurrPlayer(currPlayerValue, boardId) {
 	if (currPlayerValue == undefined) {
@@ -607,7 +517,7 @@ function lengthenFieldString(fString) {
 function _resign() {
 	var confirmed = $.prompt("Do you really want to resign?", { buttons: { Yes: true, No: false }, focus: 1 });
 	if (confirmed) {
-		serverCall("end/" + mqId + "/resign", undefined, true, false);
+		game.send("end/" + mqId + "/resign");
 	}
 }
 
@@ -620,7 +530,7 @@ function _offerDraw() {
 	}
 	var confirmed = confirm("Do you really want to offer a draw?", { buttons: { Yes: true, No: false }, focus: 1 });
 	if (confirmed) {
-		serverCall("end/" + mqId + "/draw-offer", undefined, true, false);
+		game.send("end/" + mqId + "/draw-offer");
 	}
 }
 
@@ -680,19 +590,10 @@ function _fillPlayers(position, content, board) {
 
 
 function parseMQ(data) {
-	// did we receive messages? if so, keep checking frequently
-	recalcInterval(data !== null && data.length > 0);
-    if (data === null) {return;}
+    if (data === undefined || data === null) {return;}
 
 	if (data.length > 0) {
 		_debug("Received message queue: " + JSON.stringify(data, null, '\t'), 2);
-	}
-	
-	// check if someone already parsed this
-	for (var i=0;i<data.length;i++) {
-		if (lastParsedMsg == data[i]['mid']) {
-			return;
-		}
 	}
 	
 	for (var i=0;i<data.length;i++) {
@@ -803,7 +704,7 @@ function parseMQ(data) {
 			case "draw-offer":
 				var confirmed = confirm("Your opponent is offering a draw. Do you accept?", { buttons: { Yes: true, No: false }, focus: 1 });
 				if (confirmed) {
-					serverCall("end/" + mqId + "/draw-offer", undefined, true, false);
+					game.send("end/" + mqId + "/draw-offer");
 				}
 				break;
 			case "alert":
