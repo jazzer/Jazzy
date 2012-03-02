@@ -96,6 +96,7 @@ for module in gameModules.keys():
    
    
 class GenericHandler():
+    @classmethod
     def sanitizeHTML(self, string):
         # TODO handle urlencoding here! possibly de- and reencode or filter 'bad' escape sequences? 
         result = re.sub(r'(<[^>]*>)', '', string)
@@ -107,9 +108,9 @@ class GenericHandler():
 class SocketHandler(GenericHandler):
     @classmethod
     def handle_input(self, message, gameConnection):
-        print message
+        #print message
         params = message.split("/")
-        print params
+        #print params
         if len(params) > 1:
             mq = mqPool.get(params[1])
         
@@ -226,7 +227,6 @@ class SocketHandler(GenericHandler):
                     mq.socket.send(msg.data)
         
         elif (params[0] == 'getsit'):
-            print mq.metagame.getSituationMessage(mq, force=True, init=True).data
             return mq.metagame.getSituationMessage(mq, force=True, init=True).data
         
         # draw claims
@@ -290,7 +290,7 @@ class SocketHandler(GenericHandler):
             
             # sanitize
             msg = params[3]
-            msg = self.sanitizeHTML(msg)
+            msg = GenericHandler.sanitizeHTML(msg)
                         
             mq.metagame.broadcastSocket(Message('chat', {'user': mq.subject.name, 'msg': msg}), [mq.subject])
             
@@ -311,7 +311,7 @@ class HTTPJSONHandler(GenericHandler, web.RequestHandler):
         """Respond to a GET request."""
         # examine string
         params = path.split("/")
-        print(path)
+        #print(path)
         #print(params)
         
         # -----------------------
@@ -328,7 +328,7 @@ class HTTPJSONHandler(GenericHandler, web.RequestHandler):
             # find game
             input = urllib2.unquote(params[1])
             selectedGame = None
-            print(input)
+            #print(input)
             for game in games:
                 if game['title'] == input:
                     selectedGame = game 

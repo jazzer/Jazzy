@@ -37,7 +37,7 @@ class MicroGame(ClassicGame):
         self.USE_CRAZYHOUSE_POCKET = True
         self.DROP_NO_PAWN_TO_PROMOTION_FIELD = True
 
-class LosAlamosGame(ClassicGame):  
+class LosAlamosGame(ClassicGame, object):  
     meta = {'title': 'Los Alamos Chess',
             'desc': "",
             'link': 'http://en.wikipedia.org/wiki/Los_Alamos_chess',
