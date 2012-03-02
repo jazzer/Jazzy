@@ -20,7 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 
 /* server settings */
-var server_url = self.location.protocol + "//" + self.location.host + "/";
+var server_url = window.location.protocol + "//" + window.location.host + "/";
 /* timing */
 var base_interval = 1000;
 var max_interval = 15000;
@@ -78,14 +78,30 @@ function _debug(msg, level) {
 function _playInit() {
 	// wait for jQuery and the DOM to be ready
 	$(document).ready(function() {
-		// which MessageQueue are we operating on?
+		// which MessageQueue are we operating on? (essentially the player's ID)
 		mqId = window.location.href.match(/[\dA-Fa-f]+$/);
 
 		// show debug level in UI
 		$('[name="debugLevel"]').attr('value', debugLevel);		
 
+        // setup the SocketIO connection (preferrably WebSocket based)
+        var sock = new io.connect(server_url),
+            game = new io.connect(server_url + 'game'),
+            ping = new io.connect(server_url + 'ping');
+
+        // Establish event handlers
+        sock.on('disconnect', function() {
+            sock.socket.reconnect();
+        });
+
+        game.on('message', function(data) {
+            alert("got message: " + data);
+            parseMQ(data);
+        });
+
 		// request current situation (enables returning after problems)
-		serverCall("getsit/" + mqId, function(data) {parseMQ(data);}, false, true);	
+		game.send("getsit/" + mqId);
+        alert("SENT: " + "getsit/" + mqId);
 		//lastParsedMsg = undefined;
 		// tell about your success
 		addServerMessage("Finished setting up game.");
@@ -394,7 +410,7 @@ function refresh() {
 		_debug("Refreshed state.", 5);
 	
 		// do the call here and set changed approprietly
-		getMQ();
+		//getMQ();
 	
 		//sinceLastRefresh = 0;	
 	}
@@ -443,6 +459,7 @@ function ackString() {
 }
 
 function getMQ() {
+    return;
 	if (activeJSONCall || mqId == undefined) {
 		_debug("getMQ aborted (" + activeJSONCall + ")", 5);
 		return;

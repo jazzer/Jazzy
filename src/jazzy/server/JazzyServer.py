@@ -35,7 +35,6 @@ from pprint import pprint
 import os, sys, copy, urllib2
 from collections import OrderedDict
 import gc
-from jazzy.test.Test import Test
 from jazzy.logic import DifferentSetupGames, DifferentPlayerGames, DifferentBoardGames, \
     DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, \
     HandicapGames, ClassicGame, TestGames
@@ -97,21 +96,40 @@ for module in gameModules.keys():
         
 
 # server part
+class GameConnection(SocketConnection):
+    def on_open(self, info):
+        self.send('Welcome.')
+
+    def on_message(self, message):
+        print "GameConnection: " + message
+        self.send(message)
+
+    def on_close(self):
+        pass
+
+
+class PingConnection(SocketConnection):
+    def on_open(self, info):
+        print 'Ping', repr(info)
+
+    def on_message(self, message):
+        pass       
+
+
+
 class IndexHandler(web.RequestHandler):
     """Serve the index file"""
     def get(self):
         self.render(ROOT_DIR + '/new.html')
 
 class RouterConnection(SocketConnection):
-    __endpoints__ = {#'/chat': ChatConnection,
-                     #'/ping': PingConnection
+    __endpoints__ = {'/game': GameConnection,
+                     '/ping': PingConnection
                      }
 
     def on_open(self, info):
         print 'Router', repr(info)
-        
-        
-        
+   
         
 class HTTPJSONHandler(web.RequestHandler):
     def sanitizeHTML(self, string):
@@ -461,7 +479,7 @@ jazzyRouter = TornadioRouter(RouterConnection)
 application = web.Application(
     jazzyRouter.apply_routes([(r"/", IndexHandler),
                               (r"/(.*\.(js|html|css|ico|gif|jpe?g|png|ogg|mp3))", web.StaticFileHandler, {"path": ROOT_DIR}),
-                              (r"/(.*)", HTTPJSONHandler)]),
+                              (r"/([^(socket.io)].*)", HTTPJSONHandler)]),
     flash_policy_port = 843,
     flash_policy_file = op.join(ROOT_DIR, '/other/flashpolicy.xml'),
     socket_io_port = PORT_NUMBER,
