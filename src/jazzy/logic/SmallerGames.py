@@ -33,8 +33,8 @@ class MicroGame(ClassicGame, object):
         self.CASTLING = False
         
         # DEBUG        
-        self.USE_POCKET = True
-        self.USE_CRAZYHOUSE_POCKET = True
+        self.USE_POCKET = False
+        self.USE_CRAZYHOUSE_POCKET = False
         self.DROP_NO_PAWN_TO_PROMOTION_FIELD = True
 
 class LosAlamosGame(ClassicGame, object):  

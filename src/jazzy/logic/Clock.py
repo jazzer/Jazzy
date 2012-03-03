@@ -18,11 +18,129 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 import logging
+from datetime import datetime, timedelta
+import time
 
 logger = logging.getLogger('jazzyLog')
 
 
 class Clock(object):
-
     def __init__(self):
-        pass
+        self.time_controls = []
+        self.completed_move_counter = 0
+        self.last_started = None
+        self.is_active = False
+        self.current_time_control = None
+        self.current_time_control_index = None
+        
+        # settings
+        self.AUTO_CLAIM_EXPIRATION = True
+        
+    
+    def addTimeControl(self, time_control):
+        self.time_controls.append(time_control)
+        if self.current_time_control is None:
+            self.current_time_control_index = 0
+            self.current_time_control = self.time_controls[self.current_time_control_index]
+            
+    def isExpired(self):
+        return self.current_time_control.time_left <= timedelta(seconds=0)
+    
+    def penalty(self, timedelta_value):
+        self.bonus(-timedelta_value)
+        
+    def bonus(self, timedelta_value):
+        if self.current_time_control is None:
+            return
+        self.current_time_control.time_left += timedelta_value
+    
+    def getRemainingTime(self):
+        if self.current_time_control is None:
+            return timedelta.max # make sure to handle this as unlimited client side
+        # subtract time that has passed (if active) 
+        if self.is_active and not(self.last_started is None):
+            return self.current_time_control.time_left - (datetime.now() - self.last_started)
+        else:
+            return self.current_time_control.time_left
+    
+    def nextMove(self):
+        if self.current_time_control is None:
+            return
+        self.last_started = datetime.now()
+        self.is_active = True
+        self.current_time_control.time_left = self.getRemainingTime() + self.current_time_control.time_per_move
+        
+    def stop(self):
+        if self.current_time_control is None:
+            return
+        self.completed_move_counter += 1
+        self.current_time_control.time_left = self.getRemainingTime()
+        self.is_active = False
+        # check for expiration?
+        if self.AUTO_CLAIM_EXPIRATION and self.isExpired():
+            self.current_time_control.time_left = timedelta(seconds=0)
+            print 'Time\'s up!'
+        # did we just finish a time control? then activate next time control
+        if self.current_time_control.moves != 0 and self.current_time_control.moves == self.completed_move_counter:
+            last_time_control = self.current_time_control
+            self.current_time_control_index += 1
+            self.current_time_control = self.time_controls[self.current_time_control_index]
+            # transfer remaining time?
+            if last_time_control.transfer:
+                self.bonus(last_time_control.time_left)
+            
+    def __str__(self):
+        return self.__unicode__()
+    def __unicode__(self):
+        return 'Clock: %s, moves: %s' % (self.getRemainingTime(), self.completed_move_counter)
+
+
+class TimeControl(object):    
+    def __init__(self, fixed_time, time_per_move, moves, transfer=True):
+        self.fixed_time = fixed_time
+        self.time_per_move = time_per_move
+        self.moves = moves
+        self.transfer = transfer
+        # calculate
+        self.time_left = fixed_time
+        
+    def __str__(self):
+        return self.__unicode__()
+    def __unicode__(self):
+        return 'TimeControl: %s fixed, %s per move, %s moves' % (self.fixed_time, self.time_per_move, self.moves)
+        
+
+class BlitzClock(Clock, object):
+    def __init__(self):
+        super(BlitzClock, self).__init__()
+        # add the specific time controls
+        self.addTimeControl(TimeControl(timedelta(minutes=5), timedelta(seconds=0), 0)) # all moves in 5 minutes
+
+class TraditionalClock(Clock, object):
+    def __init__(self):
+        super(BlitzClock, self).__init__()
+        # add the specific time controls
+        self.addTimeControl(TimeControl(timedelta(hours=2), timedelta(seconds=0), 40, transfer=True)) # first 40 moves in 2 bours
+        self.addTimeControl(TimeControl(timedelta(minutes=60), timedelta(seconds=0), 0)) # 1 hour for all the rest
+                
+
+
+class TestClock(Clock, object):
+    def __init__(self):
+        super(TestClock, self).__init__()
+        # add the specific time controls
+        self.addTimeControl(TimeControl(timedelta(minutes=5), timedelta(seconds=1), 2, transfer=True)) # 2 moves in 5 minutes, 1 sec per move
+        self.addTimeControl(TimeControl(timedelta(minutes=0), timedelta(seconds=2), 0)) # all remaining moves in 0 minutes, 2 sec per move
+                
+test = TestClock()
+test.bonus(timedelta(minutes=1))
+print test
+test.penalty(timedelta(minutes=5, seconds=58))
+print test
+test.nextMove()
+time.sleep(2)
+test.stop()
+test.nextMove()
+time.sleep(1)
+test.stop()
+print test
