@@ -128,7 +128,7 @@ class SocketHandler(GenericHandler):
                 return
             # only allow current player to post his move
             if mq.game.getCurrentPlayer().mq != mq:
-                mq.socket.send(Message('alert', {'msg': 'Not your turn.'}).data)
+                mq.send(Message('alert', {'msg': 'Not your turn.'}).data)
                 return
             
             game = mq.game
@@ -169,9 +169,9 @@ class SocketHandler(GenericHandler):
                     msg = Message('promote', {'from': originalFrom, 'to': originalTo})
                     # add options
                     msg.data['options'] = game.getPromotionOptions(postedMove.fromPiece.color)
-                    mq.socket.send(msg.data)
+                    mq.send(msg.data)
                 else:
-                    moves = game.move(postedMove, targetBoard)
+                    moves = game.move(postedMove, targetBoard, realMove = True)
                     
                     # analyze if game is over
                     result = game.getGameOverMessage()
@@ -208,10 +208,10 @@ class SocketHandler(GenericHandler):
                     logger.debug(str(game.board))
                     
                     # resend parts of the board that have changed (not forced)
-                    for player in mq.game.players:
-                        sitMsg = mq.game.getSituationMessage(mq, player=player)
+                    for player in mq.metagame.players:
+                        sitMsg = mq.metagame.getSituationMessage(mq, player=player)
                         if not(sitMsg is None):
-                            player.mq.socket.send(sitMsg.data)
+                            player.mq.send(sitMsg.data)
                     # clear board
                     mq.game.board.resend = False # TODO generalize
                     
@@ -222,10 +222,10 @@ class SocketHandler(GenericHandler):
             else: 
                 # not legal move
                 msg = Message('alert', {'msg': 'Illegal move.'})
-                mq.socket.send(msg.data)
+                mq.send(msg.data)
                 if game.DEBUG_LEGAL_MOVES_ON_ILLEGAL_MOVE:
                     msg = Message('srvmsg', {'msg': 'Possible moves are: ' + str(sorted(mq.game.possibleMoves, key=lambda move: [str(move.fromField), move.toField]))})
-                    mq.socket.send(msg.data)
+                    mq.send(msg.data)
         
         elif (params[0] == 'getsit'):
             return mq.metagame.getSituationMessage(mq, force=True, init=True).data
@@ -238,15 +238,15 @@ class SocketHandler(GenericHandler):
                 
             if params[2] == 'repetition':                    
                 if mq.game.isRepetitionDraw():
-                    mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Draw by repetition upon player\'s request', '0.5-0.5', None))
+                    mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Draw by repetition upon player\'s request', '0.5-0.5', None).data)
                 else:
-                    mq.addMsg(Message('alert', {'msg': 'No draw by repetition. This position has been on board {0} times.'.format(mq.game.getRepetitionCount())})) 
+                    mq.addMsg(Message('alert', {'msg': 'No draw by repetition. This position has been on board {0} times.'.format(mq.game.getRepetitionCount())}).data) 
                     
             if params[2] == 'xmoverule':
                 if mq.game.isXMoveDraw():
-                    mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Draw by {0} move rule upon player\'s request'.format(mq.game.DRAW_X_MOVES_VALUE), '0.5-0.5'))
+                    mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Draw by {0} move rule upon player\'s request'.format(mq.game.DRAW_X_MOVES_VALUE), '0.5-0.5').data)
                 else:
-                    mq.addMsg(Message('alert', {'msg': 'No draw by {0} move rule. Counter is at {1}.'.format(mq.game.DRAW_X_MOVES_VALUE, mq.game.board.drawXMoveCounter)}))
+                    mq.addMsg(Message('alert', {'msg': 'No draw by {0} move rule. Counter is at {1}.'.format(mq.game.DRAW_X_MOVES_VALUE, mq.game.board.drawXMoveCounter)}).data)
                     
         # messages about game end (resigning, draws) 
         elif (params[0] == 'end'):
@@ -256,7 +256,7 @@ class SocketHandler(GenericHandler):
                 if (params[2] == 'resign'):
                     result = '0-1' if mq.subject.color == 'white' else '1-0' 
                     winner = mq.game.getNextCurrentPlayer() if mq.game.getCurrentPlayer() == mq.subject else mq.game.getCurrentPlayer()
-                    mq.metagame.distributeToAll(mq.game._generateGameOverMessage('Player resigned.', result, winner))
+                    mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Player resigned.', result, winner).data)
                 # player is offering draw
                 if (params[2] == 'draw-offer'):
                     agreeingPlayers = []
@@ -277,10 +277,10 @@ class SocketHandler(GenericHandler):
                                 
                         if len(agreeingPlayers) == len(mq.game.players):
                             # finish the game
-                            mq.metagame.distributeToAll(mq.game._generateGameOverMessage('Players agreed.', '0.5-0.5', None))
+                            mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Players agreed.', '0.5-0.5', None).data)
                         else:
                             # ask the other players
-                            mq.metagame.distributeToAll(Message('draw-offer', {}), agreeingPlayers)
+                            mq.metagame.broadcastSocket(Message('draw-offer', {}).data, agreeingPlayers)
                     
             
         # transfer chat message     
@@ -387,8 +387,8 @@ class HTTPJSONHandler(GenericHandler, web.RequestHandler):
                         jsonoutput = json.dumps({'link': 'play.html?' + player.mq.id})
                     if playerName != '':
                         player.name = playerName
-                    game.distributeToAll(Message('srvmsg', {'msg': 'Player %s joined.' % playerName}))
-                    game.distributeToAll(Message('setname', {'name': playerName, 'id': player.mq.shortenedId}), [player])
+                    game.broadcastSocket(Message('srvmsg', {'msg': 'Player %s joined.' % playerName}).data)
+                    game.broadcastSocket(Message('setname', {'name': playerName, 'id': player.mq.shortenedId}).data, [player])
                     # slot is taken now
                     targetPlayer.dummy = False
                     
@@ -400,7 +400,7 @@ class HTTPJSONHandler(GenericHandler, web.RequestHandler):
             else:
                 mq = self.createWatcher(game)
                 jsonoutput = json.dumps({'mqId': mq.id})
-                mq.metagame.distributeToAll(Message('srvmsg', {'msg': 'Watcher joined.'}), [mq.subject])
+                mq.metagame.broadcastSocket(Message('srvmsg', {'msg': 'Watcher joined.'}).data, [mq.subject])
          
         elif (params[0] == 'getgames'):
             jsonoutput = json.dumps(jsonGames)

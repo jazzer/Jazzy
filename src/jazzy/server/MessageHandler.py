@@ -49,9 +49,14 @@ class MessageQueue(object):
         # self.subject (Player or Watcher)
         # self.game
         # self.metagame
+        # self.socket
         
-    def addMsg(self, message):
-        self.msgs.append(message.data)
+    def send(self, message_data):
+        try:
+            self.socket.send(message_data)
+        except AttributeError:
+            pass # player is not yet connected
+        
         
     def __unicode__(self):
         return self.msgs

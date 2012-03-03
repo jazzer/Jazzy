@@ -179,18 +179,10 @@ class ClassicGame():
         self.metagame = self
         self.board.metagame = self
    
-    def distributeToAll(self, msg, filterPlayers=[]):
+    def broadcastSocket(self, msg_data, filterPlayers=[]):
         for player in self.getAllPlayers() + self.getAllWatchers():
             if not (player in filterPlayers):
-                player.mq.addMsg(msg)
-    
-    def broadcastSocket(self, msg, filterPlayers=[]):
-        for player in self.getAllPlayers() + self.getAllWatchers():
-            if not (player in filterPlayers):
-                try:
-                    player.mq.socket.send(msg)
-                except AttributeError:
-                    pass # player is not yet connected
+                player.mq.send(msg_data)
     
     def getAllPlayers(self):
         ''' also returns all players from sub-games '''
@@ -266,11 +258,12 @@ class ClassicGame():
         
         return True
        
-    def move(self, move, board, preGeneratePossibleMoves=True, dontHandleCapture=False):
+    def move(self, move, board, preGeneratePossibleMoves=True, dontHandleCapture=False, realMove=False):
         ''' Legality checking has to be done before. Only good moves arrive here! '''
         # clock handling (part 1)
-        for player in self.players:
-            player.mq.clock.stop()
+        if realMove:
+            for player in self.players:
+                player.mq.clock.stop()
         
         moves = [move]
 
@@ -333,7 +326,8 @@ class ClassicGame():
             player.offeringDraw = False
             
         # clock handling (part 2)
-        self.getCurrentPlayer(self.board).mq.clock.nextMove()            
+        if realMove:
+            self.getCurrentPlayer(self.board).mq.clock.nextMove()            
 
         return moves
         
@@ -481,10 +475,10 @@ class ClassicGame():
     def getClockString(self, topPlayers, bottomPlayers):
         playerData = ''
         for player in bottomPlayers:
-            playerData += '%s' % player.mq.clock
+            playerData += '%s:%s' % (player.mq.clock, str(player.mq.clock.is_active))
         playerData += '/'
         for player in topPlayers:
-            playerData += '%s' % player.mq.clock
+            playerData += '%s:%s' % (player.mq.clock, str(player.mq.clock.is_active))
         return playerData
     
     def isRepetitionDraw(self):

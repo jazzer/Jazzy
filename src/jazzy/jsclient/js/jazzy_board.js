@@ -166,12 +166,16 @@ Board.prototype.build = function() {
     var templateSource = $('#board-templates');
     // player names
     var templateContent = templateSource.find('#top-data').html();
+    var topControls = $('<div>').attr('id', 'top-data-' + this.id);
     templateContent = templateContent.replace(/boardId/g, this.id);
-    boardFrameDiv.prepend(templateContent);
+    topControls.html(templateContent);
+    boardFrameDiv.prepend(topControls);
     // bottom
     templateContent = templateSource.find('#bottom-data').html();
+    var bottomControls = $('<div>').attr('id', 'bottom-data-' + this.id);
     templateContent = templateContent.replace(/boardId/g, this.id);
-    boardFrameDiv.append(templateContent);
+    bottomControls.html(templateContent);
+    boardFrameDiv.append(bottomControls);
 
     // board controls
     templateContent = templateSource.find('#board-controls').html();

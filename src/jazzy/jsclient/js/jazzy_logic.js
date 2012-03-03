@@ -641,10 +641,10 @@ function parseMQ(data) {
 						board.highlight(lengthenFieldString(data[j]['lmove_from']), highlightType.LAST_MOVE);
 						board.highlight(lengthenFieldString(data[j]['lmove_to']), highlightType.LAST_MOVE);
 					}
+                    targetBoard = board;
 				}
 				if (data[j]['players'] !== undefined) {
 					var players = data[j]['players'].split('/');						
-					var targetBoard = boardStorage.getBoard(boardId);
 					_parseBoardPlayers(players, targetBoard);
 					_fillPlayers('top', players[1], targetBoard);
 					_fillPlayers('bottom', players[0], targetBoard);
@@ -662,11 +662,11 @@ function parseMQ(data) {
 					_parseCurrPlayer(data[j]['currP'], boardId);
 				}
                 if (data[j]['clocks'] !== undefined) {
-					clocks = data[j]['clocks'].split('/');
+					clocks = data[j]['clocks'].split(/[\/:]+/);
 					// TODO time formatting
-                    console.debug($('#top-clock-' + boardId));
-					$('#top-clock-' + boardId).html(clocks[targetBoard.flipped?0:1]);
-					$('#bottom-clock-' + boardId).html(clocks[targetBoard.flipped?1:0]);
+					$('#top-clock-' + boardId).data('time', clocks[targetBoard.flipped?0:2]).data('active', clocks[targetBoard.flipped?1:3]);
+					$('#bottom-clock-' + boardId).data('time', clocks[targetBoard.flipped?2:0]).data('active', clocks[targetBoard.flipped?3:1]);
+                    _runClocks();
 				}				
 			}
 			if (data['gameId'] !== undefined) {
@@ -691,6 +691,88 @@ function parseMQ(data) {
 			break; 
 		}		
 }
+
+
+function _runClocks() {
+    // TODO this is actually too much... find a better filter expression
+    var runningClocks = $('.players').closest('div[id*="-data-"]').find('[id*="-clock-"]');
+    runningClocks.each(function() {
+        // remove old timeout possibly set
+        var old_timeout = $(this).data('timeout_id');
+        window.clearTimeout(old_timeout);
+
+        _paintClock(this);
+    });
+}               
+
+function _paintClock(elem, forceTimeout) {
+    //console.debug($(elem));
+    var unparsed = parseFloat($(elem).data('time'));
+    if (unparsed <= 0) {
+        unparsed = 0;
+    }
+    //console.debug(unparsed);
+
+    var hours = Math.floor(unparsed/3600);
+    var minutes = Math.floor((unparsed-3600*hours)/60);
+    var seconds = Math.floor(unparsed-3600*hours-60*minutes);
+    var centiseconds = Math.floor((unparsed-3600*hours-60*minutes-seconds)*100);
+
+    var output = '';
+    var firstTimeout = 0; // milliseconds
+    var timeout = 1000; // milliseconds
+    // which stage?
+    if (unparsed >= 60*10) { // ten or more minutes left -> minute-based display
+        output = hours + ':' + minutes;
+        firstTimeout = seconds + centiseconds*100;
+        timeout = 1000*60;
+    } else if (unparsed >= 30) { // 30 or more seconds left -> second-based display
+        output = hours>0?(hours + ':'):'' + twoDigit(minutes) + ':' + twoDigit(seconds);
+        firstTimeout = centiseconds*10;
+        timeout = 1000;
+    } else { // less than 30 seconds left -> as exact as possible
+        output = minutes + ':' + twoDigit(seconds) + ',' + twoDigitBack(centiseconds);
+        firstTimeout = 100;
+        timeout = 100;
+    }
+
+    //console.debug("forceTimeout: " + forceTimeout);
+    //console.debug("firstTimeout: " + firstTimeout);
+    //console.debug("timeout: " +echte  timeout);
+    var timeoutToNext = (forceTimeout === undefined ? firstTimeout:forceTimeout);
+    //console.debug("timeoutToNext: " + timeoutToNext);
+    //console.debug("next value: " + (unparsed - timeoutToNext));        
+
+    // set output
+    $(elem).html(output);
+
+    if (unparsed === 0) {
+        // TODO possibly send message for server to check
+        return
+    }
+
+    // set events
+    //console.debug("Active: " + $(elem).data('active'));
+    if ($(elem).data('active') === 'True') {
+        var timeoutToNext = forceTimeout === undefined ? firstTimeout:forceTimeout;
+        var tOut = window.setTimeout(function() {
+            // render it
+            _paintClock(elem, timeout);
+            // update time
+            $(elem).data('time', unparsed - timeoutToNext/1000);
+        }, timeoutToNext);
+        //console.debug("tId: " + tOut);
+        $(elem).data('timeout_id', tOut);
+    }
+}
+
+function twoDigit(number) {
+     return (number < 10 ? '0' : '') + number;
+}
+function twoDigitBack(number) {
+     return number + (number < 10 ? '0' : '');
+}
+
 
 
 function getPlayerName() {

@@ -54,23 +54,26 @@ class Clock(object):
             return timedelta.max # make sure to handle this as unlimited client side
         # subtract time that has passed (if active) 
         if self.is_active and not(self.last_started is None):
-            return self.current_time_control.time_left - (datetime.now() - self.last_started)
+            remaining = self.current_time_control.time_left - (datetime.now() - self.last_started)
+            if remaining.days < 0:
+                remaining = timedelta(seconds=0)
+            return remaining
         else:
             return self.current_time_control.time_left
     
     def nextMove(self):
         if self.current_time_control is None:
             return
-        self.is_active = True
-        self.current_time_control.time_left = self.getRemainingTime() + self.current_time_control.time_per_move
         self.last_started = datetime.now()
+        self.is_active = True
         
     def stop(self):
         if self.current_time_control is None or not self.is_active:
             return
         self.completed_move_counter += 1
-        self.current_time_control.time_left = self.getRemainingTime()
+        self.current_time_control.time_left = self.getRemainingTime() + self.current_time_control.time_per_move
         self.is_active = False
+        self.last_started = None
         # did we just finish a time control? then activate next time control
         if self.current_time_control.moves != 0 and self.current_time_control.moves == self.completed_move_counter:
             last_time_control = self.current_time_control
@@ -84,7 +87,7 @@ class Clock(object):
         return self.__unicode__()
     def __unicode__(self):
         diff = self.getRemainingTime()
-        return '%s' % (diff.seconds + diff.microseconds*1E-6)
+        return '%s' % round(diff.seconds + diff.microseconds*1E-6, 2)
 
 
 class TimeControl(object):    
@@ -109,7 +112,7 @@ class BlitzClock(Clock, object):
     def __init__(self):
         super(BlitzClock, self).__init__()
         # add the specific time controls
-        self.addTimeControl(TimeControl(timedelta(minutes=5), timedelta(seconds=0), 0)) # all moves in 5 minutes
+        self.addTimeControl(TimeControl(timedelta(minutes=1), timedelta(seconds=10), 0)) # all moves in 5 minutes
 
 class TraditionalClock(Clock, object):
     def __init__(self):
