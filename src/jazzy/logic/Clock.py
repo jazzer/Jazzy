@@ -61,12 +61,12 @@ class Clock(object):
     def nextMove(self):
         if self.current_time_control is None:
             return
-        self.last_started = datetime.now()
         self.is_active = True
         self.current_time_control.time_left = self.getRemainingTime() + self.current_time_control.time_per_move
+        self.last_started = datetime.now()
         
     def stop(self):
-        if self.current_time_control is None:
+        if self.current_time_control is None or not self.is_active:
             return
         self.completed_move_counter += 1
         self.current_time_control.time_left = self.getRemainingTime()
@@ -83,7 +83,8 @@ class Clock(object):
     def __str__(self):
         return self.__unicode__()
     def __unicode__(self):
-        return '%s' % (self.getRemainingTime())
+        diff = self.getRemainingTime()
+        return '%s' % (diff.seconds + diff.microseconds*1E-6)
 
 
 class TimeControl(object):    
