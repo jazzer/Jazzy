@@ -568,11 +568,7 @@ function _fillPlayers(position, content, board) {
 
 function parseMQ(data) {
     if (data === undefined || data === null || data === '') {return;}
-    //console.debug("Received message queue:\n" + JSON.stringify(data, null, '\t'));
-
-	if (data.length > 0) {
-		_debug("Received message queue: " + JSON.stringify(data, null, '\t'), 2);
-	}
+    console.debug("Received message queue:\n" + JSON.stringify(data, null, '\t'));
 
 	mtype = data['mtype'];
     switch (mtype) {

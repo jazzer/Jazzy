@@ -18,15 +18,16 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 import uuid
-import copy
 import re
+import copy
 from jazzy.logic.Board import Board
 from jazzy.server.MessageHandler import Message
-from jazzy.logic.Move import NullMove
+from jazzy.logic.Move import NullMove, Move
 from jazzy.server.Player import Player
 from jazzy.logic.GameOver import GameOver
-from jazzy.logic.Pieces import *
+from jazzy.logic.Pieces import Queen, Rook, Bishop, Knight, King, Pawn
 import logging
+from jazzy.logic.Clock import BlitzClock
 
 logger = logging.getLogger('jazzyLog')
 
@@ -86,6 +87,10 @@ class ClassicGame():
         self.KING_PIECE_TYPES = ['k']
         self.PIECE_MAP = {'k': King, 'q': Queen, 'r': Rook, 'b': Bishop, 'n': Knight, 'p': Pawn}
         self.USED_PIECES = self.PIECE_MAP.keys()
+        
+        # clock settings
+        self.CLOCK_AUTO_CLAIM_EXPIRATION = True
+        
         # end of settings
         
         
@@ -164,6 +169,8 @@ class ClassicGame():
         # pre-create players
         self.createPlayers()
         
+        self.createClocks()
+        
         # draw preparations
         if self.DRAW_REPETITION:
             self.board.drawCountRepetition()
@@ -209,6 +216,11 @@ class ClassicGame():
             mq.subject = player
             mq.game = self
             mq.metagame = self
+            
+    def createClocks(self):
+        for player in self.players:
+            clock = BlitzClock()
+            player.mq.clock = clock
         
     def inferBoardSize(self):
         # get board's height
@@ -255,6 +267,11 @@ class ClassicGame():
         return True
        
     def move(self, move, board, preGeneratePossibleMoves=True, dontHandleCapture=False):
+        ''' Legality checking has to be done before. Only good moves arrive here! '''
+        # clock handling (part 1)
+        for player in self.players:
+            player.mq.clock.stop()
+        
         moves = [move]
 
         # castling moves first
@@ -275,7 +292,7 @@ class ClassicGame():
             # mark done
             if not self.CASTLING_MULTIPLE_TIMES:
                 board.castlingsPossible[color] = [False, False]
-
+        
         # delegate the actual moving to the board we are operating on
         board.moveHistory.append(move)
         for xMove in moves:
@@ -315,6 +332,9 @@ class ClassicGame():
         for player in self.players:
             player.offeringDraw = False
             
+        # clock handling (part 2)
+        self.getCurrentPlayer(self.board).mq.clock.nextMove()            
+
         return moves
         
     def handleCaptureMove(self, move, board):
@@ -392,6 +412,11 @@ class ClassicGame():
         # check boards
         data = {'board_id': self.board.id}
         flipTotal = subject.flipBoard != subject.game.board.inherentlyFlipped
+        # collect all players for bottom pocket ("white")
+        bottomPlayers = filter(lambda player: not player.flipBoard, self.players)
+        # collect all players for top pocket ("black")
+        topPlayers = filter(lambda player: player.flipBoard, self.players)
+               
         if force or self.board.resend:
             send = True
             data['flipped'] = flipTotal != self.board.inherentlyFlipped
@@ -400,13 +425,9 @@ class ClassicGame():
             # add players
             if init:
                 playerData = ''
-                # collect all players for bottom pocket ("white")
-                bottomPlayers = filter(lambda player: not player.flipBoard, self.players)
                 for player in bottomPlayers:
                     playerData += '%s:%s,' % (player.name, player.mq.shortenedId)
                 playerData = playerData[:-1] + '/'
-                # collect all players for top pocket ("schwarz")
-                topPlayers = filter(lambda player: player.flipBoard, self.players)
                 for player in topPlayers:
                     playerData += '%s:%s,' % (player.name, player.mq.shortenedId)
                 playerData = playerData[:-1]
@@ -440,6 +461,16 @@ class ClassicGame():
             if force or self.board.resend or capturePocket.dirty:
                 send = True
                 data['capturePockets'] = ''.join([piece.getShortName() for piece in self.board.capturePockets['white'].getPieces()]) + ',' + ''.join([piece.getShortName() for piece in self.board.capturePockets['black'].getPieces()])
+        
+        # clocks
+        playerData = ''
+        for player in bottomPlayers:
+            playerData += '%s:%s,' % (player.mq.clock, player.mq.shortenedId)
+        playerData = playerData[:-1] + '/'
+        for player in topPlayers:
+            playerData += '%s:%s,' % (player.mq.clock, player.mq.shortenedId)
+        playerData = playerData[:-1]
+        data['clocks'] = playerData        
                     
         result[str(counter)] = data
         counter += 1
@@ -477,13 +508,20 @@ class ClassicGame():
     def getGameOverMessage(self):
         player = self.getNextCurrentPlayer()
         go = GameOver(self.board)
+        # mate and stalemate
         if go.noLegalMove():
             if go.inCheck():
                 return self._valueResult(player, 'Checkmate')
             else:
                 return self._valueResult(player, 'Stalemate')
-            
-            # TODO 50 moves, repetition
+        # clock
+        if self.CLOCK_AUTO_CLAIM_EXPIRATION:
+            # if we do it automatically, only one clock can be expired!
+            for player in self.players:
+                if player.mq.clock.isExpired():
+                    return self._valueResult(player, 'Time\'s up!')
+               
+        # 50 moves, repetition via claim by user
             
         return None
     
@@ -497,6 +535,9 @@ class ClassicGame():
         elif msg == 'Stalemate':
             winner = ''
             result = '0.5-0.5'
+        elif msg == 'Time\'s up!':
+            winner = player.mq.shortenedId
+            result = '1-0' if player.color == self.COLORS[0] else '0-1'
         
         return self._generateGameOverMessage(msg, result, winner)
             

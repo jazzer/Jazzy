@@ -20,8 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 import re
 import copy
-from jazzy.logic.Pieces import *
-from jazzy.logic.Move import Move, NullMove
+from jazzy.logic.Move import NullMove
 from jazzy.server.Player import Pocket
 import logging
 

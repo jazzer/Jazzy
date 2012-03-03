@@ -19,7 +19,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 import logging
 from datetime import datetime, timedelta
-import time
 
 logger = logging.getLogger('jazzyLog')
 
@@ -32,10 +31,6 @@ class Clock(object):
         self.is_active = False
         self.current_time_control = None
         self.current_time_control_index = None
-        
-        # settings
-        self.AUTO_CLAIM_EXPIRATION = True
-        
     
     def addTimeControl(self, time_control):
         self.time_controls.append(time_control)
@@ -76,10 +71,6 @@ class Clock(object):
         self.completed_move_counter += 1
         self.current_time_control.time_left = self.getRemainingTime()
         self.is_active = False
-        # check for expiration?
-        if self.AUTO_CLAIM_EXPIRATION and self.isExpired():
-            self.current_time_control.time_left = timedelta(seconds=0)
-            print 'Time\'s up!'
         # did we just finish a time control? then activate next time control
         if self.current_time_control.moves != 0 and self.current_time_control.moves == self.completed_move_counter:
             last_time_control = self.current_time_control
@@ -92,7 +83,7 @@ class Clock(object):
     def __str__(self):
         return self.__unicode__()
     def __unicode__(self):
-        return 'Clock: %s, moves: %s' % (self.getRemainingTime(), self.completed_move_counter)
+        return '%s' % (self.getRemainingTime())
 
 
 class TimeControl(object):    
@@ -109,6 +100,9 @@ class TimeControl(object):
     def __unicode__(self):
         return 'TimeControl: %s fixed, %s per move, %s moves' % (self.fixed_time, self.time_per_move, self.moves)
         
+        
+class UnlimitedClock(Clock, object):
+    pass
 
 class BlitzClock(Clock, object):
     def __init__(self):
