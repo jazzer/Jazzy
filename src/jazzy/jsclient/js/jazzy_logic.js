@@ -700,7 +700,9 @@ function _runClocks() {
         // remove old timeout possibly set
         var old_timeout = $(this).data('timeout_id');
         window.clearTimeout(old_timeout);
-
+        
+        var now = new Date();
+        $(this).data('started', now.getTime());
         _paintClock(this);
     });
 }               
@@ -725,15 +727,15 @@ function _paintClock(elem, forceTimeout) {
     if (unparsed >= 60*10) { // ten or more minutes left -> minute-based display
         output = hours + ':' + minutes;
         firstTimeout = seconds + centiseconds*100;
-        timeout = 1000*60;
+        timeout = 10*60;
     } else if (unparsed >= 30) { // 30 or more seconds left -> second-based display
         output = hours>0?(hours + ':'):'' + twoDigit(minutes) + ':' + twoDigit(seconds);
         firstTimeout = centiseconds*10;
-        timeout = 1000;
+        timeout = 500;
     } else { // less than 30 seconds left -> as exact as possible
         output = minutes + ':' + twoDigit(seconds) + ',' + twoDigitBack(centiseconds);
-        firstTimeout = 100;
-        timeout = 100;
+        firstTimeout = 50;
+        timeout = 50;
     }
 
     //console.debug("forceTimeout: " + forceTimeout);
@@ -754,12 +756,14 @@ function _paintClock(elem, forceTimeout) {
     // set events
     //console.debug("Active: " + $(elem).data('active'));
     if ($(elem).data('active') === 'True') {
-        var timeoutToNext = forceTimeout === undefined ? firstTimeout:forceTimeout;
+        var timeoutToNext = (forceTimeout === undefined ? firstTimeout:forceTimeout);
         var tOut = window.setTimeout(function() {
+            // update time
+            var now = new Date();
+            var timePassed = now.getTime() - $(elem).data('started');
+            $(elem).data('time', unparsed - timePassed/1000).data('started', now.getTime());
             // render it
             _paintClock(elem, timeout);
-            // update time
-            $(elem).data('time', unparsed - timeoutToNext/1000);
         }, timeoutToNext);
         //console.debug("tId: " + tOut);
         $(elem).data('timeout_id', tOut);

@@ -64,6 +64,8 @@ class Clock(object):
     def nextMove(self):
         if self.current_time_control is None:
             return
+        if self.completed_move_counter > 0:
+            self.current_time_control.time_left += self.current_time_control.time_per_move
         self.last_started = datetime.now()
         self.is_active = True
         
@@ -71,7 +73,7 @@ class Clock(object):
         if self.current_time_control is None or not self.is_active:
             return
         self.completed_move_counter += 1
-        self.current_time_control.time_left = self.getRemainingTime() + self.current_time_control.time_per_move
+        self.current_time_control.time_left = self.getRemainingTime()
         self.is_active = False
         self.last_started = None
         # did we just finish a time control? then activate next time control
@@ -112,7 +114,7 @@ class BlitzClock(Clock, object):
     def __init__(self):
         super(BlitzClock, self).__init__()
         # add the specific time controls
-        self.addTimeControl(TimeControl(timedelta(minutes=1), timedelta(seconds=10), 0)) # all moves in 5 minutes
+        self.addTimeControl(TimeControl(timedelta(minutes=5), timedelta(seconds=0), 0)) # all moves in 5 minutes
 
 class TraditionalClock(Clock, object):
     def __init__(self):

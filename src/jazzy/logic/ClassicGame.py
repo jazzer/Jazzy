@@ -534,7 +534,7 @@ class ClassicGame():
             result = '0.5-0.5'
         elif msg == 'Time\'s up!':
             winner = player.mq.shortenedId
-            result = '1-0' if player.color == self.COLORS[0] else '0-1'
+            result = '0-1' if player.color == self.COLORS[0] else '1-0'
         
         return self._generateGameOverMessage(msg, result, winner)
             

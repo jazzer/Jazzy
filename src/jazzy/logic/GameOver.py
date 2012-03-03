@@ -46,5 +46,3 @@ class GameOver(object):
             pieceTypes.append(self.board.fields[piecePos].shortName)
         return not pieceSet.issubset(set(pieceTypes))
     
-    def clockExpired(self):
-        pass
