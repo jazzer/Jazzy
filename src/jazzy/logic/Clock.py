@@ -123,24 +123,3 @@ class TraditionalClock(Clock, object):
         self.addTimeControl(TimeControl(timedelta(hours=2), timedelta(seconds=0), 40, transfer=True)) # first 40 moves in 2 bours
         self.addTimeControl(TimeControl(timedelta(minutes=60), timedelta(seconds=0), 0)) # 1 hour for all the rest
                 
-
-
-class TestClock(Clock, object):
-    def __init__(self):
-        super(TestClock, self).__init__()
-        # add the specific time controls
-        self.addTimeControl(TimeControl(timedelta(minutes=5), timedelta(seconds=1), 2, transfer=True)) # 2 moves in 5 minutes, 1 sec per move
-        self.addTimeControl(TimeControl(timedelta(minutes=0), timedelta(seconds=2), 0)) # all remaining moves in 0 minutes, 2 sec per move
-                
-test = TestClock()
-test.bonus(timedelta(minutes=1))
-print test
-test.penalty(timedelta(minutes=5, seconds=58))
-print test
-test.nextMove()
-time.sleep(2)
-test.stop()
-test.nextMove()
-time.sleep(1)
-test.stop()
-print test
