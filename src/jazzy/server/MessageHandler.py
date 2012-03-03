@@ -26,7 +26,6 @@ class Message(object):
     def __init__(self, type, params):
         self.data = params
         self.data['mtype'] = type
-        self.data['mid'] = uuid.uuid4().hex[1:10] # length of 10 should be unique enough
         
     def __str__(self):
         return self.__unicode__()

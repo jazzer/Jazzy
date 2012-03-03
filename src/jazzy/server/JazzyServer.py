@@ -57,7 +57,8 @@ logger.setLevel(logging.ERROR)
 
 PORT_NUMBER = 8090
 ROOT_DIR = op.normpath(op.dirname(__file__) + "/../jsclient")
-print 'root directory: ' + ROOT_DIR
+print 'Starting Jazzy server...'
+print 'Root directory: ' + ROOT_DIR
 
 
 # enable garbage collection
@@ -408,8 +409,9 @@ class HTTPJSONHandler(GenericHandler, web.RequestHandler):
         # TODO check permissions (via some token output on server startup?)
         elif params[0] == 'admin':
             if params[1] == 'runtests':
+                pass
                 #test = Test();
-                jsonoutput = json.dumps({'log': test.runTestGames()})          
+                #jsonoutput = json.dumps({'log': test.runTestGames()})          
             
         else:
             jsonoutput = json.dumps([])
@@ -430,27 +432,16 @@ class GameConnection(SocketConnection):
         pass
 
 
-class PingConnection(SocketConnection):
-    def on_open(self, info):
-        print 'Ping', repr(info)
-
-    def on_message(self, message):
-        pass       
-
-
-
 class IndexHandler(web.RequestHandler):
     """Serve the index file"""
     def get(self):
         self.render(ROOT_DIR + '/new.html')
 
 class RouterConnection(SocketConnection):
-    __endpoints__ = {'/game': GameConnection,
-                     '/ping': PingConnection}
+    __endpoints__ = {'/game': GameConnection}
 
     def on_open(self, info):
-        print 'Router', repr(info)
-   
+        pass  
         
 
                        
