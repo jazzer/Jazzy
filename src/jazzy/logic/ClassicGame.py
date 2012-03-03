@@ -395,7 +395,7 @@ class ClassicGame():
             return None
         result = {}
         data = {'board_id': self.board.id}
-        data['pockets'] = ''.join([piece.getShortName() for piece in self.board.pockets['white'].getPieces()]) + ',' + ''.join([piece.getShortName() for piece in self.board.pockets['black'].getPieces()])
+        data['pockets'] = ''.join([piece.getShortName() for piece in self.board.pockets['white'].getPieces()]) + '/' + ''.join([piece.getShortName() for piece in self.board.pockets['black'].getPieces()])
         result['0'] = data
         return Message('gamesit', result)
     
@@ -463,14 +463,8 @@ class ClassicGame():
                 data['capturePockets'] = ''.join([piece.getShortName() for piece in self.board.capturePockets['white'].getPieces()]) + ',' + ''.join([piece.getShortName() for piece in self.board.capturePockets['black'].getPieces()])
         
         # clocks
-        playerData = ''
-        for player in bottomPlayers:
-            playerData += '%s:%s,' % (player.mq.clock, player.mq.shortenedId)
-        playerData = playerData[:-1] + '/'
-        for player in topPlayers:
-            playerData += '%s:%s,' % (player.mq.clock, player.mq.shortenedId)
-        playerData = playerData[:-1]
-        data['clocks'] = playerData        
+        send = True
+        data['clocks'] = self.getClockString(topPlayers, bottomPlayers)  
                     
         result[str(counter)] = data
         counter += 1
@@ -483,6 +477,15 @@ class ClassicGame():
         if send:
             return Message('gamesit', result)
         return None
+    
+    def getClockString(self, topPlayers, bottomPlayers):
+        playerData = ''
+        for player in bottomPlayers:
+            playerData += '%s' % player.mq.clock
+        playerData += '/'
+        for player in topPlayers:
+            playerData += '%s' % player.mq.clock
+        return playerData
     
     def isRepetitionDraw(self):
         if not self.DRAW_REPETITION:

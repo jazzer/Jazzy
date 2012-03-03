@@ -44,7 +44,7 @@ var boardStyleNameArray = boardStyleNames.split(",");
 var selfPlayerIDs = '';
 var currPlayer = new Object();
 var myTurn = new Object();
-var sock, game, ping;
+var sock, game;
 
 
 function _debug(msg, level) {
@@ -66,7 +66,6 @@ function _playInit() {
         // setup the SocketIO connection (preferrably WebSocket based)
         sock = new io.connect(server_url);
         game = new io.connect(server_url + 'game');
-        ping = new io.connect(server_url + 'ping');
 
         // Establish event handlers
         sock.on('disconnect', function() {
@@ -629,7 +628,8 @@ function parseMQ(data) {
 				} catch (e) {
 					break;
 				}
-				var boardId = data[j]['board_id'];		
+				var boardId = data[j]['board_id'];
+        		var targetBoard = boardStorage.getBoard(boardId);		
 				if (data[j]['board_size'] !== undefined) {
 					boardSize = data[j]['board_size'].split('x');
 					board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[j]['flipped']);	
@@ -650,8 +650,7 @@ function parseMQ(data) {
 					_fillPlayers('bottom', players[0], targetBoard);
 				}
 				if (data[j]['pockets'] !== undefined) {
-					pockets = data[j]['pockets'].split(',');
-					var targetBoard = boardStorage.getBoard(boardId);
+					pockets = data[j]['pockets'].split('/');
 					_fillPocket('top', pockets[1], targetBoard);
 					_fillPocket('bottom', pockets[0], targetBoard);
 				}
@@ -662,6 +661,13 @@ function parseMQ(data) {
 					// check if it's my turn
 					_parseCurrPlayer(data[j]['currP'], boardId);
 				}
+                if (data[j]['clocks'] !== undefined) {
+					clocks = data[j]['clocks'].split('/');
+					// TODO time formatting
+                    console.debug($('#top-clock-' + boardId));
+					$('#top-clock-' + boardId).html(clocks[targetBoard.flipped?0:1]);
+					$('#bottom-clock-' + boardId).html(clocks[targetBoard.flipped?1:0]);
+				}				
 			}
 			if (data['gameId'] !== undefined) {
 				// add the appropriate link to the game's overview page

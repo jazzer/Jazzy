@@ -211,7 +211,7 @@ class SocketHandler(GenericHandler):
                     for player in mq.game.players:
                         sitMsg = mq.game.getSituationMessage(mq, player=player)
                         if not(sitMsg is None):
-                            player.mq.addMsg(sitMsg)
+                            player.mq.socket.send(sitMsg.data)
                     # clear board
                     mq.game.board.resend = False # TODO generalize
                     

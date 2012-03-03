@@ -165,11 +165,11 @@ Board.prototype.build = function() {
 
     var templateSource = $('#board-templates');
     // player names
-    var templateContent = templateSource.find('#top-players').html();
+    var templateContent = templateSource.find('#top-data').html();
     templateContent = templateContent.replace(/boardId/g, this.id);
     boardFrameDiv.prepend(templateContent);
     // bottom
-    templateContent = templateSource.find('#bottom-players').html();
+    templateContent = templateSource.find('#bottom-data').html();
     templateContent = templateContent.replace(/boardId/g, this.id);
     boardFrameDiv.append(templateContent);
 
