@@ -25,6 +25,7 @@ var myTurn = true;
 var styleNames = 'light-wood,dark-wood,gray';
 var boardStyleNames = 'classic,color';
 var globalTurn = false;
+var runningClocks, clickTimeoutId;
 
 if (typeof BoardStorage === 'function') {
 	var boardStorage = new BoardStorage();
@@ -616,6 +617,7 @@ function parseMQ(data) {
 			break;
 		case "gamesit":
 			var j = -1;
+            var clocksChanged = false;
 			// save own IDs
 			if (data['playerSelf'] !== undefined) {
 				selfPlayerIDs = data['playerSelf'];
@@ -664,15 +666,18 @@ function parseMQ(data) {
                 if (data[j]['clocks'] !== undefined) {
 					clocks = data[j]['clocks'].split(/[\/:]+/);
 					// TODO time formatting
-					$('#top-clock-' + boardId).data('time', clocks[targetBoard.flipped?0:2]).data('active', clocks[targetBoard.flipped?1:3]);
-					$('#bottom-clock-' + boardId).data('time', clocks[targetBoard.flipped?2:0]).data('active', clocks[targetBoard.flipped?3:1]);
-                    _runClocks();
+					$('#top-clock-' + boardId).data('time', clocks[targetBoard.flipped?0:2]).data('active', clocks[targetBoard.flipped?1:3] === "True");
+					$('#bottom-clock-' + boardId).data('time', clocks[targetBoard.flipped?2:0]).data('active', clocks[targetBoard.flipped?3:1] === "True");
+                    clocksChanged = true;
 				}				
 			}
 			if (data['gameId'] !== undefined) {
 				// add the appropriate link to the game's overview page
 				$('#menu_game').children('a').attr('href', 'game.html?' + data['gameId']);
 			}
+            if (clocksChanged) {
+                _runClocks();
+            }
 			break;
 		case "srvmsg":
 			addServerMessage(data['msg']);
@@ -694,80 +699,78 @@ function parseMQ(data) {
 
 
 function _runClocks() {
-    // TODO this is actually too much... find a better filter expression
-    var runningClocks = $('.players').closest('div[id*="-data-"]').find('[id*="-clock-"]');
-    runningClocks.each(function() {
-        // remove old timeout possibly set
-        var old_timeout = $(this).data('timeout_id');
-        window.clearTimeout(old_timeout);
-        
-        var now = new Date();
-        $(this).data('started', now.getTime());
-        _paintClock(this);
+    var now = new Date();
+    var nowTime = now.getTime();
+
+    window.clearTimeout(clickTimeoutId);
+
+    var allClocks = $('[id*="-clock-"]');
+    _updateClocks(allClocks, false);
+
+    runningClocks = $(allClocks).filter(function() {
+        return $(this).data('active');
+    }).each(function() {
+        $(this).data('started', nowTime);
     });
+    _updateClocks(runningClocks, true);
+}
+
+function _updateClocks(targets, events) {
+    var nextUpdate = 5000;
+    var now = new Date();
+    var nowTime = now.getTime();
+    $(targets).each(function() {
+        nextUpdate = Math.min(nextUpdate, _paintClock($(this), nowTime));
+    });
+
+    // set event for next update
+    if (events && targets.length > 0) {
+        clickTimeoutId = window.setTimeout(function () { _updateClocks(targets, true); }, nextUpdate);
+    }
 }               
 
-function _paintClock(elem, forceTimeout) {
-    //console.debug($(elem));
+function _paintClock(elem, nowTime) {
     var unparsed = parseFloat($(elem).data('time'));
+    if (isNaN(unparsed)) { return Number.MAX_VALUE; }
+    if ($(elem).data('active') === false) {
+        var timePassed = 0;
+    } else {
+        var timePassed = nowTime - $(elem).data('started');
+    }
+    unparsed -= timePassed/1000;
+    
     if (unparsed <= 0) {
         unparsed = 0;
     }
-    //console.debug(unparsed);
-
+    
     var hours = Math.floor(unparsed/3600);
     var minutes = Math.floor((unparsed-3600*hours)/60);
     var seconds = Math.floor(unparsed-3600*hours-60*minutes);
     var centiseconds = Math.floor((unparsed-3600*hours-60*minutes-seconds)*100);
 
     var output = '';
-    var firstTimeout = 0; // milliseconds
     var timeout = 1000; // milliseconds
     // which stage?
     if (unparsed >= 60*10) { // ten or more minutes left -> minute-based display
         output = hours + ':' + minutes;
-        firstTimeout = seconds + centiseconds*100;
-        timeout = 10*60;
+        timeout = 5*1000;
     } else if (unparsed >= 30) { // 30 or more seconds left -> second-based display
         output = hours>0?(hours + ':'):'' + twoDigit(minutes) + ':' + twoDigit(seconds);
-        firstTimeout = centiseconds*10;
-        timeout = 500;
+        timeout = 250;
     } else { // less than 30 seconds left -> as exact as possible
         output = minutes + ':' + twoDigit(seconds) + ',' + twoDigitBack(centiseconds);
-        firstTimeout = 50;
         timeout = 50;
     }
-
-    //console.debug("forceTimeout: " + forceTimeout);
-    //console.debug("firstTimeout: " + firstTimeout);
-    //console.debug("timeout: " +echte  timeout);
-    var timeoutToNext = (forceTimeout === undefined ? firstTimeout:forceTimeout);
-    //console.debug("timeoutToNext: " + timeoutToNext);
-    //console.debug("next value: " + (unparsed - timeoutToNext));        
 
     // set output
     $(elem).html(output);
 
     if (unparsed === 0) {
         // TODO possibly send message for server to check
-        return
+        return Number.MAX_VALUE;
     }
 
-    // set events
-    //console.debug("Active: " + $(elem).data('active'));
-    if ($(elem).data('active') === 'True') {
-        var timeoutToNext = (forceTimeout === undefined ? firstTimeout:forceTimeout);
-        var tOut = window.setTimeout(function() {
-            // update time
-            var now = new Date();
-            var timePassed = now.getTime() - $(elem).data('started');
-            $(elem).data('time', unparsed - timePassed/1000).data('started', now.getTime());
-            // render it
-            _paintClock(elem, timeout);
-        }, timeoutToNext);
-        //console.debug("tId: " + tOut);
-        $(elem).data('timeout_id', tOut);
-    }
+    return timeout;
 }
 
 function twoDigit(number) {
