@@ -177,6 +177,8 @@ class SocketHandler(GenericHandler):
                     result = game.getGameOverMessage()
                     if not(result is None):
                         game.finished = True
+                        for player in mq.game.players:
+                            player.mq.clock.stop()
     
                     # post all the moves the particular game created
                     for move in moves:                    

@@ -749,6 +749,7 @@ function _paintClock(elem, nowTime) {
     var centiseconds = Math.floor((unparsed-3600*hours-60*minutes-seconds)*100);
 
     var output = '';
+    var longOutput = 'Clock: {0} hours, {1} minutes, and {2}.{3} seconds left.'.format(hours, minutes, seconds, centiseconds);
     var timeout = 1000; // milliseconds
     // which stage?
     if (unparsed >= 60*10) { // ten or more minutes left -> minute-based display
@@ -763,7 +764,7 @@ function _paintClock(elem, nowTime) {
     }
 
     // set output
-    $(elem).html(output);
+    $(elem).html(output).attr('title', longOutput);
 
     if (unparsed === 0) {
         // TODO possibly send message for server to check
