@@ -739,8 +739,10 @@ function _paintClock(elem, nowTime) {
     }
     unparsed -= timePassed/1000;
     
-    if (unparsed <= 0) {
-        unparsed = 0;
+    var negative = false;
+    if (unparsed < 0) {
+        negative = true;
+        unparsed = -unparsed;
     }
     
     var hours = Math.floor(unparsed/3600);
@@ -749,7 +751,6 @@ function _paintClock(elem, nowTime) {
     var centiseconds = Math.floor((unparsed-3600*hours-60*minutes-seconds)*100);
 
     var output = '';
-    var longOutput = 'Clock: {0} hours, {1} minutes, and {2}.{3} seconds left.'.format(hours, minutes, seconds, centiseconds);
     var timeout = 1000; // milliseconds
     // which stage?
     if (unparsed >= 60*10) { // ten or more minutes left -> minute-based display
@@ -764,6 +765,11 @@ function _paintClock(elem, nowTime) {
     }
 
     // set output
+    var longOutput = 'Clock: {0} hours, {1} minutes, and {2}.{3} seconds left.'.format(hours, minutes, seconds, centiseconds);
+    if (negative) {
+        output = '-' + output;
+        longOutput = 'Clock: expired since {0} hours, {1} minutes, and {2}.{3} seconds.'.format(hours, minutes, seconds, centiseconds);
+    }
     $(elem).html(output).attr('title', longOutput);
 
     if (unparsed === 0) {

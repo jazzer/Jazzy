@@ -511,12 +511,6 @@ class ClassicGame():
                 return self._valueResult(player, 'Checkmate')
             else:
                 return self._valueResult(player, 'Stalemate')
-        # clock
-        if self.CLOCK_AUTO_CLAIM_EXPIRATION:
-            # if we do it automatically, only one clock can be expired!
-            for player in self.players:
-                if player.mq.clock.isExpired():
-                    return self._valueResult(player, 'Time\'s up!')
                
         # 50 moves, repetition via claim by user
             

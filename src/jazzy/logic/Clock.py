@@ -31,6 +31,7 @@ class Clock(object):
         self.is_active = False
         self.current_time_control = None
         self.current_time_control_index = None
+        self.was_expired = False
     
     def addTimeControl(self, time_control):
         self.time_controls.append(time_control)
@@ -39,7 +40,7 @@ class Clock(object):
             self.current_time_control = self.time_controls[self.current_time_control_index]
             
     def isExpired(self):
-        return self.current_time_control.time_left <= timedelta(seconds=0)
+        return self.was_expired or self.current_time_control.time_left <= timedelta(seconds=0)
     
     def penalty(self, timedelta_value):
         self.bonus(-timedelta_value)
@@ -55,8 +56,6 @@ class Clock(object):
         # subtract time that has passed (if active) 
         if self.is_active and not(self.last_started is None):
             remaining = self.current_time_control.time_left - (datetime.now() - self.last_started)
-            if remaining.days < 0:
-                remaining = timedelta(seconds=0)
             return remaining
         else:
             return self.current_time_control.time_left
@@ -64,16 +63,22 @@ class Clock(object):
     def nextMove(self):
         if self.current_time_control is None:
             return
-        if self.completed_move_counter > 0:
-            self.current_time_control.time_left += self.current_time_control.time_per_move
         self.last_started = datetime.now()
         self.is_active = True
+        self.was_expired = False
         
     def stop(self):
         if self.current_time_control is None or not self.is_active:
             return
         self.completed_move_counter += 1
         self.current_time_control.time_left = self.getRemainingTime()
+        # check if time's up and remember that (for enabling claiming even on
+        # time controls that add time per completed move)
+        if self.isExpired():
+            self.was_expired = True            
+        # add time per move
+        self.current_time_control.time_left += self.current_time_control.time_per_move
+
         self.is_active = False
         self.last_started = None
         # did we just finish a time control? then activate next time control
@@ -89,7 +94,11 @@ class Clock(object):
         return self.__unicode__()
     def __unicode__(self):
         diff = self.getRemainingTime()
-        return '%s' % round(diff.seconds + diff.microseconds*1E-6, 2)
+        # handle negative times
+        if diff.days >= 0:
+            return '%s' % round(diff.seconds + diff.microseconds*1E-6, 2)
+        else:
+            return '%s' % round((diff.seconds-86400) + diff.microseconds*1E-6, 2)
 
 
 class TimeControl(object):    
@@ -114,7 +123,7 @@ class BlitzClock(Clock, object):
     def __init__(self):
         super(BlitzClock, self).__init__()
         # add the specific time controls
-        self.addTimeControl(TimeControl(timedelta(minutes=5), timedelta(seconds=0), 0)) # all moves in 5 minutes
+        self.addTimeControl(TimeControl(timedelta(minutes=2), timedelta(seconds=30), 0)) # all moves in 5 minutes
 
 class TraditionalClock(Clock, object):
     def __init__(self):
