@@ -21,7 +21,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 '''
 
 
-import time
+import time, datetime
 #import http.server
 import re
 import inspect
@@ -122,7 +122,10 @@ class SocketHandler(GenericHandler):
         # make sure this socket is tied to the message queue?
         mq.socket = gameConnection
             
-        if (params[0] == 'post' and params[2] == 'move'):            
+        if (params[0] == 'post' and params[2] == 'move'):
+            # record time (when jazzy is calculating, nobody's clock should be active...)
+            input_time = datetime.datetime.now()
+                        
             # filter watchers attempting to post stuff
             if mq.watching or mq.game.finished == True:
                 return
@@ -171,14 +174,12 @@ class SocketHandler(GenericHandler):
                     msg.data['options'] = game.getPromotionOptions(postedMove.fromPiece.color)
                     mq.send(msg.data)
                 else:
-                    moves = game.move(postedMove, targetBoard, realMove = True)
+                    moves = game.move(postedMove, targetBoard, realMove = True, input_time = input_time)
                     
                     # analyze if game is over
                     result = game.getGameOverMessage()
                     if not(result is None):
-                        game.finished = True
-                        for player in mq.game.players:
-                            player.mq.clock.stop()
+                        game.finish()                        
     
                     # post all the moves the particular game created
                     for move in moves:                    
@@ -241,14 +242,37 @@ class SocketHandler(GenericHandler):
             if params[2] == 'repetition':                    
                 if mq.game.isRepetitionDraw():
                     mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Draw by repetition upon player\'s request', '0.5-0.5', None).data)
+                    mq.game.finish()   
                 else:
-                    mq.addMsg(Message('alert', {'msg': 'No draw by repetition. This position has been on board {0} times.'.format(mq.game.getRepetitionCount())}).data) 
+                    mq.send(Message('alert', {'msg': 'No draw by repetition. This position has been on board {0} times.'.format(mq.game.getRepetitionCount())}).data) 
                     
             if params[2] == 'xmoverule':
                 if mq.game.isXMoveDraw():
                     mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Draw by {0} move rule upon player\'s request'.format(mq.game.DRAW_X_MOVES_VALUE), '0.5-0.5').data)
+                    mq.game.finish()   
                 else:
-                    mq.addMsg(Message('alert', {'msg': 'No draw by {0} move rule. Counter is at {1}.'.format(mq.game.DRAW_X_MOVES_VALUE, mq.game.board.drawXMoveCounter)}).data)
+                    mq.send(Message('alert', {'msg': 'No draw by {0} move rule. Counter is at {1}.'.format(mq.game.DRAW_X_MOVES_VALUE, mq.game.board.drawXMoveCounter)}).data)
+            
+            # clock
+            if params[2] == 'clock':
+                clockExpirationPlayer = None
+                for player in mq.game.players:
+                    if player.mq.clock.isExpired():
+                        if clockExpirationPlayer is None:
+                            clockExpirationPlayer = player
+                        else:
+                            # more than 1 clock expired -> draw
+                            mq.game.broadcastSocket(mq.game._valueResult(None, 'Both players\' time\'s up!').data)
+                            mq.game.finish()   
+                            return
+                        
+                # anounce winner        
+                if not(clockExpirationPlayer is None):
+                    mq.game.broadcastSocket(mq.game._valueResult(clockExpirationPlayer, 'Time\'s up!').data)
+                    mq.game.finish()   
+                else:
+                    mq.send(Message('alert', {'msg': 'No time trouble detected.'}).data)
+                    
                     
         # messages about game end (resigning, draws) 
         elif (params[0] == 'end'):
@@ -259,6 +283,7 @@ class SocketHandler(GenericHandler):
                     result = '0-1' if mq.subject.color == 'white' else '1-0' 
                     winner = mq.game.getNextCurrentPlayer() if mq.game.getCurrentPlayer() == mq.subject else mq.game.getCurrentPlayer()
                     mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Player resigned.', result, winner).data)
+                    mq.game.finish()   
                 # player is offering draw
                 if (params[2] == 'draw-offer'):
                     agreeingPlayers = []
@@ -280,6 +305,7 @@ class SocketHandler(GenericHandler):
                         if len(agreeingPlayers) == len(mq.game.players):
                             # finish the game
                             mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Players agreed.', '0.5-0.5', None).data)
+                            mq.game.finish()   
                         else:
                             # ask the other players
                             mq.metagame.broadcastSocket(Message('draw-offer', {}).data, agreeingPlayers)

@@ -361,11 +361,15 @@ function serverCall(relUrl, successFunc, asnycValue, preventCaching) {
 	});
 }
 
-function _repetition() {
+function _claimClock(boardId) {
+	// claim clock
+	game.send("claim/" + mqId + "/clock");
+}
+function _claimRepetition(boardId) {
 	// claim threefold repetition
 	game.send("claim/" + mqId + "/repetition");
 }
-function _xMoveRule() {
+function _claimXMoveRule(boardId) {
 	// claim threefold repetition
 	game.send("claim/" + mqId + "/xmoverule");
 }

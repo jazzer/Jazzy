@@ -54,9 +54,10 @@
             <button type="button" class="btn" id="castle-short-boardId" onclick="_shortCastling('boardId');">O-O</button>
             <button type="button" class="btn" id="castle-long-boardId" onclick="_longCastling('boardId');">O-O-O</button><br /><br />
             <button type="button" class="btn" id="offer-draw-boardId" onclick="_offerDraw('boardId');">Offer draw</button>
-            <button type="button" class="btn" id="repetition-boardId" onclick="_repetition('boardId');">Claim Repetition</button>
-            <button type="button" class="btn" id="x-move-rule-boardId" onclick="_xMoveRule('boardId');">Claim x Move rule</button>
-            <button type="button" class="btn" id="resign-boardId" onclick="_resign('boardId');">Resign</button>
+            <button type="button" class="btn" id="resign-boardId" onclick="_resign('boardId');">Resign</button><br /><br />
+            <button type="button" class="btn" id="repetition-boardId" onclick="_claimClock('boardId');">Claim Time</button>
+            <button type="button" class="btn" id="repetition-boardId" onclick="_claimRepetition('boardId');">Claim Repetition</button>
+            <button type="button" class="btn" id="x-move-rule-boardId" onclick="_claimXMoveRule('boardId');">Claim x Move rule</button>
         </div>
         <div id="top-data-boardId" class="top-data">
             <div id="top-clock-boardId" class="clock top-clock"></div>
@@ -75,14 +76,6 @@
 <div id="data">
 <div id="data__game_type">
 <div class="data_header"><span class="data_header_title">Game Type</span> <span class="inline_content"></span></div>
-<div class="data_content_empty"></div>
-</div>
-<div id="data__turn">
-<div class="data_header"><span class="data_header_title">Turn</span> <span class="inline_content"></span></div>
-<div class="data_content_empty"></div>
-</div>
-<div id="data__clock">
-<div class="data_header"><span class="data_header_title">Clock</span> <span class="inline_content"></span></div>
 <div class="data_content_empty"></div>
 </div>
 <div id="data__move_history">

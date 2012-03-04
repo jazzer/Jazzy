@@ -258,12 +258,15 @@ class ClassicGame():
         
         return True
        
-    def move(self, move, board, preGeneratePossibleMoves=True, dontHandleCapture=False, realMove=False):
+    def move(self, move, board, preGeneratePossibleMoves=True, dontHandleCapture=False, realMove=False, input_time=''):
         ''' Legality checking has to be done before. Only good moves arrive here! '''
         # clock handling (part 1)
         if realMove:
             for player in self.players:
-                player.mq.clock.stop()
+                player.mq.clock.deactivate(input_time)
+            # first move needs special love because the clock is not active before finishing it
+            if len(self.board.moveHistory) == 0:
+                self.getCurrentPlayer(board).mq.clock.addTimePerMove()
         
         moves = [move]
 
@@ -327,7 +330,7 @@ class ClassicGame():
             
         # clock handling (part 2)
         if realMove:
-            self.getCurrentPlayer(self.board).mq.clock.nextMove()            
+            self.getCurrentPlayer(self.board).mq.clock.activate()            
 
         return moves
         
@@ -524,6 +527,9 @@ class ClassicGame():
             winner = player.mq.shortenedId
             result = '1-0' if player.color == self.COLORS[0] else '0-1'
         elif msg == 'Stalemate':
+            winner = ''
+            result = '0.5-0.5'
+        elif msg == 'Both players\' time\'s up!':
             winner = ''
             result = '0.5-0.5'
         elif msg == 'Time\'s up!':
@@ -816,6 +822,18 @@ class ClassicGame():
             
         return fenString[:-1]
     
+    def finish(self):
+        self.finished = True
+        # stop clocks
+        for player in self.players:
+            player.mq.clock.stop()
+        
+        # send final state
+        for player in self.players:
+            msg = self.getSituationMessage(player.mq, False, player, False)
+            if not(msg is None): 
+                player.mq.send(msg.data)
+            
     def __unicode__(self):
         return "[Game] id=%s, type=%s" % (self.id, self.gameType)
         

@@ -52,6 +52,8 @@ class MessageQueue(object):
         # self.socket
         
     def send(self, message_data):
+        if message_data is None:
+            return
         try:
             self.socket.send(message_data)
         except AttributeError:
