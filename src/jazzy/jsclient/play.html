@@ -50,7 +50,7 @@
         <div id="highlightColors-2"></div>
     </div>
     <div id="board-templates" class="hidden">
-        <div id="board-controls">
+        <div id="board-controls-boardId">
             <button type="button" class="btn" id="castle-short-boardId" onclick="_shortCastling('boardId');">O-O</button>
             <button type="button" class="btn" id="castle-long-boardId" onclick="_longCastling('boardId');">O-O-O</button><br /><br />
             <button type="button" class="btn" id="offer-draw-boardId" onclick="_offerDraw('boardId');">Offer draw</button>
@@ -58,11 +58,11 @@
             <button type="button" class="btn" id="x-move-rule-boardId" onclick="_xMoveRule('boardId');">Claim x Move rule</button>
             <button type="button" class="btn" id="resign-boardId" onclick="_resign('boardId');">Resign</button>
         </div>
-        <div id="top-data">
+        <div id="top-data-boardId" class="top-data">
             <div id="top-clock-boardId" class="clock top-clock"></div>
             <div id="top-players-boardId" class="players top-players"></div>
         </div>
-        <div id="bottom-data">
+        <div id="bottom-data-boardId" class="bottom-data">
             <div id="bottom-players-boardId" class="players bottom-players"></div>
             <div id="bottom-clock-boardId" class="clock bottom-clock"></div>
         </div>

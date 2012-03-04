@@ -163,29 +163,36 @@ Board.prototype.build = function() {
 
     boardFrameDiv.append(divCanvas);
 
-    var templateSource = $('#board-templates');
-    // player names
-    var templateContent = templateSource.find('#top-data').html();
-    var topControls = $('<div>').attr('id', 'top-data-' + this.id);
-    templateContent = templateContent.replace(/boardId/g, this.id);
-    topControls.html(templateContent);
-    boardFrameDiv.prepend(topControls);
+    // top data
+    var templateDiv = _getTemplate('#top-data-boardId');
+    templateDiv = _replaceInTemplate(templateDiv, "boardId", this.id);
+    boardFrameDiv.prepend(templateDiv);
     // bottom
-    templateContent = templateSource.find('#bottom-data').html();
-    var bottomControls = $('<div>').attr('id', 'bottom-data-' + this.id);
-    templateContent = templateContent.replace(/boardId/g, this.id);
-    bottomControls.html(templateContent);
-    boardFrameDiv.append(bottomControls);
+    templateDiv = _getTemplate('#bottom-data-boardId');
+    templateDiv = _replaceInTemplate(templateDiv, "boardId", this.id);
+    boardFrameDiv.append(templateDiv);
 
     // board controls
-    templateContent = templateSource.find('#board-controls').html();
-    var boardControls = $('<div>').attr('id', 'board-controls-' + this.id);
-    templateContent = templateContent.replace(/boardId/g, this.id);
-    boardControls.html(templateContent);
-    boardFrameDiv.append(boardControls);
-			
+    templateDiv = _getTemplate('#board-controls-boardId');
+    templateDiv = _replaceInTemplate(templateDiv, "boardId", this.id);
+    boardFrameDiv.append(templateDiv);
+    		
 	$("#boards").append(boardFrameDiv);
 }
+
+
+/* minimal templating functions */
+function _getTemplate(selector) {
+    var templateSource = $('#board-templates');
+    return templateSource.find(selector).clone(false);
+}
+
+function _replaceInTemplate(element, from, to) {
+    var regexp = new RegExp(from, 'g');
+    element.html(element.html().replace(regexp, to));
+    return element;
+}
+
 
 Board.prototype.sizeChanged = function() {
     var canvas = this.canvasBoard;
