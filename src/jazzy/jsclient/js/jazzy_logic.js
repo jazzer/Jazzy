@@ -735,7 +735,7 @@ function _updateClocks(targets, events) {
 
 function _paintClock(elem, nowTime) {
     var unparsed = parseFloat($(elem).data('time'));
-    if (isNaN(unparsed)) { return Number.MAX_VALUE; }
+    if (isNaN(unparsed) || unparsed === 86400) { return Number.MAX_VALUE; }
     if ($(elem).data('active') === false) {
         var timePassed = 0;
     } else {
