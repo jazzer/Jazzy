@@ -4,3 +4,10 @@ eclipse
 screenshots
 *.pyc
 *.pyo
+VF_*.jpg
+test.html
+.settings
+coffee-script
+jshint.js
+logo*.png
+dark-wood2.jpg

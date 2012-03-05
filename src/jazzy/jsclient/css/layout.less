@@ -24,7 +24,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 /* general */
 body {
 	font-family: 'Ubuntu', arial, serif;
-	padding-top: 75px;
 }
 h1, h2, h3, h4, h5, h6 {
 	font-family: 'Ubuntu', arial, serif;
@@ -135,12 +134,14 @@ h1, h2, h3, h4, h5, h6 {
 
 
 /* menu styles */
-.menu {
+#menu {
 	width: 100%;
-	position: fixed;
 	left: 0px;
 	top: 0px;
 	z-index: 100;
+    display: block;
+	height: 50px;
+    margin-bottom: 25px;
 }
 .menu_item {
 	float: left;
@@ -158,6 +159,10 @@ h1, h2, h3, h4, h5, h6 {
     a {
         text-decoration: none;
     }
+}
+.head_logo {
+	line-height: 0px;
+	height: 50px;
 }
 
 .menu_item:hover {
@@ -354,6 +359,7 @@ h1, h2, h3, h4, h5, h6 {
 	padding: 0.45em;
 	padding-left: 18px;
 	text-align: left;
+    height: 1em;
 }
 #data .data_header .data_header_title {
 	font-weight: bolder;
@@ -596,9 +602,9 @@ div.jqi button.jqidefaultbutton{
 }
 .jbar-bottom{
 	bottom:0px;
-	border-bottom:2px solid #fff;
-	border-top: 1px solid #ebebeb;
-	color:#777;
+    border-top: 2px solid black;
+	background-color:#706BFA;
+	color:#000;
 }
 .jbar-content{
 	line-height:46px;
