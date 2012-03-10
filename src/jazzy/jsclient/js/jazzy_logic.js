@@ -1023,6 +1023,7 @@ Move.prototype.send = function() {
     var url = 'post/' + mqId + '/move/' + from + '/' + to;
     url += '/' + (this.promotion === undefined?'':this.promotion);
     url += '/' + (this.special === true?'true':'false');
+    console.debug("sending move: " + url);
     game.send(url);
 }
 

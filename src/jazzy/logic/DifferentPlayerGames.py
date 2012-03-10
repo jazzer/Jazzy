@@ -21,7 +21,7 @@ from jazzy.logic.ClassicGame import ClassicGame
 from jazzy.server.MessageHandler import Message
 import uuid
 
-class _MultiboardGame(ClassicGame):
+class _MultiboardGame(ClassicGame, object):
     ''' meta class for using more than one board with two players each '''
 
     def startInit(self, gameList=[]):
@@ -117,7 +117,7 @@ class _MultiboardGame(ClassicGame):
 
     
 
-class BughouseGame(_MultiboardGame):
+class BughouseGame(_MultiboardGame, object):
     meta = {'title': 'Bughouse Chess',
             'desc': 'Four-player variant of Crazyhouse',
             'link': 'http://en.wikipedia.org/wiki/Bughouse_chess',
@@ -134,7 +134,7 @@ class BughouseGame(_MultiboardGame):
         super(BughouseGame, self).startInit(gameList)
         
 
-class _SingleBughouseGame(ClassicGame):
+class _SingleBughouseGame(ClassicGame, object):
 
     def startInit(self):
         super(_SingleBughouseGame, self).startInit()
