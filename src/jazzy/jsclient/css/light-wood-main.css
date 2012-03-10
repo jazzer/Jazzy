@@ -1,4 +1,4 @@
-body{color:#1a0d00;background-image:url(../img/styles/light-wood.jpg);background-repeat:repeat;}
+body,.board:-moz-full-screen{color:#1a0d00;background-image:url(../img/styles/light-wood.jpg);background-repeat:repeat;}
 h1,h2,h3,h4,h5,h6{color:white;text-shadow:;}
 a,a:hover,a:visited{color:white;}
 .menu{background:#1a0d00;}.menu a{text-decoration:none;}

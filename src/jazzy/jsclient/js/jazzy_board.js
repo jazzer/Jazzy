@@ -191,19 +191,6 @@ Board.prototype.build = function() {
 };
 
 
-/* minimal templating functions */
-
-function _getTemplate(selector) {
-    var templateSource = $('#board-templates');
-    return templateSource.find(selector).clone(false);
-}
-
-function _replaceInTemplate(element, from, to) {
-    var regexp = new RegExp(from, 'g');
-    element.html(element.html().replace(regexp, to));
-    return element;
-}
-
 
 Board.prototype.sizeChanged = function() {
     var canvas = this.canvasBoard;
