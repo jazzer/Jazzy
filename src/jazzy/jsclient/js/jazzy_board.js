@@ -438,6 +438,15 @@ Board.prototype.addMouseEvents = function() {
     var board = this;
 
     this.divCanvas.mousedown(function(e) {
+    	// if alt key is hold, try to roll back everything
+    	if (e.shiftKey) {
+    		board.resetPremoveInput();
+    		board.resetMoveInput();
+    		board.repaintHighlight();
+    		board.repaintPieces();
+    		board.repaintDragging();
+   	}
+    	
         // find field
         var field = board.getField(e, this);
         if (field == -1) {
@@ -483,7 +492,16 @@ Board.prototype.addMouseEvents = function() {
         }
     });
     this.divCanvas.mouseup(function(e) {
-        var field = board.getField(e, this);
+    	// if alt key is hold, try to roll back everything
+    	if (e.shiftKey) {
+    		board.resetPremoveInput();
+    		board.resetMoveInput();
+    		board.repaintHighlight();
+    		board.repaintPieces();
+    		board.repaintDragging();
+    	}
+
+    	var field = board.getField(e, this);
         if (field == -1) {
             return;
         }
@@ -557,6 +575,11 @@ Board.prototype.handleMoveInput = function(move) {
 		// repaint
         board.repaintHighlight();
 	}
+}
+
+Board.prototype.resetPremoveInput = function() {
+    this.premove = undefined;
+    this.highlightClear(highlightType.PREMOVE);
 }
 
 Board.prototype.resetMoveInput = function() {
@@ -640,8 +663,8 @@ Board.prototype.move = function(from, to, toPiece, silent) {
     // is there a premove to be sent?
     if (this.premove !== undefined) {
     	this.premove.send();
-        this.highlightClear(highlightType.PREMOVE);
-    }
+    	this.removePremoveInput();
+    }    
     
     // repaint
     this.repaintHighlight();
