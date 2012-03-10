@@ -33,8 +33,8 @@ from Player import Player, Watcher
 import json
 from pprint import pprint 
 import os, sys, copy, urllib2
-#from collections import OrderedDict as # p3
-from ordereddict import OrderedDict # p2
+#from collections import OrderedDict as # python3
+from ordereddict import OrderedDict # python2
 import gc
 from jazzy.logic import DifferentSetupGames, DifferentPlayerGames, DifferentBoardGames, \
     DifferentPiecesGames, DifferentRulesGames, SmallerGames, BiggerGames, \
@@ -114,6 +114,7 @@ class SocketHandler(GenericHandler):
         #print params
         if len(params) > 1:
             mq = mqPool.get(params[1])
+        print params
         
         if mq is None:
             print 'Access to non-existing message queue: %s' % params[1]; 
@@ -277,7 +278,7 @@ class SocketHandler(GenericHandler):
         # messages about game end (resigning, draws) 
         elif (params[0] == 'end'):
             # only players please!
-            if isinstance(mq.subject, Player):
+            if not mq.watching:
                 # player resigned
                 if (params[2] == 'resign'):
                     result = '0-1' if mq.subject.color == 'white' else '1-0' 
@@ -285,7 +286,7 @@ class SocketHandler(GenericHandler):
                     mq.metagame.broadcastSocket(mq.game._generateGameOverMessage('Player resigned.', result, winner).data)
                     mq.game.finish()   
                 # player is offering draw
-                if (params[2] == 'draw-offer'):
+                elif (params[2] == 'draw-offer'):
                     agreeingPlayers = []
                     for player in mq.game.players:
                         if player.offeringDraw:
