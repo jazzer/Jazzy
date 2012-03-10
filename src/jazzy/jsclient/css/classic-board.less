@@ -26,6 +26,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 @highlight: #ff6;
 /* selection color */
 @selection: #f99;
+/* premove color */
+@premove: #c63;
 
 
 /* board specific */
@@ -49,5 +51,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 #board-style > #highlightColors-2 {
 	color: lighten(@selection, 5%);
 	background-color: darken(@selection, 5%);
+}
+
+/* 3 stands for premove */
+#board-style > #highlightColors-3 {
+	color: lighten(@premove, 5%);
+	background-color: darken(@premove, 5%);
 }
 

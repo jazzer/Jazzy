@@ -110,6 +110,9 @@ class SocketHandler(GenericHandler):
     @classmethod
     def handle_input(self, message, gameConnection):
         #print message
+        if message is None:
+            return
+        
         params = message.split("/")
         #print params
         if len(params) > 1:

@@ -342,23 +342,16 @@ function showDetails(game) {
 
 
 
-
-function postMove(from, to, promotion) {
-    // post move to server and wait for message queue containing it (means move
-	// was okay)!
-    var url = 'post/' + mqId + '/move/' + shortenFieldString(from) + '/' + shortenFieldString(to);
-    if (promotion !== undefined) {
-        url += '/' + promotion;
-    }
-    game.send(url);
-}
-
 function _shortCastling(boardId) {
-    postMove(boardId + "_SHORTCASTLING", "");
+    var move = new Move(boardId, "SHORTCASTLING", "");
+    var board = boardStorage.getBoard(boardId);
+    board.handleMoveInput(move);
 }
 
 function _longCastling(boardId) {
-    postMove(boardId + "_LONGCASTLING", "");
+    var move = new Move(boardId, "LONGCASTLING", "");
+    var board = boardStorage.getBoard(boardId);
+    board.handleMoveInput(move);
 }
 
 
@@ -724,7 +717,8 @@ function parseMQ(data) {
                 Param2: data.to,
                 Param3: piece
             }, function(event) {
-                postMove(event.data.Param1, event.data.Param2, event.data.Param3);
+                var move = new Move(boardId, event.data.Param1, event.data.Param2, event.data.Param3);
+                board.handleMoveInpu(move);
                 // remove dialog
                 $.modal.close();
             });
@@ -1010,6 +1004,28 @@ function _replaceInTemplate(element, from, to) {
     element.attr('id', element.attr('id').replace(regexp, to));
     return element;
 }
+
+
+// Move class
+function Move(boardId, from, to, promotion, special) {
+    this.boardId = boardId;
+    this.from = from;
+    this.to = to;
+    this.promotion = promotion;
+    this.special = special;
+}
+
+Move.prototype.send = function() {
+	// post move to server and wait for message queue containing it (means move
+	// was okay)!
+	var from = this.boardId + '_' + this.from;
+	var to = this.boardId + '_' + this.to;
+    var url = 'post/' + mqId + '/move/' + from + '/' + to;
+    url += '/' + (this.promotion === undefined?'':this.promotion);
+    url += '/' + (this.special === true?'true':'false');
+    game.send(url);
+}
+
 
 
 // convience methods

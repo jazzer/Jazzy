@@ -31,7 +31,8 @@ var spriteOrder = "kqrbnpcih";
 
 var highlightType = {
     LAST_MOVE: 1,
-    SELECTION: 2
+    SELECTION: 2,
+    PREMOVE: 4
 };
 
 
@@ -125,6 +126,7 @@ Board.prototype.pullStyles = function() {
         higlightStyles = [];
         higlightStyles[highlightType.LAST_MOVE] = ($('#highlightColors-1-board_' + board.id).length > 0 ? $('#highlightColors-1-board_' + board.id) : $('#highlightColors-1'));
         higlightStyles[highlightType.SELECTION] = ($('#highlightColors-2-board_' + board.id).length > 0 ? $('#highlightColors-2-board_' + board.id) : $('#highlightColors-2'));
+        higlightStyles[highlightType.PREMOVE] = ($('#highlightColors-3-board_' + board.id).length > 0 ? $('#highlightColors-3-board_' + board.id) : $('#highlightColors-3'));
 
         board.pieceImg.onload = function() {
             board.pieceImageReady = true;
@@ -318,7 +320,13 @@ Board.prototype.repaintHighlight = function() {
         for (var col = 0; col < this.numXFields; col++) {
             // TODO use parts of sprite image?
             if (this.highlightArray[fieldId] > 0) {
-                if (this.highlightArray[fieldId] >= highlightType.SELECTION) {
+            	if (this.highlightArray[fieldId] >= highlightType.PREMOVE) {
+                    if (nextDark) {
+                        c.fillStyle = higlightStyles[highlightType.PREMOVE].css('background-color');
+                    } else {
+                        c.fillStyle = higlightStyles[highlightType.PREMOVE].css('color');
+                    }
+                } else if (this.highlightArray[fieldId] >= highlightType.SELECTION) {
                     if (nextDark) {
                         c.fillStyle = higlightStyles[highlightType.SELECTION].css('background-color');
                     } else {
@@ -435,6 +443,10 @@ Board.prototype.addMouseEvents = function() {
         if (field == -1) {
             return;
         }
+        // remove old premove
+		board.premove = undefined;
+		board.highlightClear(highlightType.PREMOVE);
+		
         // source or target field clicked?
         if (board.moveFrom === undefined) {
             board.moveFrom = field;
@@ -465,10 +477,10 @@ Board.prototype.addMouseEvents = function() {
             board.repaintPieces();
             board.repaintDragging();
 
-            // TODO use old move posting logic here            
-            postMove('board_' + board.id + '_field' + postFrom, 'board_' + board.id + '_field' + postTo);
+            // TODO use old move posting logic here
+            var move = new Move(board.id, postFrom, postTo, undefined, e.ctrlKey);
+            board.handleMoveInput(move);
         }
-
     });
     this.divCanvas.mouseup(function(e) {
         var field = board.getField(e, this);
@@ -495,7 +507,8 @@ Board.prototype.addMouseEvents = function() {
             board.repaintDragging();
 
             // TODO use old move posting logic here            
-            postMove('board_' + board.id + '_field' + postFrom, 'board_' + board.id + '_field' + postTo);
+            var move = new Move(board.id, postFrom, postTo, undefined, e.ctrlKey);
+            board.handleMoveInput(move);
         }
     });
 
@@ -526,6 +539,25 @@ Board.prototype.addMouseEvents = function() {
         board.repaintDragging();
     });
 };
+
+
+Board.prototype.handleMoveInput = function(move) {
+	var board = this;
+	console.info(move);
+	// is it a premove (it is iff it is not my turn)?
+	if ($('#board_' + board.id).find('.player-me.player-curr').length > 0) {
+		// real move
+		move.send();
+	} else {
+		// premove
+		board.premove = move;
+		// highlight
+        board.highlight(move.from, highlightType.PREMOVE);
+        board.highlight(move.to, highlightType.PREMOVE);
+		// repaint
+        board.repaintHighlight();
+	}
+}
 
 Board.prototype.resetMoveInput = function() {
     this.moveFrom = undefined;
@@ -581,7 +613,7 @@ Board.prototype.loadFen = function(fenString) {
 
 
 Board.prototype.move = function(from, to, toPiece, silent) {
-    // TODO animation
+    // TODO animation?
     from = from.replace(/.*field/, '');
     to = to.replace(/.*field/, '');
 
@@ -605,6 +637,12 @@ Board.prototype.move = function(from, to, toPiece, silent) {
     this.highlight(from, highlightType.LAST_MOVE);
     this.highlight(to, highlightType.LAST_MOVE);
 
+    // is there a premove to be sent?
+    if (this.premove !== undefined) {
+    	this.premove.send();
+        this.highlightClear(highlightType.PREMOVE);
+    }
+    
     // repaint
     this.repaintHighlight();
     this.repaintPieces();
