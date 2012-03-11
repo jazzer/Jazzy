@@ -1,4 +1,4 @@
-==  Installing
+## Installing
 Valid for Ubuntu Oneiric Ocelot (11.10). Do this with root privileges (sudo -i).
 
     # Python setuptools and ordereddict
@@ -25,9 +25,9 @@ Valid for Ubuntu Oneiric Ocelot (11.10). Do this with root privileges (sudo -i).
     sudo python setup.py install
 
 
-==  Running 
+##  Running 
 
-===== From Eclipse
+##### From Eclipse
 
 Import this folder to Eclipse (with PyDev) and run JazzyServer.py from jazzy.server package:
 
@@ -35,13 +35,13 @@ Then point your browser to http://yoururl:8090 to create a game and play.
 You can start experimenting with localhost as yoururl and use services like dyndns for usage over the internet. Make sure to forward port 8090 to the server.
 
 
-===== Running from Command Line
+##### Running from Command Line
     cd src/jazzy/server
     export PYTHONPATH=../../../src:$PYTHONPATH; ./JazzyServer.py
 
 
 
-==  Developing
+##  Developing
 
 We use LESS (http://less-css.org) for a convenient CSS extension.
 
@@ -68,12 +68,12 @@ Preparation for Ubuntu Linux 11.04:
     sudo apt-get install yui-compressor
 
 
-== Credits
+## Credits
 
 The awesome wood textures are made by "Ransie3" (http://ransie3.deviantart.com/), specifically downloaded from here: http://ransie3.deviantart.com/art/Patterns-21-187627358
 
 
-== License
+## License
 Jazzy is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
 published by the Free Software Foundation, either version 3 of the
