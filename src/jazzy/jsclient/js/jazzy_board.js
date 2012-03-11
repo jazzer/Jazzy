@@ -565,7 +565,7 @@ Board.prototype.addMouseEvents = function() {
 Board.prototype.handleMoveInput = function(move) {
 	var board = this;
 	// is it a premove (it is iff it is not my turn)?
-	if ($('#board_' + board.id).find('.player-me.player-curr').length > 0) {
+	if (myTurn[board.id]) {
 		// real move
 		move.send();
 	} else {

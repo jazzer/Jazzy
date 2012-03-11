@@ -504,15 +504,6 @@ function _parseCurrPlayer(currPlayerValue, boardId) {
     currPlayer[boardId] = currPlayerValue;
     myTurn[boardId] = selfPlayerIDs.indexOf(currPlayerValue) != -1;
 
-    // lock board if not my turn
-    // (prevents some nasty bugs when sending moves
-    // before receiving the last one of your opponent)
-//    if (myTurn[boardId]) {
-//        boardStorage.getBoard(boardId).unlock();
-//    } else {
-//        boardStorage.getBoard(boardId).lock();
-//    }
-
     // set styles
     // clear board
     $('[id^="' + boardId + '_p"]').removeClass('player-curr');
@@ -662,9 +653,6 @@ function _fillPlayers(position, content, board) {
     for (var i = 0; i < playerSplit.length; i++) {
         var playerData = playerSplit[i].split(':');
         var playerDiv = $('<div>').addClass('btn player').attr('id', board.id + '_p' + playerData[1]).html(playerData[0]).attr('title', playerData[1]); // [0]
-																																						// =
-																																						// name,
-																																						// [1]
 																																						// = ID
         // add click events
         playerHostDiv.append(playerDiv);
