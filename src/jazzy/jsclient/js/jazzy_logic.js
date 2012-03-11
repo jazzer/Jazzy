@@ -758,6 +758,7 @@ function parseMQ(data) {
             }
             var boardId = data[j].board_id;
             var targetBoard = boardStorage.getBoard(boardId);
+            console.debug(targetBoard);
             if (data[j].board_size !== undefined) {
                 boardSize = data[j].board_size.split('x');
                 board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[j].flipped);
@@ -770,6 +771,8 @@ function parseMQ(data) {
                     board.highlight(lengthenFieldString(data[j].lmove_to), highlightType.LAST_MOVE);
                 }
                 targetBoard = board;
+                targetBoard.repaintFull();
+                console.debug(targetBoard);
             }
             if (data[j].players !== undefined) {
                 var players = data[j].players.split('/');

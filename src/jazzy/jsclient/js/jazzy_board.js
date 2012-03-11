@@ -25,6 +25,7 @@ var fontWidth = 100;
 
 var globalScalingFactor = 2;
 var dragZoomFactor = 1.5;
+var pieceImageReady = false;
 
 var spriteOrder = "kqrbnpcih";
 
@@ -40,7 +41,7 @@ var highlightType = {
 /* BoardStorage class */
 
 function BoardStorage() {
-    this.boards = new Object();
+    this.boards = [];
 }
 
 BoardStorage.prototype.newBoard = function(id, numXFields, numYFields, flipped) {
@@ -86,9 +87,7 @@ function Board(id, numXFields, numYFields, flipped) {
 
     this.build();
 
-    var board = this;
     this.pullStyles();
-    this.repaintFull();
 }
 
 
@@ -104,10 +103,10 @@ Board.prototype.isLocked = function() {
 
 
 Board.prototype.pullStyles = function() {
-    this.pieceImageReady = false;
+    pieceImageReady = false;
     this.pieceImg = new Image();
 
-/* wait for the piece image to load, then draw board
+    /* wait for the piece image to load, then draw board
         using the CSS property background-image enables changing
         the piece set used with pure CSS.
     */
@@ -122,14 +121,14 @@ Board.prototype.pullStyles = function() {
         board.pieceImg.src = url;
 
         /* pull the relevant DOM elements for styling */
-        backgroundStyle = ($('#backgroundColors-board_' + board.id).length > 0 ? $('#backgroundColors-board_' + board.id) : $('#backgroundColors'));
-        higlightStyles = [];
-        higlightStyles[highlightType.LAST_MOVE] = ($('#highlightColors-1-board_' + board.id).length > 0 ? $('#highlightColors-1-board_' + board.id) : $('#highlightColors-1'));
-        higlightStyles[highlightType.SELECTION] = ($('#highlightColors-2-board_' + board.id).length > 0 ? $('#highlightColors-2-board_' + board.id) : $('#highlightColors-2'));
-        higlightStyles[highlightType.PREMOVE] = ($('#highlightColors-3-board_' + board.id).length > 0 ? $('#highlightColors-3-board_' + board.id) : $('#highlightColors-3'));
+        board.backgroundStyle = ($('#backgroundColors-board_' + board.id).length > 0 ? $('#backgroundColors-board_' + board.id) : $('#backgroundColors'));
+        board.highlightStyles = [];
+        board.highlightStyles[highlightType.LAST_MOVE] = ($('#highlightColors-1-board_' + board.id).length > 0 ? $('#highlightColors-1-board_' + board.id) : $('#highlightColors-1'));
+        board.highlightStyles[highlightType.SELECTION] = ($('#highlightColors-2-board_' + board.id).length > 0 ? $('#highlightColors-2-board_' + board.id) : $('#highlightColors-2'));
+        board.highlightStyles[highlightType.PREMOVE] = ($('#highlightColors-3-board_' + board.id).length > 0 ? $('#highlightColors-3-board_' + board.id) : $('#highlightColors-3'));
 
         board.pieceImg.onload = function() {
-            board.pieceImageReady = true;
+            pieceImageReady = true;
         };
     }, 200);
 };
@@ -139,6 +138,7 @@ Board.prototype.build = function() {
     // create a new board
     var board = this;
     var boardName = 'board_' + this.id;
+    console.debug("building board " + boardName);
 
     // remove old board with same ID
     $("#" + boardName).remove();
@@ -155,16 +155,11 @@ Board.prototype.build = function() {
     this.divCanvas = divCanvas;
 
     // create all the canvases
-    $("<canvas>").attr('id', boardName + '-canvas-board').css('z-index', 0).appendTo(this.divCanvas);
-    $("<canvas>").attr('id', boardName + '-canvas-highlight').css('z-index', 1).appendTo(this.divCanvas);
-    $("<canvas>").attr('id', boardName + '-canvas-pieces').css('z-index', 2).appendTo(this.divCanvas);
-    $("<canvas>").attr('id', boardName + '-canvas-dragging').css('z-index', 3).appendTo(this.divCanvas);
-
-    var jqcanvas = this.divCanvas.find('canvas');
-    this.canvasBoard = jqcanvas.get(0);
-    this.canvasHighlight = jqcanvas.get(1);
-    this.canvasPieces = jqcanvas.get(2);
-    this.canvasDragging = jqcanvas.get(3);
+    this.canvasBoard = $("<canvas>").attr('id', boardName + '-canvas-board').css('z-index', 0).appendTo(this.divCanvas).get(0);
+    console.debug(this.canvasBoard);
+    this.canvasHighlight = $("<canvas>").attr('id', boardName + '-canvas-highlight').css('z-index', 1).appendTo(this.divCanvas).get(0);
+    this.canvasPieces = $("<canvas>").attr('id', boardName + '-canvas-pieces').css('z-index', 2).appendTo(this.divCanvas).get(0);
+    this.canvasDragging = $("<canvas>").attr('id', boardName + '-canvas-dragging').css('z-index', 3).appendTo(this.divCanvas).get(0);
 
     this.canvasFront = this.canvasDragging; // which one is top-most?
     this.divCanvas.css('cursor', 'pointer');
@@ -206,7 +201,7 @@ Board.prototype.sizeChanged = function() {
             this.height = height * globalScalingFactor;
         });
 
-        // calculate space availible for board (respect borders)            
+        // calculate space available for board (respect borders)            
         this.boardWidth = canvas.width - 2 * borderXSize;
         this.boardHeight = canvas.height - 2 * borderYSize;
         this.fieldWidth = this.boardWidth / this.numXFields;
@@ -227,9 +222,11 @@ Board.prototype.sizeChanged = function() {
 
 
 Board.prototype.repaintFull = function() {
+	console.debug("Called repaintFull for");
+	console.debug(this);
     var board = this;
     // faking a sleep function
-    if (!this.pieceImageReady) {
+    if (!pieceImageReady) {
         window.setTimeout(function() {
             board.repaintFull();
         }, 200);
@@ -249,6 +246,8 @@ Board.prototype.repaintBoard = function() {
     }
 
     var canvas = this.canvasBoard;
+    console.info("painting board");
+    console.debug(this.canvasBoard);
     var c = canvas.getContext('2d');
     // calculate sizes dynamically (if size did change, otherwise use cached values)
 
@@ -279,9 +278,9 @@ Board.prototype.repaintBoard = function() {
     for (var row = 0; row < this.numYFields; row++) {
         for (var col = 0; col < this.numXFields; col++) {
             if (nextDark) {
-                c.fillStyle = backgroundStyle.css('background-color');
+                c.fillStyle = this.backgroundStyle.css('background-color');
             } else {
-                c.fillStyle = backgroundStyle.css('color');
+                c.fillStyle = this.backgroundStyle.css('color');
             }
             // draw single field's background (TODO: use images!)    
             c.fillRect(this.xOffset + col * this.fieldWidth, this.yOffset + row * this.fieldHeight, this.fieldWidth, this.fieldHeight);
@@ -322,21 +321,21 @@ Board.prototype.repaintHighlight = function() {
             if (this.highlightArray[fieldId] > 0) {
             	if (this.highlightArray[fieldId] >= highlightType.PREMOVE) {
                     if (nextDark) {
-                        c.fillStyle = higlightStyles[highlightType.PREMOVE].css('background-color');
+                        c.fillStyle = this.highlightStyles[highlightType.PREMOVE].css('background-color');
                     } else {
-                        c.fillStyle = higlightStyles[highlightType.PREMOVE].css('color');
+                        c.fillStyle = this.highlightStyles[highlightType.PREMOVE].css('color');
                     }
                 } else if (this.highlightArray[fieldId] >= highlightType.SELECTION) {
                     if (nextDark) {
-                        c.fillStyle = higlightStyles[highlightType.SELECTION].css('background-color');
+                        c.fillStyle = this.highlightStyles[highlightType.SELECTION].css('background-color');
                     } else {
-                        c.fillStyle = higlightStyles[highlightType.SELECTION].css('color');
+                        c.fillStyle = this.highlightStyles[highlightType.SELECTION].css('color');
                     }
                 } else if (this.highlightArray[fieldId] >= highlightType.LAST_MOVE) {
                     if (nextDark) {
-                        c.fillStyle = higlightStyles[highlightType.LAST_MOVE].css('background-color');
+                        c.fillStyle = this.highlightStyles[highlightType.LAST_MOVE].css('background-color');
                     } else {
-                        c.fillStyle = higlightStyles[highlightType.LAST_MOVE].css('color');
+                        c.fillStyle = this.highlightStyles[highlightType.LAST_MOVE].css('color');
                     }
                 }
                 c.fillRect(this.xOffset + col * this.fieldWidth, this.yOffset + row * this.fieldHeight, this.fieldWidth, this.fieldHeight);
@@ -352,7 +351,7 @@ Board.prototype.repaintHighlight = function() {
 
 
 Board.prototype.repaintPieces = function() {
-    if (!this.pieceImageReady) {
+    if (!pieceImageReady) {
         return;
     }
     if (this.fenString === "") {
@@ -395,7 +394,7 @@ Board.prototype.repaintPieces = function() {
 
 
 Board.prototype.repaintDragging = function() {
-    if (!this.pieceImageReady) {
+    if (!pieceImageReady) {
         return;
     }
     if (this.fenString === "") {

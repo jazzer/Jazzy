@@ -126,12 +126,16 @@ class BughouseGame(_MultiboardGame, object):
   
     def startInit(self, boardCount=2):
         gameList = []
+        self.players = []
         for i in range(boardCount):
             game = _SingleBughouseGame()
             if i % 2 == 1:
                 game.board.inherentlyFlipped = True
             gameList.append(game)
+            for player in game.players:
+                self.players.append(player)
         super(BughouseGame, self).startInit(gameList)
+        
         
 
 class _SingleBughouseGame(ClassicGame, object):
