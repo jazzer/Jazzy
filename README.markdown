@@ -3,30 +3,30 @@ Valid for Ubuntu Oneiric Ocelot (11.10). Do this with root privileges (sudo -i).
 
 1. Python setuptools and ordereddict:
 
-    python-setuptools
-    easy_install ordereddict
+        python-setuptools
+        easy_install ordereddict
 
 2. Tornado webserver framework:
 
-    wget http://github.com/downloads/facebook/tornado/tornado-2.2.tar.gz
-    tar xvzf tornado-2.2.tar.gz
-    cd tornado-2.2
-    python setup.py build
-    sudo python setup.py install
+        wget http://github.com/downloads/facebook/tornado/tornado-2.2.tar.gz
+        tar xvzf tornado-2.2.tar.gz
+        cd tornado-2.2
+        python setup.py build
+        sudo python setup.py install
 
 3. distribute (needed for tornadio2):
 
-    curl -O http://python-distribute.org/distribute_setup.py
-    python distribute_setup.py
+        curl -O http://python-distribute.org/distribute_setup.py
+        python distribute_setup.py
 
 4. tornadio2 (SocketIO support for Tornado):
 
-    wget https://github.com/MrJoes/tornadio2/tarball/master
-    tar xvzf MrJoes-tornadio2*.tar.gz
-    rm MrJoes-tornadio2*.tar.gz
-    cd MrJoes-tornadio2*
-    python setup.py build
-    sudo python setup.py install
+        wget https://github.com/MrJoes/tornadio2/tarball/master
+        tar xvzf MrJoes-tornadio2*.tar.gz
+        rm MrJoes-tornadio2*.tar.gz
+        cd MrJoes-tornadio2*
+        python setup.py build
+        sudo python setup.py install
 
 
 ##  Running 
