@@ -1,22 +1,22 @@
 ## Installing
 Valid for Ubuntu Oneiric Ocelot (11.10). Do this with root privileges (sudo -i).
 
-    # Python setuptools and ordereddict
+Python setuptools and ordereddict:
     python-setuptools
     easy_install ordereddict
 
-    # Tornado webserver framework
+Tornado webserver framework:
     wget http://github.com/downloads/facebook/tornado/tornado-2.2.tar.gz
     tar xvzf tornado-2.2.tar.gz
     cd tornado-2.2
     python setup.py build
     sudo python setup.py install
 
-    # distribute (needed for tornadio2)
+distribute (needed for tornadio2):
     curl -O http://python-distribute.org/distribute_setup.py
     python distribute_setup.py
 
-    # tornadio2 (SocketIO support for Tornado)
+tornadio2 (SocketIO support for Tornado):
     wget https://github.com/MrJoes/tornadio2/tarball/master
     tar xvzf MrJoes-tornadio2*.tar.gz
     rm MrJoes-tornadio2*.tar.gz
@@ -35,7 +35,7 @@ Then point your browser to http://yoururl:8090 to create a game and play.
 You can start experimenting with localhost as yoururl and use services like dyndns for usage over the internet. Make sure to forward port 8090 to the server.
 
 
-##### Running from Command Line
+##### From Command Line
     cd src/jazzy/server
     export PYTHONPATH=../../../src:$PYTHONPATH; ./JazzyServer.py
 
