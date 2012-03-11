@@ -166,4 +166,4 @@ class _SingleBughouseGame(ClassicGame, object):
         msg = targetBoard.game.getPocketMessage()
         if not (msg is None):
             for player in self.metagame.getAllPlayers():
-                player.mq.addMsg(msg)
+                player.mq.send(msg.data)

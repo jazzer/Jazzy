@@ -60,24 +60,23 @@ _playInit();
         </div>
 
         <div class="hidden" id="board-templates">
-            <div id="board-controls-boardId">
-                <button class="btn" id="castle-short-boardId" onclick="_shortCastling('boardId');" type="button">O-O</button>
-                <button class="btn" id="castle-long-boardId" onclick="_longCastling('boardId');" type="button">O-O-O</button><br><br>
-                <button class="btn" id="offer-draw-boardId" onclick="_offerDraw('boardId');" type="button">Offer draw</button>
-                <button class="btn" id="resign-boardId" onclick="_resign('boardId');" type="button">Resign</button><br><br>
-                <button class="btn" id="clock-boardId" onclick="_claimClock('boardId');" type="button">Claim Time</button>
-                <button class="btn" id="repetition-boardId" onclick="_claimRepetition('boardId');" type="button">Claim Repetition</button> <button class="btn" id="x-move-rule-boardId" onclick="_claimXMoveRule('boardId');" type="button">Claim x Move rule</button><br><br>
-                <button class="btn" id="fullscreen-boardId" onclick="_makeFullscreen('board_boardId');" type="button">Fullscreen</button>
+            <div id="board_boardId-controls">
+                <button class="btn" id="board_boardId-castle-short" onclick="_shortCastling('boardId');" type="button">O-O</button>
+                <button class="btn" id="board_boardId-castle-long" onclick="_longCastling('boardId');" type="button">O-O-O</button><br><br>
+                <button class="btn" id="board_boardId-offer-draw" onclick="_offerDraw('boardId');" type="button">Offer draw</button>
+                <button class="btn" id="board_boardId-resign" onclick="_resign('boardId');" type="button">Resign</button><br><br>
+                <button class="btn" id="board_boardId-claim-clock" onclick="_claimClock('boardId');" type="button">Claim Time</button>
+                <button class="btn" id="board_boardId-claim-repetition" onclick="_claimRepetition('boardId');" type="button">Claim Repetition</button> <button class="btn" id="board_boardId-claim-x-move-rule" onclick="_claimXMoveRule('boardId');" type="button">Claim x Move rule</button><br><br>
+                <button class="btn" id="board_boardId-fullscreen" onclick="_makeFullscreen('board_boardId');" type="button">Fullscreen</button>
             </div>
 
-            <div class="top-data" id="top-data-boardId">
-                <div class="clock top-clock" id="top-clock-boardId"></div>
-                <div class="players top-players" id="top-players-boardId"></div>
+            <div class="top-data" id="board_boardId-top-data">
+                <div class="clock top-clock" id="board_boardId-top-clock"></div>
+                <div class="players top-players" id="board_boardId-top-players"></div>
             </div>
-            <div class="bottom-data" id="bottom-data-boardId">
-                <div class="players bottom-players" id="bottom-players-boardId"></div>
-                <div class="clock bottom-clock" id="bottom-clock-boardId">
-                </div>
+            <div class="bottom-data" id="board_boardId-bottom-data">
+                <div class="players bottom-players" id="board_boardId-bottom-players"></div>
+                <div class="clock bottom-clock" id="board_boardId-bottom-clock"></div>
             </div>
         </div>
     </div>

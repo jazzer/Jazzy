@@ -25,7 +25,6 @@ var fontWidth = 100;
 
 var globalScalingFactor = 2;
 var dragZoomFactor = 1.5;
-var pieceImageReady = false;
 
 var spriteOrder = "kqrbnpcih";
 
@@ -78,6 +77,8 @@ function Board(id, numXFields, numYFields, flipped) {
     this.animated = false;
     this.fenString = "";
     this.numFields = numXFields * numYFields;
+	this.pieceImageReady = false;
+	this.waiting = false;
 
     // prepare highlighting information
     this.highlightArray = new Array(this.numFields);
@@ -103,8 +104,10 @@ Board.prototype.isLocked = function() {
 
 
 Board.prototype.pullStyles = function() {
-    pieceImageReady = false;
-    this.pieceImg = new Image();
+    var board = this;
+
+    board.pieceImageReady = false;
+    board.pieceImg = new Image();
 
     /* wait for the piece image to load, then draw board
         using the CSS property background-image enables changing
@@ -128,7 +131,9 @@ Board.prototype.pullStyles = function() {
         board.highlightStyles[highlightType.PREMOVE] = ($('#highlightColors-3-board_' + board.id).length > 0 ? $('#highlightColors-3-board_' + board.id) : $('#highlightColors-3'));
 
         board.pieceImg.onload = function() {
-            pieceImageReady = true;
+            board.pieceImageReady = true;
+            board.waiting = false;
+            board.repaintFull();
         };
     }, 200);
 };
@@ -138,7 +143,6 @@ Board.prototype.build = function() {
     // create a new board
     var board = this;
     var boardName = 'board_' + this.id;
-    console.debug("building board " + boardName);
 
     // remove old board with same ID
     $("#" + boardName).remove();
@@ -156,7 +160,6 @@ Board.prototype.build = function() {
 
     // create all the canvases
     this.canvasBoard = $("<canvas>").attr('id', boardName + '-canvas-board').css('z-index', 0).appendTo(this.divCanvas).get(0);
-    console.debug(this.canvasBoard);
     this.canvasHighlight = $("<canvas>").attr('id', boardName + '-canvas-highlight').css('z-index', 1).appendTo(this.divCanvas).get(0);
     this.canvasPieces = $("<canvas>").attr('id', boardName + '-canvas-pieces').css('z-index', 2).appendTo(this.divCanvas).get(0);
     this.canvasDragging = $("<canvas>").attr('id', boardName + '-canvas-dragging').css('z-index', 3).appendTo(this.divCanvas).get(0);
@@ -171,16 +174,17 @@ Board.prototype.build = function() {
     boardFrameDiv.append(divCanvas);
 
     // top data
-    var templateDiv = _getTemplate('#top-data-boardId');
+    var templateDiv = _getTemplate('#board_boardId-top-data');
     templateDiv = _replaceInTemplate(templateDiv, "boardId", this.id);
+    console.debug(templateDiv);
     boardFrameDiv.prepend(templateDiv);
     // bottom
-    templateDiv = _getTemplate('#bottom-data-boardId');
+    templateDiv = _getTemplate('#board_boardId-bottom-data');
     templateDiv = _replaceInTemplate(templateDiv, "boardId", this.id);
     boardFrameDiv.append(templateDiv);
 
     // board controls
-    templateDiv = _getTemplate('#board-controls-boardId');
+    templateDiv = _getTemplate('#board_boardId-controls');
     templateDiv = _replaceInTemplate(templateDiv, "boardId", this.id);
     boardFrameDiv.append(templateDiv);
 
@@ -222,21 +226,25 @@ Board.prototype.sizeChanged = function() {
 
 
 Board.prototype.repaintFull = function() {
-	console.debug("Called repaintFull for");
-	console.debug(this);
     var board = this;
+    
     // faking a sleep function
-    if (!pieceImageReady) {
-        window.setTimeout(function() {
-            board.repaintFull();
-        }, 200);
+    if (!board.pieceImageReady) {
+    	if (!board.waiting) {
+	    	board.waiting = true;
+	        window.setTimeout(function() {
+	            board.repaintFull();
+	        }, 200);
+    	}
         return;
     }
 
-    this.repaintBoard();
-    this.repaintHighlight();
-    this.repaintPieces();
-    this.repaintDragging();
+	board.waiting = false;
+
+	board.repaintBoard();
+    board.repaintHighlight();
+    board.repaintPieces();
+    board.repaintDragging();
 };
 
 Board.prototype.repaintBoard = function() {
@@ -246,8 +254,6 @@ Board.prototype.repaintBoard = function() {
     }
 
     var canvas = this.canvasBoard;
-    console.info("painting board");
-    console.debug(this.canvasBoard);
     var c = canvas.getContext('2d');
     // calculate sizes dynamically (if size did change, otherwise use cached values)
 
@@ -351,7 +357,7 @@ Board.prototype.repaintHighlight = function() {
 
 
 Board.prototype.repaintPieces = function() {
-    if (!pieceImageReady) {
+    if (!this.pieceImageReady) {
         return;
     }
     if (this.fenString === "") {
@@ -394,7 +400,7 @@ Board.prototype.repaintPieces = function() {
 
 
 Board.prototype.repaintDragging = function() {
-    if (!pieceImageReady) {
+    if (!this.pieceImageReady) {
         return;
     }
     if (this.fenString === "") {
@@ -558,7 +564,6 @@ Board.prototype.addMouseEvents = function() {
 
 Board.prototype.handleMoveInput = function(move) {
 	var board = this;
-	console.info(move);
 	// is it a premove (it is iff it is not my turn)?
 	if ($('#board_' + board.id).find('.player-me.player-curr').length > 0) {
 		// real move

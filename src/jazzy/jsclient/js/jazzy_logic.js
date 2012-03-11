@@ -227,10 +227,7 @@ function _changeStyle(type, value) {
         var boardId = $(this).attr('id').replace(/^board_/, '');
         var thisBoard = boardStorage.getBoard(boardId);
 
-        thisBoard.pullStyles();
-        window.setTimeout(function() {
-            thisBoard.repaintFull();
-        }, 300);
+        thisBoard.pullStyles(); // also triggers .repaintFull()        
     });
 }
 
@@ -510,11 +507,11 @@ function _parseCurrPlayer(currPlayerValue, boardId) {
     // lock board if not my turn
     // (prevents some nasty bugs when sending moves
     // before receiving the last one of your opponent)
-    if (myTurn[boardId]) {
-        boardStorage.getBoard(boardId).unlock();
-    } else {
-        boardStorage.getBoard(boardId).lock();
-    }
+//    if (myTurn[boardId]) {
+//        boardStorage.getBoard(boardId).unlock();
+//    } else {
+//        boardStorage.getBoard(boardId).lock();
+//    }
 
     // set styles
     // clear board
@@ -660,7 +657,7 @@ function _parseBoardPlayers(players, targetBoard) {
 
 function _fillPlayers(position, content, board) {
     position = (position == 'top' && !board.flipped) || (position == 'bottom' && board.flipped) ? 'top' : 'bottom';
-    var playerHostDiv = $('#' + position + '-players-' + board.id).empty();
+    var playerHostDiv = $('#board_' + board.id + '-' + position + '-players').empty();
     var playerSplit = content.split(',');
     for (var i = 0; i < playerSplit.length; i++) {
         var playerData = playerSplit[i].split(':');
@@ -758,7 +755,6 @@ function parseMQ(data) {
             }
             var boardId = data[j].board_id;
             var targetBoard = boardStorage.getBoard(boardId);
-            console.debug(targetBoard);
             if (data[j].board_size !== undefined) {
                 boardSize = data[j].board_size.split('x');
                 board = boardStorage.newBoard(boardId, boardSize[0], boardSize[1], data[j].flipped);
@@ -771,8 +767,7 @@ function parseMQ(data) {
                     board.highlight(lengthenFieldString(data[j].lmove_to), highlightType.LAST_MOVE);
                 }
                 targetBoard = board;
-                targetBoard.repaintFull();
-                console.debug(targetBoard);
+                targetBoard.pullStyles(); // also triggers .repaintFull()
             }
             if (data[j].players !== undefined) {
                 var players = data[j].players.split('/');
@@ -795,8 +790,8 @@ function parseMQ(data) {
             if (data[j].clocks !== undefined) {
                 clocks = data[j].clocks.split(/[\/:]+/);
                 // TODO time formatting
-                $('#top-clock-' + boardId).data('time', clocks[targetBoard.flipped ? 0 : 2]).data('active', clocks[targetBoard.flipped ? 1 : 3] === "True");
-                $('#bottom-clock-' + boardId).data('time', clocks[targetBoard.flipped ? 2 : 0]).data('active', clocks[targetBoard.flipped ? 3 : 1] === "True");
+                $('#board_' + boardId + '-top-clock').data('time', clocks[targetBoard.flipped ? 0 : 2]).data('active', clocks[targetBoard.flipped ? 1 : 3] === "True");
+                $('#board_' + boardId + '-bottom-clock').data('time', clocks[targetBoard.flipped ? 2 : 0]).data('active', clocks[targetBoard.flipped ? 3 : 1] === "True");
                 clocksChanged = true;
             }
         }
@@ -839,7 +834,7 @@ function _runClocks() {
 
     window.clearTimeout(clickTimeoutId);
 
-    var allClocks = $('[id*="-clock-"]');
+    var allClocks = $('[id*="-clock"]');
     _updateClocks(allClocks, false);
 
     runningClocks = $(allClocks).filter(function() {
@@ -983,7 +978,6 @@ function _lS_nameCallback(v, m, f) {
 
 function _makeFullscreen(id) {
 	var elem = $('#' + id).get(0);
-	console.debug(elem);
 	if (elem.requestFullScreen) {  
 		elem.requestFullScreen();  
 	} else if (elem.mozRequestFullScreen) {  
@@ -1026,7 +1020,6 @@ Move.prototype.send = function() {
     var url = 'post/' + mqId + '/move/' + from + '/' + to;
     url += '/' + (this.promotion === undefined?'':this.promotion);
     url += '/' + (this.special === true?'true':'false');
-    console.debug("sending move: " + url);
     game.send(url);
 }
 

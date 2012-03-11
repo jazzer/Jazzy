@@ -24,8 +24,8 @@ h1,h2,h3,h4,h5,h6{font-family:'Ubuntu',arial,serif;}
 .btn:active{top:1px;box-shadow:0 1px 1px rgba(0, 0, 0, 0.3);}
 .btn:before,.btn span:before,.btn span:after{position:absolute;top:50%;left:0;content:"";}
 #boards{width:100%;margin:0 auto;vertical-align:top;}
-#boards>div{display:-moz-inline-stack;display:inline-block;*display:inline;}
-.board{position:relative;top:0;left:0;}
+#boards>div{display:-moz-inline-stack;vertical-align:top;display:inline-block;*display:inline;}
+.board{position:relative;top:0;left:0;vertical-align:top;}
 .canvas-container>canvas{position:absolute;top:50;left:0;}
 .canvas-container{width:500px;height:500px;}
 .top-data{margin-bottom:15px;}
