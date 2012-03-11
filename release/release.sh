@@ -28,10 +28,10 @@ cd "$dir/coffee-script/"
 #java -jar jcoffeescript.jar < "$dir/../src/jsclient/js/jazzy_board.coffee" > "$dir/../src/jsclient/js/jazzy_board.js"
 # minify
 cd "$dir/../src/jazzy/jsclient/js/"
-yui-compressor "jazzy_board.js" > "jazzy_board.min.js"
-yui-compressor "jazzy_logic.js" > "jazzy_logic.min.js" # currently fails, therefore:
-cp "jazzy_logic.js" "jazzy_logic.min.js"
-yui-compressor "jazzy_admin.js" > "jazzy_admin.min.js"
+#yui-compressor "jazzy_board.js" > "jazzy_board.min.js"
+#yui-compressor "jazzy_logic.js" > "jazzy_logic.min.js" # currently fails, therefore:
+#cp "jazzy_logic.js" "jazzy_logic.min.js"
+#yui-compressor "jazzy_admin.js" > "jazzy_admin.min.js"
 
 # ====================
 #     CSS
