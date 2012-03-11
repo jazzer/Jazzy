@@ -1,22 +1,26 @@
 ## Installing
 Valid for Ubuntu Oneiric Ocelot (11.10). Do this with root privileges (sudo -i).
 
-Python setuptools and ordereddict:
+1. Python setuptools and ordereddict:
+
     python-setuptools
     easy_install ordereddict
 
-Tornado webserver framework:
+2. Tornado webserver framework:
+
     wget http://github.com/downloads/facebook/tornado/tornado-2.2.tar.gz
     tar xvzf tornado-2.2.tar.gz
     cd tornado-2.2
     python setup.py build
     sudo python setup.py install
 
-distribute (needed for tornadio2):
+3. distribute (needed for tornadio2):
+
     curl -O http://python-distribute.org/distribute_setup.py
     python distribute_setup.py
 
-tornadio2 (SocketIO support for Tornado):
+4. tornadio2 (SocketIO support for Tornado):
+
     wget https://github.com/MrJoes/tornadio2/tarball/master
     tar xvzf MrJoes-tornadio2*.tar.gz
     rm MrJoes-tornadio2*.tar.gz
@@ -46,26 +50,12 @@ You can start experimenting with localhost as yoururl and use services like dynd
 We use LESS (http://less-css.org) for a convenient CSS extension.
 
 Installation instructions for Ubuntu Linux 11.04:
-    # LESS
+
     sudo apt-get install ruby rubygems1.8
     sudo gem install rubygems-update
     sudo gem update rubygems 
     sudo gem install less
     sudo ln -s /var/lib/gems/1.8/bin/lessc /usr/bin/
-    # CoffeScript
-    npm install -g coffee-script
-
-
-We use jshint (http://www.jshint.com) for beautifying JavaScript.
-
-Preparation for Ubuntu Linux 11.04:
-    sudo apt-get install rhino
-
-
-We use YUI compressor (http://developer.yahoo.com/yui/compressor/) for minifying JavaScript.
-
-Preparation for Ubuntu Linux 11.04:
-    sudo apt-get install yui-compressor
 
 
 ## Credits
