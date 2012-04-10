@@ -78,3 +78,40 @@ along with this program. If not, see <http://www.gnu.org/licenses/agpl.html>.
 	transition-property: all;
 	transition-duration: @duration;
 }
+
+
+// FlexLayouts
+.flexbox() {
+    display: -webkit-box;
+	display: -moz-box;
+	display: -o-box;
+	display: -ms-box;
+	display: box;
+}
+.flexvbox() {
+    .flexbox();
+
+	-webkit-box-orient: vertical;
+	-moz-box-orient: vertical;
+	-o-box-orient: vertical;
+	-ms-box-orient: vertical;
+	box-orient: vertical;
+}
+
+.flexhbox() {
+    .flexbox();
+
+	-webkit-box-orient: horizontal;
+	-moz-box-orient: horizontal;
+	-o-box-orient: horizontal;
+	-ms-box-orient: horizontal;
+	box-orient: horizontal;
+}
+
+.flex(@value: 1) {
+    -webkit-box-flex: @value;
+	-moz-box-flex: @value;
+	-o-box-flex: @value;
+	-ms-box-flex: @value;
+	box-flex: @value;
+}

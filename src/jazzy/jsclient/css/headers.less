@@ -1,9 +1,8 @@
 @import 'mixins';
 
-h1 {
+.box h1 {
     text-align: center;
     background: #E7B550;
-    background: rgba(0,0,0,0);
     .transition();
     border: 1px solid #333;
     padding-top: 5px;
@@ -14,7 +13,7 @@ h1 {
 }
 
 // thanks to http://acidmartin.wordpress.com/2010/11/25/creating-a-speech-bubble-with-css3-and-without-additional-markup/
-h1:after {
+.box h1:after {
    content: "";
    border: solid 10px transparent; /* set all borders to 10 pixels width */
    border-top-color: #E7B550; /* the callout */

@@ -16,6 +16,7 @@
     <script src="js/libs/jquery_simplemodal.js" type="text/javascript"></script>
     <script src="js/libs/jquery-impromptu.min.js" type="text/javascript"></script>
     <script src="js/libs/jquery.bar.js" type="text/javascript"></script>
+    <script src="js/libs/flexie.min.js" type="text/javascript"></script>
     <!-- Realtime communication using SocketIO //-->
     <script src="js/libs/socket.io.js" type="text/javascript"></script>
     <!-- Jazzy logic //-->
@@ -30,156 +31,134 @@ _playInit();
 
 <body>
     <!-- head menu -->
-    <div id="menu">
-        <div class="menu_item head_logo"><img alt="Jazzy logo" height="50px" src="img/logo.png"></div>
+    <header>
+        <nav>
+            <div class="menu_item head_logo"><img alt="Jazzy logo" height="50px" src="img/logo.png"></div>
 
-        <div class="menu_item" id="menu_new">
-            <a href="new.html">New Game</a>
-        </div>
-
-        <div class="menu_item" id="menu_game">
-            <a href="#game">This Game</a>
-        </div>
-
-        <div class="menu_item" id="menu_settings">
-            <a href="#settings">Settings</a>
-        </div>
-    </div><!-- chessboard -->
-
-    <div class="box centered" id="box-boards">
-        <h1>Game</h1>
-
-        <div id="boards"></div><!-- image data -->
-
-        <div class="hidden" id="board-style">
-            <div id="pieceImage"></div>
-            <div id="backgroundColors"></div>
-            <div id="highlightColors-1"></div>
-            <div id="highlightColors-2"></div>
-            <div id="highlightColors-3"></div>
-        </div>
-
-        <div class="hidden" id="board-templates">
-            <div id="board_boardId-controls">
-                <button class="btn" id="board_boardId-castle-short" onclick="_shortCastling('boardId');" type="button">O-O</button>
-                <button class="btn" id="board_boardId-castle-long" onclick="_longCastling('boardId');" type="button">O-O-O</button><br><br>
-                <button class="btn" id="board_boardId-offer-draw" onclick="_offerDraw('boardId');" type="button">Offer draw</button>
-                <button class="btn" id="board_boardId-resign" onclick="_resign('boardId');" type="button">Resign</button><br><br>
-                <button class="btn" id="board_boardId-claim-clock" onclick="_claimClock('boardId');" type="button">Claim Time</button>
-                <button class="btn" id="board_boardId-claim-repetition" onclick="_claimRepetition('boardId');" type="button">Claim Repetition</button> <button class="btn" id="board_boardId-claim-x-move-rule" onclick="_claimXMoveRule('boardId');" type="button">Claim x Move rule</button><br><br>
-                <button class="btn" id="board_boardId-fullscreen" onclick="_makeFullscreen('board_boardId');" type="button">Fullscreen</button>
+            <div class="menu_item" id="menu_new">
+                <a href="new.html">New Game</a>
             </div>
 
-            <div class="top-data" id="board_boardId-top-data">
-                <div class="clock top-clock" id="board_boardId-top-clock"></div>
-                <div class="players top-players" id="board_boardId-top-players"></div>
+            <div class="menu_item" id="menu_game">
+                <a href="#game">This Game</a>
             </div>
-            <div class="bottom-data" id="board_boardId-bottom-data">
-                <div class="players bottom-players" id="board_boardId-bottom-players"></div>
-                <div class="clock bottom-clock" id="board_boardId-bottom-clock"></div>
+
+            <div class="menu_item" id="menu_settings">
+                <a href="#settings">Settings</a>
+            </div>
+        </nav>
+    </header>
+
+    <div id="main_content">
+        <!-- chessboards -->
+        <div class="box centered" id="box-boards">
+            <h1>Game</h1>
+
+            <div id="boards"></div><!-- image data -->
+
+            <div class="hidden" id="board-style">
+                <div id="pieceImage"></div>
+                <div id="backgroundColors"></div>
+                <div id="highlightColors-1"></div>
+                <div id="highlightColors-2"></div>
+                <div id="highlightColors-3"></div>
+            </div>
+
+            <div class="hidden" id="board-templates">
+                <div id="board_boardId-controls">
+                    <button class="btn" id="board_boardId-castle-short" onclick="_shortCastling('boardId');" type="button">O-O</button>
+                    <button class="btn" id="board_boardId-castle-long" onclick="_longCastling('boardId');" type="button">O-O-O</button><br><br>
+                    <button class="btn" id="board_boardId-offer-draw" onclick="_offerDraw('boardId');" type="button">Offer draw</button>
+                    <button class="btn" id="board_boardId-resign" onclick="_resign('boardId');" type="button">Resign</button><br><br>
+                    <button class="btn" id="board_boardId-claim-clock" onclick="_claimClock('boardId');" type="button">Claim Time</button>
+                    <button class="btn" id="board_boardId-claim-repetition" onclick="_claimRepetition('boardId');" type="button">Claim Repetition</button> <button class="btn" id="board_boardId-claim-x-move-rule" onclick="_claimXMoveRule('boardId');" type="button">Claim x Move rule</button><br><br>
+                    <button class="btn" id="board_boardId-fullscreen" onclick="_makeFullscreen('board_boardId');" type="button">Fullscreen</button>
+                </div>
+
+                <div class="top-data" id="board_boardId-top-data">
+                    <div class="clock top-clock" id="board_boardId-top-clock"></div>
+                    <div class="players top-players" id="board_boardId-top-players"></div>
+                </div>
+                <div class="bottom-data" id="board_boardId-bottom-data">
+                    <div class="players bottom-players" id="board_boardId-bottom-players"></div>
+                    <div class="clock bottom-clock" id="board_boardId-bottom-clock"></div>
+                </div>
             </div>
         </div>
+
+        <aside>
+            <!-- chat box -->
+            <div class="box" id="box-chat">
+                <h1>Chat</h1>
+
+                <div id="chat">
+                    <div id="chat_history"></div>
+
+                    <div id="chat_input">
+                        <form onsubmit="sendChat();return false;">
+                            <input maxlength="250" name="chatmsg" style="width: 99%" type="text"> <button class="btn" style="width: 100%" type="button" onclick="sendChat();">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- message box -->
+            <div class="box" id="box-messages">
+                <h1>Messages</h1>
+
+                <div id="messages"></div>
+            </div>
+        </aside>
     </div>
 
-    <!-- data display -->
-    <div class="box" id="box-details">
-        <h1>Details</h1>
+    <footer>
+        <!-- style box -->
+        <div id="box-style">
+            <h1>Style</h1>
 
-        <div id="data">
-            <div id="data__game_type">
-                <div class="data_header">
-                    <span class="data_header_title">Game Type</span>
-                </div>
-
-                <div class="data_content_empty"></div>
-            </div>
-
-            <div id="data__move_history">
-                <div class="data_header">
-                    <span class="data_header_title">Game History</span>
-                </div>
-
-                <div class="data_content_empty"></div>
-            </div>
-
-            <div id="data__captured_pieces">
-                <div class="data_header">
-                    <span class="data_header_title">Captured Pieces</span>
-                </div>
-
-                <div class="data_content_empty"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- chat box -->
-    <div class="box" id="box-chat">
-        <h1>Chat</h1>
-
-        <div id="chat">
-            <div id="chat_history"></div>
-
-            <div id="chat_input">
-                <form onsubmit="sendChat();return false;">
-                    <input maxlength="250" name="chatmsg" style="width: 99%" type="text"> <button class="btn" style="width: 100%" type="button" onclick="sendChat();">Send</button>
+            <div id="style-box">
+                <form>
+                    Main: <select name="style-chooser-main" size="1">
+                        </select><br>
+                    Board: <select name="style-chooser-board" size="1">
+                        </select>
                 </form>
             </div>
         </div>
-    </div>
 
-    <!-- message box -->
-    <div class="box" id="box-messages">
-        <h1>Messages</h1>
+        <!-- server connection -->
+        <div id="box-server">
+            <h1>Server</h1>Current connection status:
 
-        <div id="messages"></div>
-    </div>
+            <div class="conn_bad" id="conn_status">
+                not connected
+            </div><br>
+            <button class="btn" onclick="_playInit();" type="button">Refresh</button> <button class="btn" id="btnDisconnect" type="button">Disconnect</button>
 
-    <!-- style box -->
-    <div class="box" id="box-style">
-        <h1>Style</h1>
+            <form onsubmit="return false;">
+                Debug level: <select name="debugLevel" onchange="_changeDebugLevel();" size="1">
+                    <option>
+                        1
+                    </option>
 
-        <div id="style-box">
-            <form>
-                Main: <select name="style-chooser-main" size="1">
-                    </select><br>
-                Board: <select name="style-chooser-board" size="1">
-                    </select>
+                    <option>
+                        2
+                    </option>
+
+                    <option>
+                        3
+                    </option>
+
+                    <option>
+                        4
+                    </option>
+
+                    <option>
+                        5
+                    </option>
+                </select>
             </form>
         </div>
-    </div>
-
-    <!-- server connection -->
-    <div class="box" id="box-server">
-        <h1>Server</h1>Current connection status:
-
-        <div class="conn_bad" id="conn_status">
-            not connected
-        </div><br>
-        <button class="btn" onclick="_playInit();" type="button">Refresh</button> <button class="btn" id="btnDisconnect" type="button">Disconnect</button>
-
-        <form onsubmit="return false;">
-            Debug level: <select name="debugLevel" onchange="_changeDebugLevel();" size="1">
-                <option>
-                    1
-                </option>
-
-                <option>
-                    2
-                </option>
-
-                <option>
-                    3
-                </option>
-
-                <option>
-                    4
-                </option>
-
-                <option>
-                    5
-                </option>
-            </select>
-        </form>
-    </div>
+    </footer>
 </body>
 </html>
